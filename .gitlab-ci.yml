@@ -2,7 +2,7 @@ stages:
   - prepare
   - build
 
-image: go:1.21.5
+image: go:1.21
 
 vet:
   stage: prepare
