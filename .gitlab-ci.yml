@@ -1,0 +1,31 @@
+stages:
+  - prepare
+  - build
+
+image: go:1.21.5
+
+vet:
+  stage:
+    - prepare
+  script:
+    - go mod download
+    - go vet
+
+unit-test:
+  stage:
+    - prepare
+  script:
+    - go test
+
+build:
+  stage:
+    - build
+  needs:
+    - vet
+    - unit-test
+  dependencies:
+    - vet
+    - unit-test
+  script:
+    - go build
+

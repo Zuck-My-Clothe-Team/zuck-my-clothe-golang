@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  app:
+    container_name: zuck-my-cloth-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5500:3000
+    restart: on-failure
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    environment:
+      - DB_URL=${DB_URL}
+
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - ~/zuck_my_clothe/volumes/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: zuck_my_clothe
+      MYSQL_ROOT_PASSWORD: "zuck_my_clothe!CPE334"
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8002:80"
+    environment:
+      PMA_HOST: mysql
+      UPLOAD_LIMIT: 512M
+    depends_on:
+      - mysql
