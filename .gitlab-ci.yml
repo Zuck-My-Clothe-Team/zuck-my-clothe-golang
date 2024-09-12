@@ -2,7 +2,7 @@ stages:
   - prepare
   - build
 
-image: golang:1.21-alpine
+image: golang:1.22-alpine
 
 vet:
   stage: prepare
