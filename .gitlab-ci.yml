@@ -5,21 +5,18 @@ stages:
 image: go:1.21.5
 
 vet:
-  stage:
-    - prepare
+  stage: prepare
   script:
     - go mod download
     - go vet
 
 unit-test:
-  stage:
-    - prepare
+  stage: prepare
   script:
     - go test
 
 build:
-  stage:
-    - build
+  stage: build
   needs:
     - vet
     - unit-test
