@@ -1,0 +1,39 @@
+{
+    "schemes": [
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is API document for Zuck-my-clothe API",
+        "title": "Zuck-my-clothe API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "zuck-my-clothe-api.sokungz.work",
+    "basePath": "/",
+    "paths": {
+        "/testrout": {
+            "get": {
+                "description": "Returns a simple message to verify the endpoint.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "Test Controller",
+                "responses": {
+                    "200": {
+                        "description": "Gu Hum Yaii",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

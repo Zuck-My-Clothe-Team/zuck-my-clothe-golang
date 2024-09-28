@@ -1,0 +1,26 @@
+basePath: /
+host: zuck-my-clothe-api.sokungz.work
+info:
+  contact: {}
+  description: This is API document for Zuck-my-clothe API
+  title: Zuck-my-clothe API
+  version: "1.0"
+paths:
+  /testrout:
+    get:
+      consumes:
+      - application/json
+      description: Returns a simple message to verify the endpoint.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Gu Hum Yaii
+          schema:
+            type: string
+      summary: Test Controller
+      tags:
+      - Test
+schemes:
+- https
+swagger: "2.0"
