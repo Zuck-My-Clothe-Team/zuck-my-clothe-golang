@@ -1,36 +1,40 @@
 version: "3.8"
+x-stack:
+  name: zuck-my-clothe-stack
 services:
-  app:
+  zuck-my-clothe-go-backend:
     container_name: zuck-my-cloth-backend
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 5500:3000
+      - 4001:3000
     restart: on-failure
     depends_on:
-      - mysql
+      - postgres
     env_file:
       - .env
-    environment:
-      - DB_URL=${DB_URL}
-
-  mysql:
-    image: mysql:latest
+  postgres:
+    image: postgres:latest
+    restart: always
     ports:
-      - "3306:3306"
+      - 19997:5432
     volumes:
-      - ~/zuck_my_clothe/volumes/db:/var/lib/mysql
+      - ~/cpe334/postgres:/var/lib/postgresql/data
     environment:
-      MYSQL_DATABASE: zuck_my_clothe
-      MYSQL_ROOT_PASSWORD: "zuck_my_clothe!CPE334"
-
-  phpmyadmin:
-    image: phpmyadmin
+      - POSTGRES_PASSWORD=F6maCUmIavQKWAq
+      - POSTGRES_USER=root
+      - POSTGRES_DB=zuck-my-clothe
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
     ports:
-      - "8002:80"
-    environment:
-      PMA_HOST: mysql
-      UPLOAD_LIMIT: 512M
+      - "8003:80"
     depends_on:
-      - mysql
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@zuck-my-clothe.com
+      PGADMIN_DEFAULT_PASSWORD: F6maCUmIavQKWAq
+    volumes:
+      - ~/cpe334/pgadmin:/var/lib/pgadmin

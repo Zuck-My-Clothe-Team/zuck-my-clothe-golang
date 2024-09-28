@@ -1,6 +1,7 @@
 stages:
   - prepare
   - build
+  - deploy
 
 image: golang:1.22-alpine
 
@@ -26,3 +27,20 @@ build:
   script:
     - go build
 
+deploy:
+  stage: deploy
+  only:
+    - main
+  needs:
+    - build
+  dependencies:
+    - build
+  script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - ssh-keyscan $DEPLOY_SERVER > ~/.ssh/known_hosts
+    - echo "$ENV" > .env
+    - scp -r * .env $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_PATH
+    - ssh $DEPLOY_USER@$DEPLOY_SERVER 'cd cpe334/backend && docker compose down && docker compose up -d'

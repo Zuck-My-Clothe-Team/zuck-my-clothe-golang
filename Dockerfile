@@ -11,6 +11,6 @@ COPY go.sum ./
 RUN go mod download
 COPY . .
 
-RUN go build -o ./output/zuck_my_cloth_backend
+RUN go build -o ./build/server
 EXPOSE 3000
-CMD [ "./output/zuck_my_cloth_backend"]
+CMD [ "./build/server"]
