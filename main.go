@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	_, err := config.Load()
+	config, err := config.Load()
 	if err != nil {
 		log.Fatal("Can't load config", err)
 	}
@@ -25,5 +25,5 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	api.Listen(":3000")
+	api.Listen(":" + config.PORT)
 }
