@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
 	_ "zuck-my-clothe/zuck-my-clothe-backend/docs"
@@ -46,6 +47,21 @@ func main() {
 	}))
 
 	routes.RoutesRegister(db, api)
+
+	fmt.Println(`
+  ______          _    _____            
+ |___  /         | |  |  __ \           
+    / /_   _  ___| | _| |__) |_ _  __ _ 
+   / /| | | |/ __| |/ /  ___/ _' |/ _' |
+  / /_| |_| | (__|   <| |  | (_| | (_| |
+ /_____\__,_|\___|_|\_\_|_  \__,_|\__,_|
+  / ____|               (_)             
+ | (___   ___ _ ____   ___  ___ ___     
+  \___ \ / _ \ '__\ \ / / |/ __/ _ \    
+  ____) |  __/ |   \ V /| | (_|  __/    
+ |_____/ \___|_|    \_/ |_|\___\___|
+	
+ `)
 
 	api.Listen(":" + config.PORT)
 }
