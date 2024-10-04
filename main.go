@@ -23,7 +23,7 @@ import (
 // @BasePath		/
 func main() {
 
-	config, err := config.Load()
+	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal("Can't load config", err)
 	}
@@ -32,21 +32,27 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, dbErr := platform.InitDB(config.DB_DSN)
+	db, dbErr := platform.InitDB(cfg.DB_DSN)
 
 	if dbErr != nil {
 		log.Fatal("Can not Init Database", dbErr)
 	}
 
 	api := fiber.New()
-	api.Get("/swaggerui/*", swagger.HandlerDefault)
 
 	api.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000, http://localhost:8081",
+		AllowOrigins:     "http://localhost:3001, http://localhost:8081, https://zuck-my-clothe.sokungz.work",
 		AllowCredentials: true,
 	}))
 
-	routes.RoutesRegister(db, api)
+	routeRegister, err := config.RouteRegister(db, cfg, api)
+
+	if err != nil {
+		log.Fatal("Cannot initial route register", err)
+	}
+	routes.RoutesRegister(routeRegister)
+
+	api.Get("/swaggerui/*", swagger.HandlerDefault)
 
 	fmt.Println(`
   ______          _    _____            
@@ -63,5 +69,5 @@ func main() {
 	
  `)
 
-	api.Listen(":" + config.PORT)
+	api.Listen(":" + cfg.PORT)
 }
