@@ -14,7 +14,7 @@ vet:
 unit-test:
   stage: prepare
   script:
-    - go test
+    - go test ./...
 
 build:
   stage: build

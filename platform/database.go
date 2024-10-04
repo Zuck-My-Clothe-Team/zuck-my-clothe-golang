@@ -1,6 +1,8 @@
 package platform
 
 import (
+	"zuck-my-clothe/zuck-my-clothe-backend/model"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,5 +16,8 @@ func InitDB(dsnConfigString string) (*Postgres, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	db.AutoMigrate(&model.Users{})
+
 	return &Postgres{db}, nil
 }

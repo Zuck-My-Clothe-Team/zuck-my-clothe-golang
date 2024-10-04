@@ -2,7 +2,9 @@ package config
 
 import (
 	"os"
+	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
 
@@ -11,6 +13,12 @@ type Config struct {
 	DB_DSN           string
 	JWT_ACCESS_TOKEN string
 	PORT             string
+}
+
+type RoutesRegister struct {
+	DbConnection *platform.Postgres
+	Config       *Config
+	Application  *fiber.App
 }
 
 func Load() (*Config, error) {
@@ -31,4 +39,18 @@ func Load() (*Config, error) {
 		JWT_ACCESS_TOKEN: jwtToken,
 		PORT:             port,
 	}, nil
+}
+
+func RouteRegister(db *platform.Postgres, config *Config, api *fiber.App) (*RoutesRegister, error) {
+
+	if db == nil || config == nil || api == nil {
+		panic("Error cannot create RouteRegister")
+	}
+
+	return &RoutesRegister{
+		DbConnection: db,
+		Config:       config,
+		Application:  api,
+	}, nil
+
 }

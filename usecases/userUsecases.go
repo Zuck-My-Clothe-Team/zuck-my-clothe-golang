@@ -1,12 +1,12 @@
 package usecases
 
 import (
-	_ "fmt"
+	"errors"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	//"zuck-my-clothe/zuck-my-clothe-backend/repository"
 )
 
 type userUsecases struct {
@@ -19,6 +19,13 @@ func CreateNewUserUsecases(repository model.UserRepository) model.UserUsecases {
 
 func (repo *userUsecases) CreateUser(newUser model.Users) error {
 	newUser.UserID = uuid.New().String()
+	if utils.CheckStraoPling(newUser.FirstName) ||
+		utils.CheckStraoPling(newUser.LastName) ||
+		utils.CheckStraoPling(newUser.Email) ||
+		(utils.CheckStraoPling(newUser.Password) == utils.CheckStraoPling(newUser.GoogleID)) {
+		return errors.New("null detected on one or more essential field(s)")
+	}
+
 	buffer, hashErr := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if hashErr != nil {
 		return hashErr
@@ -26,4 +33,14 @@ func (repo *userUsecases) CreateUser(newUser model.Users) error {
 	newUser.Password = string(buffer)
 	repoError := repo.repository.CreateUser(newUser)
 	return repoError
+}
+
+func (repo *userUsecases) FindUserByEmail(email string) (*model.Users, error) {
+	user, err := repo.repository.FindUserByEmail(email)
+	return user, err
+}
+
+func (repo *userUsecases) FindUserByGoogleID(googleID string) (*model.Users, error) {
+	user, err := repo.repository.FindUserByGoogleID(googleID)
+	return user, err
 }
