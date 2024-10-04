@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 type AuthenController interface {
@@ -78,8 +80,6 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 		return err
 	}
 
-	fmt.Print(requestBody)
-
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + requestBody.AccessToken)
 	if err != nil {
 		return c.Status(fiber.StatusNoContent).SendString("User Data Fetch Failed")
@@ -96,38 +96,36 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("JSON Unmarshal failed")
 	}
 
-	user, Geterr := u.userUsecase.FindUserByGoogleID(newGoogleUser.GoogleID)
-	fmt.Println(user)
-	if Geterr.Error() == "record not found" {
-		fmt.Println("Yedtood")
-		newUser := new(model.Users)
-		newUser.GoogleID = newGoogleUser.GoogleID
-		newUser.Email = newGoogleUser.Email
-		newUser.FirstName = newGoogleUser.Name
-		newUser.LastName = newGoogleUser.Surname
-		newUser.Role = "Client"
-		newUser.CreateAt = time.Now()
-		newUser.UpdateAt = time.Now()
-		newUser.Password = ""
-		if err := u.userUsecase.CreateUser(*newUser); err != nil {
-			return c.SendStatus(fiber.StatusInternalServerError)
+	_, Geterr := u.userUsecase.FindUserByGoogleID(newGoogleUser.GoogleID)
+	if Geterr != nil {
+		if errors.Is(Geterr, gorm.ErrRecordNotFound) {
+			fmt.Println("Yedtood")
+			newUser := new(model.Users)
+			newUser.GoogleID = newGoogleUser.GoogleID
+			newUser.Email = newGoogleUser.Email
+			newUser.FirstName = newGoogleUser.Name
+			newUser.LastName = newGoogleUser.Surname
+			newUser.Role = "Client"
+			newUser.CreateAt = time.Now()
+			newUser.UpdateAt = time.Now()
+			newUser.Password = ""
+			if err := u.userUsecase.CreateUser(*newUser); err != nil {
+				return c.SendStatus(fiber.StatusInternalServerError)
+			}
 		}
-	} else if Geterr != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
 	}
+
 	test, testerr := u.userUsecase.FindUserByGoogleID(newGoogleUser.GoogleID)
 
 	if testerr != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-	//Checking the google id is already exists in db then login
+
 	jwt, err := jwtSigner(test.UserID, test.Role, u.cfg.JWT_ACCESS_TOKEN)
 
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	//if not will create a record
-	//fmt.Print(jwt)
 
 	return c.JSON(model.AuthenResponse{
 		Token: jwt,
