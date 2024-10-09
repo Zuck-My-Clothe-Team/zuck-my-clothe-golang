@@ -21,8 +21,10 @@ type AuthenResponse struct {
 
 type AuthenUsecase interface {
 	SignIn(user *AuthenPayload) (*AuthenPayload, error)
+	Me(userId string)(*AuthenResponse,error)
 }
 
 type AuthenRepository interface {
 	SignIn(user *AuthenPayload) (*AuthenPayload, error)
+	Me(userId string)(*AuthenResponse,error)
 }

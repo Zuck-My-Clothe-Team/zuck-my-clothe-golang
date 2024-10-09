@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"strings"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
@@ -17,6 +19,7 @@ import (
 
 type AuthenController interface {
 	SignIn(c *fiber.Ctx) error
+	Me(c *fiber.Ctx) error
 	GoogleCallback(c *fiber.Ctx) error
 }
 
@@ -131,6 +134,47 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 		Token: jwt,
 	})
 
+}
+
+// @Summary		Extract User Data from JWT token
+// @Description	handle user data extraction and token expiration check
+// @Tags			Authentication
+// @Accept			json
+// @Produce		json
+// @Success		200			{object}	model.AuthenResponse
+// @Failure		204			{string}	string	"User Data Fetch Failed"
+// @Failure		401			{string}	string 	"token expired"
+// @Failure		500			{string}	string	"Internal Server Error"
+// @Router			/auth/me [get]
+func (u *authenUsecase) Me(c *fiber.Ctx) error {
+	reqToken := c.Request().Header.Peek("Authorization")
+	splitToken := strings.Split(string(reqToken), "Bearer ")
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(splitToken[1], claims,
+		func(token *jwt.Token) (interface{}, error) {
+			cfg, err := config.Load()
+			if err != nil {
+				log.Fatal("Cannot load config", err)
+			}
+			return []byte(cfg.JWT_ACCESS_TOKEN), nil
+		})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	//token Expration Check
+	exp, err := claims.GetExpirationTime()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	if exp.Before(time.Now()) {
+		return c.Status(fiber.StatusUnauthorized).SendString("token expired")
+	}
+	response, err := u.usecase.Me(claims["userID"].(string))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 func jwtSigner(userID string, role model.Roles, access_token string) (string, error) {

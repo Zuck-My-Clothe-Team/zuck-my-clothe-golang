@@ -13,12 +13,13 @@ func AuthRoutes(routeRegister *config.RoutesRegister) {
 	userUsecase := usecases.CreateNewUserUsecases(userRepository)
 	authRepository := repository.CreateNewAuthenticationRepository(routeRegister.DbConnection)
 	authUsecases := usecases.CreateNewAuthenUsecase(authRepository, userRepository)
-	authController := controller.CreateNewAuthenController(authUsecases,userUsecase, routeRegister.Config)
+	authController := controller.CreateNewAuthenController(authUsecases, userUsecase, routeRegister.Config)
 
 	application := routeRegister.Application
 
 	authGroup := application.Group("/auth")
 	authGroup.Post("signin", authController.SignIn)
+	authGroup.Get("me", authController.Me)
 	authGroup.Post("google/callback", authController.GoogleCallback)
 
 }
