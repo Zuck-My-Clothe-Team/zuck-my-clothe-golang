@@ -43,6 +43,7 @@ type GoogleUser struct {
 
 type UserRepository interface {
 	CreateUser(newUser Users) error
+	FindUserByUserID(userID string)(*Users,error)
 	FindUserByEmail(email string) (*Users, error)
 	FindUserByGoogleID(googleID string) (*Users, error)
 	//FindUserByUUID(uuid string) Users

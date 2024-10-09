@@ -18,6 +18,15 @@ func (repo *userRepository) CreateUser(newUser model.Users) error {
 	return returnValue.Error
 }
 
+func (repo *userRepository) FindUserByUserID(userID string) (*model.Users, error) {
+	reusult := new(model.Users)
+	dbTx := repo.db.First(reusult, "user_id = ?", userID)
+	if dbTx.Error != nil {
+		return nil, dbTx.Error
+	}
+	return reusult, nil
+}
+
 func (repo *userRepository) FindUserByEmail(email string) (*model.Users, error) {
 	result := new(model.Users)
 	dbTx := repo.db.First(result, "email = ?", email)
@@ -27,11 +36,11 @@ func (repo *userRepository) FindUserByEmail(email string) (*model.Users, error) 
 	return result, nil
 }
 
-func (repo *userRepository) FindUserByGoogleID(googleID string)(*model.Users,error){
+func (repo *userRepository) FindUserByGoogleID(googleID string) (*model.Users, error) {
 	result := new(model.Users)
-	dbTx := repo.db.First(result,"google_id = ?",googleID)
+	dbTx := repo.db.First(result, "google_id = ?", googleID)
 	if dbTx.Error != nil {
 		return nil, dbTx.Error
 	}
-	return result,nil
+	return result, nil
 }

@@ -39,3 +39,19 @@ func (s *authenUsecase) SignIn(user *model.AuthenPayload) (*model.AuthenPayload,
 	payLoad.Password = ""
 	return payLoad, nil
 }
+
+func (s *authenUsecase) Me(userID string) (*model.AuthenResponse, error) {
+	returnResponse := new(model.AuthenResponse)
+
+	user, err := s.userRepository.FindUserByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	returnResponse.Data.UserId = userID
+	returnResponse.Data.Name = user.FirstName
+	returnResponse.Data.Surname = user.LastName
+	returnResponse.Data.Email = user.Email
+	returnResponse.Data.Role = user.Role
+
+	return returnResponse, nil
+}

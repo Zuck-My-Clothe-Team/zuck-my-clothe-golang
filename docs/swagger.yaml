@@ -110,6 +110,33 @@ paths:
       summary: Google OAuth2 Callback
       tags:
       - Authentication
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: handle user data extraction and token expiration check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AuthenResponse'
+        "204":
+          description: User Data Fetch Failed
+          schema:
+            type: string
+        "401":
+          description: token expired
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Extract User Data from JWT token
+      tags:
+      - Authentication
   /register:
     post:
       consumes:

@@ -25,3 +25,7 @@ func (s *authenRepo) SignIn(user *model.AuthenPayload) (*model.AuthenPayload, er
 	}
 	return payLoad, nil
 }
+
+func (s *authenRepo) Me(userId string)(*model.AuthenResponse,error) {
+	return nil,nil
+}
