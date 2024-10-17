@@ -41,7 +41,7 @@ func main() {
 	api := fiber.New()
 
 	api.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3001, http://localhost:8081, https://zuck-my-clothe.sokungz.work",
+		AllowOrigins:     "http://localhost:3000, http://localhost:3001, http://localhost:8081, https://zuck-my-clothe.sokungz.work",
 		AllowCredentials: true,
 	}))
 

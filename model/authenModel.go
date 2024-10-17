@@ -1,30 +1,31 @@
 package model
 
 type AuthenPayload struct {
-	UserId   string `json:"user_id" db:"user_id"`
-	Email    string `json:"email" db:"email"`
-	Password string `json:"password,omitempty" db:"password"`
-	Role     Roles  `json:"role" db:"role"`
+	UserId   string `json:"user_id"`
+	Email    string `json:"email"`
+	Password string `json:"password,omitempty"`
+	Role     Roles  `json:"role"`
 }
 
-type AuthenDetial struct {
-	UserId  string `json:"user_id" db:"user_id"`
-	Name    string `json:"name" db:"name"`
-	Surname string `json:"surname" db:"surname"`
-	Email   string `json:"email" db:"email"`
-	Role    Roles  `json:"role" db:"role"`
+type AuthenDetail struct {
+	UserId  string `json:"user_id"`
+	Name    string `json:"name"`
+	Surname string `json:"surname"`
+	Email   string `json:"email"`
+	Role    Roles  `json:"role"`
+	Phone   string `json:"phone"`
 }
 type AuthenResponse struct {
-	Data  AuthenDetial `json:"data"`
+	Data  AuthenDetail `json:"data"`
 	Token string       `json:"token,omitempty"`
 }
 
 type AuthenUsecase interface {
 	SignIn(user *AuthenPayload) (*AuthenPayload, error)
-	Me(userId string)(*AuthenResponse,error)
+	Me(userId string) (*AuthenResponse, error)
 }
 
 type AuthenRepository interface {
 	SignIn(user *AuthenPayload) (*AuthenPayload, error)
-	Me(userId string)(*AuthenResponse,error)
+	Me(userId string) (*AuthenResponse, error)
 }

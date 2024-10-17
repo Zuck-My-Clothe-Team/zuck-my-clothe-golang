@@ -52,6 +52,7 @@ func (s *authenUsecase) Me(userID string) (*model.AuthenResponse, error) {
 	returnResponse.Data.Surname = user.LastName
 	returnResponse.Data.Email = user.Email
 	returnResponse.Data.Role = user.Role
+	returnResponse.Data.Phone = user.Phone
 
 	return returnResponse, nil
 }

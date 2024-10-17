@@ -63,6 +63,11 @@ const docTemplate = `{
         },
         "/auth/me": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "handle user data extraction and token expiration check",
                 "consumes": [
                     "application/json"
@@ -74,6 +79,15 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "Extract User Data from JWT token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer {access_token}",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -216,13 +230,16 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.AuthenDetial": {
+        "model.AuthenDetail": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 },
                 "role": {
@@ -257,7 +274,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/model.AuthenDetial"
+                    "$ref": "#/definitions/model.AuthenDetail"
                 },
                 "token": {
                     "type": "string"

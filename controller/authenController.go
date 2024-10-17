@@ -141,16 +141,18 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 // @Tags			Authentication
 // @Accept			json
 // @Produce		json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer {access_token}"
 // @Success		200			{object}	model.AuthenResponse
 // @Failure		204			{string}	string	"User Data Fetch Failed"
 // @Failure		401			{string}	string 	"token expired"
 // @Failure		500			{string}	string	"Internal Server Error"
 // @Router			/auth/me [get]
 func (u *authenUsecase) Me(c *fiber.Ctx) error {
-	reqToken := c.Request().Header.Peek("Authorization")
-	splitToken := strings.Split(string(reqToken), "Bearer ")
+	reqToken := string(c.Request().Header.Peek("Authorization"))
+	token := strings.TrimPrefix(string(reqToken), "Bearer ")
 	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(splitToken[1], claims,
+	_, err := jwt.ParseWithClaims(token, claims,
 		func(token *jwt.Token) (interface{}, error) {
 			cfg, err := config.Load()
 			if err != nil {
