@@ -111,6 +111,7 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 			newUser.Role = "Client"
 			newUser.CreateAt = time.Now()
 			newUser.UpdateAt = time.Now()
+			newUser.ProfileImageURL = newGoogleUser.ImageUrl
 			newUser.Password = ""
 			if err := u.userUsecase.CreateUser(*newUser); err != nil {
 				return c.SendStatus(fiber.StatusInternalServerError)

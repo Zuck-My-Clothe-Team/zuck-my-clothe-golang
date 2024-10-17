@@ -8,12 +8,13 @@ type AuthenPayload struct {
 }
 
 type AuthenDetail struct {
-	UserId  string `json:"user_id"`
-	Name    string `json:"name"`
-	Surname string `json:"surname"`
-	Email   string `json:"email"`
-	Role    Roles  `json:"role"`
-	Phone   string `json:"phone"`
+	UserId          string `json:"user_id"`
+	Name            string `json:"name"`
+	Surname         string `json:"surname"`
+	Email           string `json:"email"`
+	Role            Roles  `json:"role"`
+	Phone           string `json:"phone"`
+	ProfileImageURL string `json:"profile_image_url"`
 }
 type AuthenResponse struct {
 	Data  AuthenDetail `json:"data"`
