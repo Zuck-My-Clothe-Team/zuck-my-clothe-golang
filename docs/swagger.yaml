@@ -1,10 +1,12 @@
 basePath: /
 definitions:
-  model.AuthenDetial:
+  model.AuthenDetail:
     properties:
       email:
         type: string
       name:
+        type: string
+      phone:
         type: string
       role:
         $ref: '#/definitions/model.Roles'
@@ -27,7 +29,7 @@ definitions:
   model.AuthenResponse:
     properties:
       data:
-        $ref: '#/definitions/model.AuthenDetial'
+        $ref: '#/definitions/model.AuthenDetail'
       token:
         type: string
     type: object
@@ -115,6 +117,12 @@ paths:
       consumes:
       - application/json
       description: handle user data extraction and token expiration check
+      parameters:
+      - description: Bearer {access_token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -134,6 +142,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Extract User Data from JWT token
       tags:
       - Authentication
