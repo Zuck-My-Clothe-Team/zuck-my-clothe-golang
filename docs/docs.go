@@ -116,6 +116,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/create": {
+            "post": {
+                "description": "Create a new branch by using Branch model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch Controller"
+                ],
+                "summary": "Create new branch",
+                "parameters": [
+                    {
+                        "description": "New Branch Data",
+                        "name": "BranchModel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Branch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Create a new user by using User model",
@@ -227,6 +270,41 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/{id}": {
+            "get": {
+                "description": "Retrieve a single branch from the database based on its ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branch Controller"
+                ],
+                "summary": "Get a branch by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "branch ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Branch"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -240,6 +318,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "profile_image_url": {
                     "type": "string"
                 },
                 "role": {
@@ -277,6 +358,47 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.AuthenDetail"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Branch": {
+            "type": "object",
+            "properties": {
+                "branch_detail": {
+                    "type": "string"
+                },
+                "branch_id": {
+                    "type": "string"
+                },
+                "branch_lat": {
+                    "type": "number"
+                },
+                "branch_long": {
+                    "type": "number"
+                },
+                "branch_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
+                "owner_user_id": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updated_by": {
                     "type": "string"
                 }
             }
@@ -331,6 +453,9 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
+                "profile_image_url": {
+                    "type": "string"
+                },
                 "role": {
                     "$ref": "#/definitions/model.Roles"
                 },
@@ -348,9 +473,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "zuck-my-clothe-api.sokungz.work",
+	Host:             "",
 	BasePath:         "/",
-	Schemes:          []string{"https"},
+	Schemes:          []string{},
 	Title:            "Zuck-my-clothe API",
 	Description:      "This is API document for Zuck-my-clothe API",
 	InfoInstanceName: "swagger",

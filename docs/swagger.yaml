@@ -8,6 +8,8 @@ definitions:
         type: string
       phone:
         type: string
+      profile_image_url:
+        type: string
       role:
         $ref: '#/definitions/model.Roles'
       surname:
@@ -31,6 +33,33 @@ definitions:
       data:
         $ref: '#/definitions/model.AuthenDetail'
       token:
+        type: string
+    type: object
+  model.Branch:
+    properties:
+      branch_detail:
+        type: string
+      branch_id:
+        type: string
+      branch_lat:
+        type: number
+      branch_long:
+        type: number
+      branch_name:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      deletedAt:
+        type: string
+      owner_user_id:
+        type: string
+      updated_by:
+        type: string
+      updatedAt:
         type: string
     type: object
   model.RequestBody:
@@ -68,6 +97,8 @@ definitions:
         type: string
       phone:
         type: string
+      profile_image_url:
+        type: string
       role:
         $ref: '#/definitions/model.Roles'
       updated_at:
@@ -75,13 +106,35 @@ definitions:
       user_id:
         type: string
     type: object
-host: zuck-my-clothe-api.sokungz.work
 info:
   contact: {}
   description: This is API document for Zuck-my-clothe API
   title: Zuck-my-clothe API
   version: "1.0"
 paths:
+  /{id}:
+    get:
+      description: Retrieve a single branch from the database based on its ID.
+      parameters:
+      - description: branch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Branch'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get a branch by ID
+      tags:
+      - Branch Controller
   /auth/google/callback:
     post:
       consumes:
@@ -147,6 +200,34 @@ paths:
       summary: Extract User Data from JWT token
       tags:
       - Authentication
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new branch by using Branch model
+      parameters:
+      - description: New Branch Data
+        in: body
+        name: BranchModel
+        required: true
+        schema:
+          $ref: '#/definitions/model.Branch'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable
+          schema:
+            type: string
+      summary: Create new branch
+      tags:
+      - Branch Controller
   /register:
     post:
       consumes:
@@ -220,6 +301,4 @@ paths:
       summary: Test Controller
       tags:
       - Test
-schemes:
-- https
 swagger: "2.0"

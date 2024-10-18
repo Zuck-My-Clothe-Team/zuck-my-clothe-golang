@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
-	"strings"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
@@ -53,15 +51,21 @@ func (u *authenUsecase) SignIn(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString(err.Error())
 	}
 
-	t, err := jwtSigner(authResponse.UserId, authResponse.Role, u.cfg.JWT_ACCESS_TOKEN)
+	token, err := jwtSigner(authResponse.UserId, authResponse.Role, u.cfg.JWT_ACCESS_TOKEN)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 336),
+		HTTPOnly: true})
+
 	return c.JSON(model.AuthenResponse{
-		Token: t,
+		Token: token,
 	})
 }
 
@@ -125,14 +129,20 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	jwt, err := jwtSigner(test.UserID, test.Role, u.cfg.JWT_ACCESS_TOKEN)
+	token, err := jwtSigner(test.UserID, test.Role, u.cfg.JWT_ACCESS_TOKEN)
 
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 336),
+		HTTPOnly: true})
+
 	return c.JSON(model.AuthenResponse{
-		Token: jwt,
+		Token: token,
 	})
 
 }
@@ -150,29 +160,8 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 // @Failure		500			{string}	string	"Internal Server Error"
 // @Router			/auth/me [get]
 func (u *authenUsecase) Me(c *fiber.Ctx) error {
-	reqToken := string(c.Request().Header.Peek("Authorization"))
-	token := strings.TrimPrefix(string(reqToken), "Bearer ")
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(token, claims,
-		func(token *jwt.Token) (interface{}, error) {
-			cfg, err := config.Load()
-			if err != nil {
-				log.Fatal("Cannot load config", err)
-			}
-			return []byte(cfg.JWT_ACCESS_TOKEN), nil
-		})
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-
-	//token Expration Check
-	exp, err := claims.GetExpirationTime()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	if exp.Before(time.Now()) {
-		return c.Status(fiber.StatusUnauthorized).SendString("token expired")
-	}
+	reqToken := c.Locals("user").(*jwt.Token)
+	claims := reqToken.Claims.(jwt.MapClaims)
 	response, err := u.usecase.Me(claims["userID"].(string))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
@@ -185,7 +174,7 @@ func jwtSigner(userID string, role model.Roles, access_token string) (string, er
 	claims := jwt.MapClaims{
 		"userID":     userID,
 		"positionID": role,
-		"exp":        time.Now().Add(day * 1).Unix(),
+		"exp":        time.Now().Add(day * 14).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(access_token))
