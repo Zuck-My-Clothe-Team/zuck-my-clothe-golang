@@ -13,6 +13,7 @@ type Config struct {
 	DB_DSN           string
 	JWT_ACCESS_TOKEN string
 	PORT             string
+	APP_ENV          string
 }
 
 type RoutesRegister struct {
@@ -32,12 +33,14 @@ func Load() (*Config, error) {
 	dbURL := os.Getenv("DB_DSN")
 	jwtToken := os.Getenv("JWT_ACCESS_TOKEN")
 	port := os.Getenv("PORT")
+	appEnv := os.Getenv("APP_ENV")
 
 	return &Config{
 		FRONTEND_URL:     frontURL,
 		DB_DSN:           dbURL,
 		JWT_ACCESS_TOKEN: jwtToken,
 		PORT:             port,
+		APP_ENV:          appEnv,
 	}, nil
 }
 

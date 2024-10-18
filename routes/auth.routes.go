@@ -3,12 +3,12 @@ package routes
 import (
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
 	"zuck-my-clothe/zuck-my-clothe-backend/controller"
+	"zuck-my-clothe/zuck-my-clothe-backend/middleware"
 	"zuck-my-clothe/zuck-my-clothe-backend/repository"
 	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 )
 
 func AuthRoutes(routeRegister *config.RoutesRegister) {
-
 	userRepository := repository.CreatenewUserRepository(routeRegister.DbConnection)
 	userUsecase := usecases.CreateNewUserUsecases(userRepository)
 	authRepository := repository.CreateNewAuthenticationRepository(routeRegister.DbConnection)
@@ -19,7 +19,7 @@ func AuthRoutes(routeRegister *config.RoutesRegister) {
 
 	authGroup := application.Group("/auth")
 	authGroup.Post("signin", authController.SignIn)
-	authGroup.Get("me", authController.Me)
+	authGroup.Get("me", middleware.AuthRequire, authController.Me)
 	authGroup.Post("google/callback", authController.GoogleCallback)
 
 }

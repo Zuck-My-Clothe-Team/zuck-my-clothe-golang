@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
-	_ "zuck-my-clothe/zuck-my-clothe-backend/docs"
+	"zuck-my-clothe/zuck-my-clothe-backend/docs"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 	"zuck-my-clothe/zuck-my-clothe-backend/routes"
 
@@ -16,10 +16,6 @@ import (
 // @title			Zuck-my-clothe API
 // @version		1.0
 // @description	This is API document for Zuck-my-clothe API
-// @host			zuck-my-clothe-api.sokungz.work
-//
-//	@schemes		https
-//
 // @BasePath		/
 func main() {
 
@@ -39,6 +35,14 @@ func main() {
 	}
 
 	api := fiber.New()
+
+	if cfg.APP_ENV == "PRODUCTION" {
+		docs.SwaggerInfo.Host = "zuck-my-clothe-api.sokungz.work"
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		docs.SwaggerInfo.Host = "localhost:3000"
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	}
 
 	api.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000, http://localhost:3001, http://localhost:8081, https://zuck-my-clothe.sokungz.work",
