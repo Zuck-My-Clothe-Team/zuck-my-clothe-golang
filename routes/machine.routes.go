@@ -17,11 +17,11 @@ func MachineRoutes(routeRegister *config.RoutesRegister) {
 
 	machineGroup := application.Group("/machine", middleware.AuthRequire)
 
-	machineGroup.Post("/add", middleware.IsBranchManager, machineController.AddMachine)
+	machineGroup.Post("/add", middleware.AuthRequire, middleware.IsBranchManager, machineController.AddMachine)
 	machineGroup.Get("/all", machineController.GetAll)
 	machineGroup.Get("/detail/:serial_id", machineController.GetByMachineSerial)
 	machineGroup.Get("/branch/:branch_id", machineController.GetByBranchID)
 
-	machineGroup.Put("/update/:serial_id/set_active/:set_active", middleware.IsBranchManager, machineController.UpdateActive)
-	machineGroup.Delete("/delete/:serial_id", middleware.IsBranchManager, machineController.SoftDelete)
+	machineGroup.Put("/update/:serial_id/set_active/:set_active", middleware.AuthRequire, middleware.IsBranchManager, machineController.UpdateActive)
+	machineGroup.Delete("/delete/:serial_id", middleware.AuthRequire, middleware.IsBranchManager, machineController.SoftDelete)
 }
