@@ -9,8 +9,8 @@ type AuthenPayload struct {
 
 type AuthenDetail struct {
 	UserId          string `json:"user_id"`
-	Name            string `json:"name"`
-	Surname         string `json:"surname"`
+	Name            string `json:"firstname"`
+	Surname         string `json:"lastname"`
 	Email           string `json:"email"`
 	Role            Roles  `json:"role"`
 	Phone           string `json:"phone"`
