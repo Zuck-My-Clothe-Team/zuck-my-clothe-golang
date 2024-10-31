@@ -31,16 +31,16 @@ func CreateNewAuthenController(usecase model.AuthenUsecase, userUsecase model.Us
 	return &authenUsecase{usecase: usecase, userUsecase: userUsecase, cfg: cfg}
 }
 
-// @Summary		Sign in to the application
-// @Description	Sign in user with credentials
-// @Tags			Authentication
-// @Accept			json
-// @Produce		json
-// @Param			authenPayload	body		model.AuthenPayload	true	"Authentication Payload"
-// @Success		200				{object}	model.AuthenResponse
-// @Failure		400				{string}	string	"Missing body"
-// @Failure		401				{string}	string	"Unauthorized"
-// @Router			/signin [post]
+//	@Summary		Sign in to the application
+//	@Description	Sign in user with credentials
+//	@Tags			Authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			authenPayload	body		model.AuthenPayload	true	"Authentication Payload"
+//	@Success		200				{object}	model.AuthenResponse
+//	@Failure		400				{string}	string	"Missing body"
+//	@Failure		401				{string}	string	"Unauthorized"
+//	@Router			/signin [post]
 func (u *authenUsecase) SignIn(c *fiber.Ctx) error {
 	payLoad := new(model.AuthenPayload)
 	if err := c.BodyParser(payLoad); err != nil {
@@ -69,16 +69,16 @@ func (u *authenUsecase) SignIn(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary		Google OAuth2 Callback
-// @Description	Handle Google OAuth2 callback and log in or create a user
-// @Tags			Authentication
-// @Accept			json
-// @Produce		json
-// @Param			requestBody	body		model.RequestBody	true	"Google OAuth2 Request Body"
-// @Success		200			{object}	model.AuthenResponse
-// @Failure		204			{string}	string	"User Data Fetch Failed"
-// @Failure		500			{string}	string	"Internal Server Error"
-// @Router			/auth/google/callback [post]
+//	@Summary		Google OAuth2 Callback
+//	@Description	Handle Google OAuth2 callback and log in or create a user
+//	@Tags			Authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			requestBody	body		model.RequestBody	true	"Google OAuth2 Request Body"
+//	@Success		200			{object}	model.AuthenResponse
+//	@Failure		204			{string}	string	"User Data Fetch Failed"
+//	@Failure		500			{string}	string	"Internal Server Error"
+//	@Router			/auth/google/callback [post]
 func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 
 	requestBody := new(model.RequestBody)
