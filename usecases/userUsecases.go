@@ -44,3 +44,8 @@ func (repo *userUsecases) FindUserByGoogleID(googleID string) (*model.Users, err
 	user, err := repo.repository.FindUserByGoogleID(googleID)
 	return user, err
 }
+
+func (repo *userUsecases) GetAll() ([]model.Users, error) {
+	users, err := repo.repository.GetAll()
+	return users, err
+}
