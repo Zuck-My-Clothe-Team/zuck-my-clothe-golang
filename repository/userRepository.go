@@ -19,12 +19,12 @@ func (repo *userRepository) CreateUser(newUser model.Users) error {
 }
 
 func (repo *userRepository) FindUserByUserID(userID string) (*model.Users, error) {
-	reusult := new(model.Users)
-	dbTx := repo.db.First(reusult, "user_id = ?", userID)
+	result := new(model.Users)
+	dbTx := repo.db.First(result, "user_id = ?", userID)
 	if dbTx.Error != nil {
 		return nil, dbTx.Error
 	}
-	return reusult, nil
+	return result, nil
 }
 
 func (repo *userRepository) FindUserByEmail(email string) (*model.Users, error) {

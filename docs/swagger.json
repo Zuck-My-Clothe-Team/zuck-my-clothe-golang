@@ -152,6 +152,261 @@
                 }
             }
         },
+        "/machine/add": {
+            "post": {
+                "description": "Add a new machine to the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Add new machine",
+                "parameters": [
+                    {
+                        "description": "New Machine Data",
+                        "name": "MachineModel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddMachineDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineDetail"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine/all": {
+            "get": {
+                "description": "Retrieve all machines in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Get all machines",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MachineDetail"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine/branch/{branch_id}": {
+            "get": {
+                "description": "Get all machines under a specific branch",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Get machines by branch ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Branch ID",
+                        "name": "branch_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MachineDetail"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine/delete/{serial_id}": {
+            "delete": {
+                "description": "Soft delete a machine by its serial ID",
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Soft delete machine",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine Serial ID",
+                        "name": "serial_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineDetail"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine/update/{serial_id}/set_active/{set_active}": {
+            "put": {
+                "description": "Set the active status of a machine",
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Update machine active status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine Serial ID",
+                        "name": "serial_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Set Active (true/false)",
+                        "name": "set_active",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/machine/{serial_id}": {
+            "get": {
+                "description": "Get details of a specific machine by its serial number",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Get machine details by serial",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine Serial ID",
+                        "name": "serial_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineDetail"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Create a new user by using User model",
@@ -301,7 +556,34 @@
         }
     },
     "definitions": {
-        "model.AuthenDetail": {
+        "model.AddMachineDTO": {
+            "type": "object",
+            "required": [
+                "branch_id",
+                "machine_serial",
+                "machine_type",
+                "weight"
+            ],
+            "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "machine_serial": {
+                    "type": "string"
+                },
+                "machine_type": {
+                    "$ref": "#/definitions/model.MachineType"
+                },
+                "weight": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "model.AuthenDetial": {
             "type": "object",
             "properties": {
                 "email": {
@@ -395,6 +677,37 @@
                     "type": "string"
                 }
             }
+        },
+        "model.MachineDetail": {
+            "type": "object",
+            "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "machine_serial": {
+                    "type": "string"
+                },
+                "machine_type": {
+                    "$ref": "#/definitions/model.MachineType"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.MachineType": {
+            "type": "string",
+            "enum": [
+                "Washer",
+                "Dryer"
+            ],
+            "x-enum-varnames": [
+                "Washer",
+                "Dryer"
+            ]
         },
         "model.RequestBody": {
             "type": "object",

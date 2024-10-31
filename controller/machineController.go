@@ -1,0 +1,212 @@
+package controller
+
+import (
+	"fmt"
+	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type MachineController interface {
+	AddMachine(c *fiber.Ctx) error
+	GetByBranchID(c *fiber.Ctx) error
+	GetByMachineSerial(c *fiber.Ctx) error
+	GetAll(c *fiber.Ctx) error
+	UpdateActive(c *fiber.Ctx) error
+	SoftDelete(c *fiber.Ctx) error
+}
+
+type machineController struct {
+	machineUsecase model.MachineUsecase
+}
+
+func CreateMachineController(machineUsecase model.MachineUsecase) MachineController {
+	return &machineController{machineUsecase: machineUsecase}
+}
+
+// @Summary		Add new machine
+// @Description	Add a new machine to the system
+// @Tags			Machine
+// @Accept			json
+// @Produce		json
+// @Param			MachineModel	body		model.AddMachineDTO	true	"New Machine Data"
+// @Success		201				{object}	model.MachineDetail	"Created"
+// @Failure		403				{string}	string				"Forbidden"
+// @Failure		406				{string}	string				"Not Acceptable"
+// @Router			/machine/add [post]
+func (u *machineController) AddMachine(c *fiber.Ctx) error {
+	new_machine := new(model.AddMachineDTO)
+
+	if err := c.BodyParser(new_machine); err != nil {
+		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
+	}
+
+	if err := validatorboi.Validate(new_machine); err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
+	}
+
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	new_machine.CreatedBy = claims["userID"].(string)
+
+	response, err := u.machineUsecase.AddMachine(new_machine)
+
+	if err != nil {
+		if err.Error() == "null detected on one or more essential field(s)" {
+			return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response)
+}
+
+// @Summary		Get machine details by serial
+// @Description	Get details of a specific machine by its serial number
+// @Tags			Machine
+// @Produce		json
+// @Param			serial_id	path		string				true	"Machine Serial ID"
+// @Success		200			{object}	model.MachineDetail	"OK"
+// @Failure		404			{string}	string				"Not Found"
+// @Failure		500			{string}	string				"Internal Server Error"
+// @Router			/machine/{serial_id} [get]
+func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
+	serialID := c.Params("serial_id")
+
+	branch, err := u.machineUsecase.GetByMachineSerial(serialID)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(branch)
+}
+
+// @Summary		Get machines by branch ID
+// @Description	Get all machines under a specific branch
+// @Tags			Machine
+// @Produce		json
+// @Param			branch_id	path		string				true	"Branch ID"
+// @Success		200			{array}		model.MachineDetail	"OK"
+// @Failure		404			{string}	string				"Not Found"
+// @Failure		500			{string}	string				"Internal Server Error"
+// @Router			/machine/branch/{branch_id} [get]
+func (u *machineController) GetByBranchID(c *fiber.Ctx) error {
+	branch_id := c.Params("branch_id")
+
+	result, err := u.machineUsecase.GetByBranchID(branch_id)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
+}
+
+// @Summary		Get all machines
+// @Description	Retrieve all machines in the system
+// @Tags			Machine
+// @Produce		json
+// @Success		200	{array}		model.MachineDetail	"OK"
+// @Failure		404	{string}	string				"Not Found"
+// @Failure		500	{string}	string				"Internal Server Error"
+// @Router			/machine/all [get]
+func (u *machineController) GetAll(c *fiber.Ctx) error {
+	result, err := u.machineUsecase.GetAll()
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
+}
+
+// @Summary		Soft delete machine
+// @Description	Soft delete a machine by its serial ID
+// @Tags			Machine
+// @Param			serial_id	path		string				true	"Machine Serial ID"
+// @Success		200			{object}	model.MachineDetail	"OK"
+// @Failure		404			{string}	string				"Not Found"
+// @Failure		500			{string}	string				"Internal Server Error"
+// @Router			/machine/delete/{serial_id} [delete]
+func (u *machineController) SoftDelete(c *fiber.Ctx) error {
+	serial_id := c.Params("serial_id")
+
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	deleted_by := claims["userID"].(string)
+
+	result, err := u.machineUsecase.SoftDelete(serial_id, deleted_by)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
+}
+
+// @Summary		Update machine active status
+// @Description	Set the active status of a machine
+// @Tags			Machine
+// @Param			serial_id	path		string				true	"Machine Serial ID"
+// @Param			set_active	path		string				true	"Set Active (true/false)"
+// @Success		200			{object}	model.MachineDetail	"OK"
+// @Failure		400			{string}	string				"Bad Request"
+// @Failure		404			{string}	string				"Not Found"
+// @Failure		500			{string}	string				"Internal Server Error"
+// @Router			/machine/update/{serial_id}/set_active/{set_active} [put]
+func (u *machineController) UpdateActive(c *fiber.Ctx) error {
+	machine_serial := c.Params("serial_id")
+	set_active_param := c.Params("set_active")
+
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	updated_by := claims["userID"].(string)
+
+	var set_active bool
+
+	if set_active_param == "true" {
+		set_active = true
+	} else if set_active_param == "false" {
+		set_active = false
+	} else {
+		return c.SendStatus(fiber.ErrBadRequest.Code)
+	}
+
+	result, err := u.machineUsecase.UpdateActive(machine_serial, set_active, updated_by)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
+}

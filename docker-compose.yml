@@ -25,6 +25,8 @@ services:
       - POSTGRES_PASSWORD=F6maCUmIavQKWAq
       - POSTGRES_USER=root
       - POSTGRES_DB=zuck-my-clothe
+      - TZ=Asia/Bangkok
+      - PGTZ=Asia/Bangkok
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4_container

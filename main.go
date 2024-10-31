@@ -7,6 +7,7 @@ import (
 	"zuck-my-clothe/zuck-my-clothe-backend/docs"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 	"zuck-my-clothe/zuck-my-clothe-backend/routes"
+	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -32,6 +33,12 @@ func main() {
 
 	if dbErr != nil {
 		log.Fatal("Can not Init Database", dbErr)
+	}
+
+	valErr := validatorboi.CreateValidator()
+
+	if valErr != "success" {
+		log.Fatal("Can not Init Validator")
 	}
 
 	api := fiber.New()

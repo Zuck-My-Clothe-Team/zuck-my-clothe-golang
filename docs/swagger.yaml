@@ -1,6 +1,25 @@
 basePath: /
 definitions:
-  model.AuthenDetail:
+  model.AddMachineDTO:
+    properties:
+      branch_id:
+        type: string
+      createdBy:
+        type: string
+      machine_serial:
+        type: string
+      machine_type:
+        $ref: '#/definitions/model.MachineType'
+      weight:
+        minimum: 0
+        type: integer
+    required:
+    - branch_id
+    - machine_serial
+    - machine_type
+    - weight
+    type: object
+  model.AuthenDetial:
     properties:
       email:
         type: string
@@ -62,6 +81,27 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.MachineDetail:
+    properties:
+      branch_id:
+        type: string
+      is_active:
+        type: boolean
+      machine_serial:
+        type: string
+      machine_type:
+        $ref: '#/definitions/model.MachineType'
+      weight:
+        type: integer
+    type: object
+  model.MachineType:
+    enum:
+    - Washer
+    - Dryer
+    type: string
+    x-enum-varnames:
+    - Washer
+    - Dryer
   model.RequestBody:
     properties:
       accessToken:
@@ -228,6 +268,174 @@ paths:
       summary: Create new branch
       tags:
       - Branch Controller
+  /machine/{serial_id}:
+    get:
+      description: Get details of a specific machine by its serial number
+      parameters:
+      - description: Machine Serial ID
+        in: path
+        name: serial_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineDetail'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get machine details by serial
+      tags:
+      - Machine
+  /machine/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a new machine to the system
+      parameters:
+      - description: New Machine Data
+        in: body
+        name: MachineModel
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddMachineDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.MachineDetail'
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable
+          schema:
+            type: string
+      summary: Add new machine
+      tags:
+      - Machine
+  /machine/all:
+    get:
+      description: Retrieve all machines in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.MachineDetail'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all machines
+      tags:
+      - Machine
+  /machine/branch/{branch_id}:
+    get:
+      description: Get all machines under a specific branch
+      parameters:
+      - description: Branch ID
+        in: path
+        name: branch_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.MachineDetail'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get machines by branch ID
+      tags:
+      - Machine
+  /machine/delete/{serial_id}:
+    delete:
+      description: Soft delete a machine by its serial ID
+      parameters:
+      - description: Machine Serial ID
+        in: path
+        name: serial_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineDetail'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Soft delete machine
+      tags:
+      - Machine
+  /machine/update/{serial_id}/set_active/{set_active}:
+    put:
+      description: Set the active status of a machine
+      parameters:
+      - description: Machine Serial ID
+        in: path
+        name: serial_id
+        required: true
+        type: string
+      - description: Set Active (true/false)
+        in: path
+        name: set_active
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineDetail'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update machine active status
+      tags:
+      - Machine
   /register:
     post:
       consumes:
