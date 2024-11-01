@@ -49,3 +49,8 @@ func (repo *userUsecases) GetAll() ([]model.Users, error) {
 	users, err := repo.repository.GetAll()
 	return users, err
 }
+
+func (repo *userUsecases) GetAllManager() ([]model.Users, error) {
+	users, err := repo.repository.GetAllManager()
+	return users, err
+}

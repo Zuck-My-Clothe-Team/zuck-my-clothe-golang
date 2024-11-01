@@ -666,6 +666,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/manager/all": {
+            "get": {
+                "description": "Get a list of all managers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Controller"
+                ],
+                "summary": "Get all managers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Users"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/register": {
             "post": {
                 "description": "Create a new user by using User model",
@@ -744,7 +776,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "name": {
+                "firstname": {
+                    "type": "string"
+                },
+                "lastname": {
                     "type": "string"
                 },
                 "phone": {
@@ -755,9 +790,6 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/model.Roles"
-                },
-                "surname": {
-                    "type": "string"
                 },
                 "user_id": {
                     "type": "string"

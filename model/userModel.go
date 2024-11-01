@@ -48,6 +48,7 @@ type UserRepository interface {
 	FindUserByEmail(email string) (*Users, error)
 	FindUserByGoogleID(googleID string) (*Users, error)
 	GetAll() ([]Users, error)
+	GetAllManager() ([]Users, error)
 	//FindUserByUUID(uuid string) Users
 }
 
@@ -56,4 +57,5 @@ type UserUsecases interface {
 	FindUserByEmail(email string) (*Users, error)
 	FindUserByGoogleID(googleID string) (*Users, error)
 	GetAll() ([]Users, error)
+	GetAllManager() ([]Users, error)
 }

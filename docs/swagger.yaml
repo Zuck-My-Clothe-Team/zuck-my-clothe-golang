@@ -23,7 +23,9 @@ definitions:
     properties:
       email:
         type: string
-      name:
+      firstname:
+        type: string
+      lastname:
         type: string
       phone:
         type: string
@@ -31,8 +33,6 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/model.Roles'
-      surname:
-        type: string
       user_id:
         type: string
     type: object
@@ -576,6 +576,27 @@ paths:
           schema:
             type: string
       summary: Get all users
+      tags:
+      - User Controller
+  /users/manager/all:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all managers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Users'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all managers
       tags:
       - User Controller
   /users/register:

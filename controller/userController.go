@@ -10,6 +10,7 @@ import (
 type UserController interface {
 	CreateUser(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
+	GetAllManager(c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -43,17 +44,33 @@ func (controller *userController) CreateUser(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusCreated)
 }
 
-// @Summary      Get all users
-// @Description  Retrieve all users from the database
-// @Tags         User Controller
-// @Produce      json
-// @Success      200  {array}   model.Users
-// @Failure      500  {string}  string  "Internal Server Error"
-// @Router       /users/all [get]
+// @Summary		Get all users
+// @Description	Retrieve all users from the database
+// @Tags			User Controller
+// @Produce		json
+// @Success		200	{array}		model.Users[]
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/users/all [get]
 func (controller *userController) GetAll(c *fiber.Ctx) error {
 	users, err := controller.usecase.GetAll()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(users)
+}
+
+// @Summary		Get all managers
+// @Description	Get a list of all managers
+// @Tags			User Controller
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		model.Users[]
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/users/manager/all [get]
+func (controller *userController) GetAllManager(c *fiber.Ctx) error {
+	user, err := controller.usecase.GetAllManager()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.JSON(user)
 }

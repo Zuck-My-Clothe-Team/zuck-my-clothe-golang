@@ -24,16 +24,16 @@ func CreateNewBranchController(branchUsecase model.BranchUsecase) BranchControll
 	return &branchController{branchUsecase: branchUsecase}
 }
 
-// @Summary 	Create new branch
-// @Description 	Create a new branch by using Branch model
-// @Tags 		Branch Controller
-// @Produce 	json
-// @Accept 			json
-// @Param 			BranchModel	body	model.Branch	true	"New Branch Data"
-// @Success 		201
-// @Failure 		403	{string}	string	"Forbidden"
-// @Failure 		406	{string}	string	"Not Acceptable"
-// @Router 			/branch/create [POST]
+//	@Summary		Create new branch
+//	@Description	Create a new branch by using Branch model
+//	@Tags			Branch Controller
+//	@Produce		json
+//	@Accept			json
+//	@Param			BranchModel	body	model.Branch	true	"New Branch Data"
+//	@Success		201
+//	@Failure		403	{string}	string	"Forbidden"
+//	@Failure		406	{string}	string	"Not Acceptable"
+//	@Router			/branch/create [POST]
 func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 	newBranch := new(model.Branch)
 	if err := c.BodyParser(newBranch); err != nil {
@@ -62,14 +62,14 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branchList)
 }
 
-// @Summary 	Get a branch by ID
-// @Description 	Retrieve a single branch from the database based on its ID.
-// @Tags 		Branch Controller
-// @Produce 	json
-// @Param 			id	path	string	true	"branch ID"
-// @Success 		200	{object}	model.Branch
-// @Failure 		404	{string}	string	"Not Found"
-// @Router 			/branch/{id} [GET]
+//	@Summary		Get a branch by ID
+//	@Description	Retrieve a single branch from the database based on its ID.
+//	@Tags			Branch Controller
+//	@Produce		json
+//	@Param			id	path		string	true	"branch ID"
+//	@Success		200	{object}	model.Branch
+//	@Failure		404	{string}	string	"Not Found"
+//	@Router			/branch/{id} [GET]
 func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 	branchID := c.Params("id")
 	branch, err := u.branchUsecase.GetByBranchID(branchID)
@@ -83,15 +83,15 @@ func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branch)
 }
 
-// @Summary Get branch by owner
-// @Description Get branch details by branch owner
-// @Tags branches
-// @Accept json
-// @Produce json
-// @Success 200 {object} model.Branch
-// @Failure 404 {string} string "record not found"
-// @Failure 500 {string} string "internal server error"
-// @Router /branches/owner [get]
+//	@Summary		Get branch by owner
+//	@Description	Get branch details by branch owner
+//	@Tags			branches
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	model.Branch
+//	@Failure		404	{string}	string	"record not found"
+//	@Failure		500	{string}	string	"internal server error"
+//	@Router			/branches/owner [get]
 func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
@@ -107,15 +107,15 @@ func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branch)
 }
 
-// @Summary Update branch
-// @Description Update branch details
-// @Tags branches
-// @Accept json
-// @Produce json
-// @Param branch body model.Branch true "Branch data"
-// @Success 200 {object} model.Branch
-// @Failure 406 {string} string "not acceptable"
-// @Router /branches [put]
+//	@Summary		Update branch
+//	@Description	Update branch details
+//	@Tags			branches
+//	@Accept			json
+//	@Produce		json
+//	@Param			branch	body		model.Branch	true	"Branch data"
+//	@Success		200		{object}	model.Branch
+//	@Failure		406		{string}	string	"not acceptable"
+//	@Router			/branches [put]
 func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 	branch := new(model.Branch)
 	token := c.Locals("user").(*jwt.Token)
@@ -132,16 +132,16 @@ func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-// @Summary Delete branch
-// @Description Delete a branch
-// @Tags branches
-// @Accept json
-// @Produce json
-// @Param id path string true "Branch ID"
-// @Success 200 {string} string "ok"
-// @Failure 404 {string} string "record not found"
-// @Failure 500 {string} string "internal server error"
-// @Router /branches/{id} [delete]
+//	@Summary		Delete branch
+//	@Description	Delete a branch
+//	@Tags			branches
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Branch ID"
+//	@Success		200	{string}	string	"ok"
+//	@Failure		404	{string}	string	"record not found"
+//	@Failure		500	{string}	string	"internal server error"
+//	@Router			/branches/{id} [delete]
 func (u *branchController) DeleteBranch(c *fiber.Ctx) error {
 	branch := new(model.Branch)
 	branchID := c.Params("id")
