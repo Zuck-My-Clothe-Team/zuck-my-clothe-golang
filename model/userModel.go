@@ -49,6 +49,7 @@ type UserRepository interface {
 	FindUserByGoogleID(googleID string) (*Users, error)
 	GetAll() ([]Users, error)
 	GetAllManager() ([]Users, error)
+	DeleteUser(userID string) error
 	//FindUserByUUID(uuid string) Users
 }
 
@@ -58,4 +59,5 @@ type UserUsecases interface {
 	FindUserByGoogleID(googleID string) (*Users, error)
 	GetAll() ([]Users, error)
 	GetAllManager() ([]Users, error)
+	DeleteUser(userID string) error
 }

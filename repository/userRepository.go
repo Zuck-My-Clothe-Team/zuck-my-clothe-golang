@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 )
@@ -47,7 +48,7 @@ func (repo *userRepository) FindUserByGoogleID(googleID string) (*model.Users, e
 
 func (repo *userRepository) GetAll() ([]model.Users, error) {
 	var users []model.Users
-	dbTx := repo.db.Find(&users)
+	dbTx := repo.db.Find(&users, "deleted_at = ?", "0001-01-01 00:00:00.000000")
 	if dbTx.Error != nil {
 		return nil, dbTx.Error
 	}
@@ -69,4 +70,9 @@ func (repo *userRepository) GetAllManager() ([]model.Users, error) {
 		users[i].Password = ""
 	}
 	return users, nil
+}
+
+func (repo *userRepository) DeleteUser(userID string) error {
+	returnValue := repo.db.Model(&model.Users{}).Where("user_id = ?", userID).Update("deleted_at", time.Now())
+	return returnValue.Error
 }

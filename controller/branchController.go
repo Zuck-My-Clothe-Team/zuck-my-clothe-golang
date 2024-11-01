@@ -27,7 +27,7 @@ func CreateNewBranchController(branchUsecase model.BranchUsecase) BranchControll
 
 // @Summary		Create new branch
 // @Description	Create a new branch by using Branch model
-// @Tags			Branch Controller
+// @Tags			Branches
 // @Produce		json
 // @Accept			json
 // @Param			BranchModel	body	model.Branch	true	"New Branch Data"
@@ -72,7 +72,7 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 
 // @Summary		Get a branch by ID
 // @Description	Retrieve a single branch from the database based on its ID.
-// @Tags			Branch Controller
+// @Tags			Branches
 // @Produce		json
 // @Param			id	path		string	true	"branch ID"
 // @Success		200	{object}	model.Branch
@@ -93,7 +93,7 @@ func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 
 // @Summary		Get branch by owner
 // @Description	Get branch details by branch owner
-// @Tags			branches
+// @Tags			Branches
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	model.Branch
@@ -117,7 +117,7 @@ func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 
 // @Summary		Update branch
 // @Description	Update branch details
-// @Tags			branches
+// @Tags			Branches
 // @Accept			json
 // @Produce		json
 // @Param			branch	body		model.Branch	true	"Branch data"
@@ -142,7 +142,7 @@ func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 
 // @Summary		Delete branch
 // @Description	Delete a branch
-// @Tags			branches
+// @Tags			Branches
 // @Accept			json
 // @Produce		json
 // @Param			id	path		string	true	"Branch ID"

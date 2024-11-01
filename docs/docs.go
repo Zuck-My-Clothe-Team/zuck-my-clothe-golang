@@ -172,7 +172,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Branch Controller"
+                    "Branches"
                 ],
                 "summary": "Create new branch",
                 "parameters": [
@@ -212,7 +212,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Branch Controller"
+                    "Branches"
                 ],
                 "summary": "Get a branch by ID",
                 "parameters": [
@@ -250,7 +250,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "branches"
+                    "Branches"
                 ],
                 "summary": "Update branch",
                 "parameters": [
@@ -290,7 +290,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "branches"
+                    "Branches"
                 ],
                 "summary": "Get branch by owner",
                 "responses": {
@@ -325,7 +325,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "branches"
+                    "Branches"
                 ],
                 "summary": "Delete branch",
                 "parameters": [
@@ -614,22 +614,77 @@ const docTemplate = `{
                 }
             }
         },
-        "/testrout": {
-            "get": {
-                "description": "Returns a simple message to verify the endpoint.",
+        "/users/": {
+            "post": {
+                "description": "Create a new user by using User model",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
-                    "Test"
+                    "Users"
                 ],
-                "summary": "Test Controller",
+                "summary": "Create new user",
+                "parameters": [
+                    {
+                        "description": "New User Data",
+                        "name": "UserModel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Users"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:id": {
+            "delete": {
+                "description": "Delete a user by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Gu Hum Yaii",
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -644,7 +699,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User Controller"
+                    "Users"
                 ],
                 "summary": "Get all users",
                 "responses": {
@@ -676,7 +731,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User Controller"
+                    "Users"
                 ],
                 "summary": "Get all managers",
                 "responses": {
@@ -691,49 +746,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/register": {
-            "post": {
-                "description": "Create a new user by using User model",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User Controller"
-                ],
-                "summary": "Create new user",
-                "parameters": [
-                    {
-                        "description": "New User Data",
-                        "name": "UserModel",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Users"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "406": {
-                        "description": "Not Acceptable",
                         "schema": {
                             "type": "string"
                         }

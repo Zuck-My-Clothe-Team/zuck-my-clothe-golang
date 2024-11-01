@@ -54,3 +54,8 @@ func (repo *userUsecases) GetAllManager() ([]model.Users, error) {
 	users, err := repo.repository.GetAllManager()
 	return users, err
 }
+
+func (repo *userUsecases) DeleteUser(userID string) error {
+	err := repo.repository.DeleteUser(userID)
+	return err
+}
