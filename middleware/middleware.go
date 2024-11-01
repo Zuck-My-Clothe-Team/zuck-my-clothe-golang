@@ -59,14 +59,14 @@ func AuthRequire(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func claimer(c *fiber.Ctx) jwt.MapClaims {
+func Claimer(c *fiber.Ctx) jwt.MapClaims {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	return claims
 }
 
 func IsSuperAdmin(c *fiber.Ctx) error {
-	claims := claimer(c)
+	claims := Claimer(c)
 	if claims["positionID"] != "SuperAdmin" {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
@@ -74,7 +74,7 @@ func IsSuperAdmin(c *fiber.Ctx) error {
 }
 
 func IsBranchManager(c *fiber.Ctx) error {
-	claims := claimer(c)
+	claims := Claimer(c)
 	if claims["positionID"] != "SuperAdmin" && claims["positionID"] != "BranchManager" {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}

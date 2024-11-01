@@ -34,7 +34,7 @@ type BranchReopository interface {
 }
 
 type BranchUsecase interface {
-	CreateBranch(newBranch *Branch) (*Branch, error)
+	CreateBranch(newBranch *Branch, userID string) (*Branch, error)
 	GetAll() (*[]Branch, error)
 	GetByBranchID(branchID string) (*Branch, error)
 	GetByBranchOwner(ownerUserID string) (*[]Branch, error)

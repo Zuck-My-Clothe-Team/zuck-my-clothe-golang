@@ -17,7 +17,7 @@ func CreateNewBranchUsecase(branchRepository model.BranchReopository) model.Bran
 	return &branchUsecase{branchRepository: branchRepository}
 }
 
-func (u *branchUsecase) CreateBranch(newBranch *model.Branch) (*model.Branch, error) {
+func (u *branchUsecase) CreateBranch(newBranch *model.Branch, userID string) (*model.Branch, error) {
 	// validate that all essential feild not contain null value
 	//List of essential field
 	// BranchName
@@ -29,16 +29,15 @@ func (u *branchUsecase) CreateBranch(newBranch *model.Branch) (*model.Branch, er
 	if utils.CheckStraoPling(newBranch.BranchName) ||
 		utils.CheckStraoPling(newBranch.BranchDetail) ||
 		utils.CheckStraoPling(newBranch.OwnerUserID) ||
-		utils.CheckStraoPling(newBranch.CreatedBy) ||
 		(newBranch.BranchLat == 0.0 || newBranch.BranchLon == 0.0) {
 		return nil, errors.New("null detected on one or more essential field(s)")
 	}
 	//Generate BranchID
 	newBranch.BranchID = uuid.New().String()
-	//Generate CreatedAt
+	newBranch.CreatedBy = userID
 	newBranch.CreatedAt = time.Now()
-	newBranch.UpdatedBy = "c2f45bf6-6308-450f-9932-89632c40974c"
-	newBranch.DeletedBy = "c2f45bf6-6308-450f-9932-89632c40974c"
+	newBranch.UpdatedBy = userID
+	newBranch.UpdatedAt = time.Now()
 
 	err := u.branchRepository.CreateBranch(newBranch)
 	if err != nil {
