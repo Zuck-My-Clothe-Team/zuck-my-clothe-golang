@@ -269,7 +269,7 @@ paths:
             type: string
       summary: Get a branch by ID
       tags:
-      - Branch Controller
+      - Branches
   /branch/create:
     post:
       consumes:
@@ -297,7 +297,7 @@ paths:
             type: string
       summary: Create new branch
       tags:
-      - Branch Controller
+      - Branches
   /branches:
     put:
       consumes:
@@ -323,7 +323,7 @@ paths:
             type: string
       summary: Update branch
       tags:
-      - branches
+      - Branches
   /branches/{id}:
     delete:
       consumes:
@@ -352,7 +352,7 @@ paths:
             type: string
       summary: Delete branch
       tags:
-      - branches
+      - Branches
   /branches/owner:
     get:
       consumes:
@@ -375,7 +375,7 @@ paths:
             type: string
       summary: Get branch by owner
       tags:
-      - branches
+      - Branches
   /machine/{serial_id}:
     get:
       description: Get details of a specific machine by its serial number
@@ -544,62 +544,7 @@ paths:
       summary: Update machine active status
       tags:
       - Machine
-  /testrout:
-    get:
-      consumes:
-      - application/json
-      description: Returns a simple message to verify the endpoint.
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: Gu Hum Yaii
-          schema:
-            type: string
-      summary: Test Controller
-      tags:
-      - Test
-  /users/all:
-    get:
-      description: Retrieve all users from the database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Users'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get all users
-      tags:
-      - User Controller
-  /users/manager/all:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of all managers
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Users'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get all managers
-      tags:
-      - User Controller
-  /users/register:
+  /users/:
     post:
       consumes:
       - application/json
@@ -626,5 +571,68 @@ paths:
             type: string
       summary: Create new user
       tags:
-      - User Controller
+      - Users
+  /users/:id:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete user
+      tags:
+      - Users
+  /users/all:
+    get:
+      description: Retrieve all users from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Users'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all users
+      tags:
+      - Users
+  /users/manager/all:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all managers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Users'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all managers
+      tags:
+      - Users
 swagger: "2.0"

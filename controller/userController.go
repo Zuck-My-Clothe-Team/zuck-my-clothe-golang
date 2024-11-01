@@ -11,6 +11,7 @@ type UserController interface {
 	CreateUser(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
 	GetAllManager(c *fiber.Ctx) error
+	DeleteUser(c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -24,14 +25,14 @@ func CreateNewUserController(usecase model.UserUsecases, config *config.Config) 
 
 // @Summary		Create new user
 // @Description	Create a new user by using User model
-// @Tags			User Controller
+// @Tags			Users
 // @Produce		json
 // @Accept			json
 // @Param			UserModel	body	model.Users	true	"New User Data"
 // @Success		201
 // @Failure		403	{string}	string	"Forbidden"
 // @Failure		406	{string}	string	"Not Acceptable"
-// @Router			/users/register [POST]
+// @Router			/users/ [POST]
 func (controller *userController) CreateUser(c *fiber.Ctx) error {
 	newUser := new(model.Users)
 	if err := c.BodyParser(newUser); err != nil {
@@ -46,7 +47,7 @@ func (controller *userController) CreateUser(c *fiber.Ctx) error {
 
 // @Summary		Get all users
 // @Description	Retrieve all users from the database
-// @Tags			User Controller
+// @Tags			Users
 // @Produce		json
 // @Success		200	{array}		model.Users[]
 // @Failure		500	{string}	string	"Internal Server Error"
@@ -61,7 +62,7 @@ func (controller *userController) GetAll(c *fiber.Ctx) error {
 
 // @Summary		Get all managers
 // @Description	Get a list of all managers
-// @Tags			User Controller
+// @Tags			Users
 // @Accept			json
 // @Produce		json
 // @Success		200	{array}		model.Users[]
@@ -73,4 +74,21 @@ func (controller *userController) GetAllManager(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(user)
+}
+
+// @Summary		Delete user
+// @Description	Delete a user by ID
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Param			id	path	string	true	"User ID"
+// @Success		200
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/users/:id [delete]
+func (controller *userController) DeleteUser(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	if err := controller.usecase.DeleteUser(userID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.SendStatus(fiber.StatusOK)
 }

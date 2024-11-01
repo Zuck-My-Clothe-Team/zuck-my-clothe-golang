@@ -19,6 +19,7 @@ func UserRoutes(routeRegister *config.RoutesRegister) {
 	userGroup := application.Group("/users")
 	userGroup.Get("/all", middleware.AuthRequire, middleware.IsBranchManager, userController.GetAll)
 	userGroup.Get("/manager/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAllManager)
-	userGroup.Post("/register", userController.CreateUser)
+	userGroup.Post("/", userController.CreateUser)
+	userGroup.Delete("/:id", middleware.AuthRequire, middleware.IsSuperAdmin, userController.DeleteUser)
 
 }
