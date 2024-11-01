@@ -58,3 +58,15 @@ func (repo *userRepository) GetAll() ([]model.Users, error) {
 
 	return users, nil
 }
+func (repo *userRepository) GetAllManager() ([]model.Users, error) {
+	var users []model.Users
+	dbTx := repo.db.Find(&users, "role = ? AND deleted_at = ?", model.BranchManager, "0001-01-01 00:00:00.000000")
+	if dbTx.Error != nil {
+		return nil, dbTx.Error
+	}
+
+	for i := range users {
+		users[i].Password = ""
+	}
+	return users, nil
+}
