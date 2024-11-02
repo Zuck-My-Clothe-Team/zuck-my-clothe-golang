@@ -31,16 +31,16 @@ func CreateNewAuthenController(usecase model.AuthenUsecase, userUsecase model.Us
 	return &authenUsecase{usecase: usecase, userUsecase: userUsecase, cfg: cfg}
 }
 
-//	@Summary		Sign in to the application
-//	@Description	Sign in user with credentials
-//	@Tags			Authentication
-//	@Accept			json
-//	@Produce		json
-//	@Param			authenPayload	body		model.AuthenPayload	true	"Authentication Payload"
-//	@Success		200				{object}	model.AuthenResponse
-//	@Failure		400				{string}	string	"Missing body"
-//	@Failure		401				{string}	string	"Unauthorized"
-//	@Router			/auth/signin [post]
+// @Summary		Sign in to the application
+// @Description	Sign in user with credentials
+// @Tags			Authentication
+// @Accept			json
+// @Produce		json
+// @Param			authenPayload	body		model.AuthenPayload	true	"Authentication Payload"
+// @Success		200				{object}	model.AuthenResponse
+// @Failure		400				{string}	string	"Missing body"
+// @Failure		401				{string}	string	"Unauthorized"
+// @Router			/auth/signin [post]
 func (u *authenUsecase) SignIn(c *fiber.Ctx) error {
 	payLoad := new(model.AuthenPayload)
 	if err := c.BodyParser(payLoad); err != nil {
@@ -69,16 +69,16 @@ func (u *authenUsecase) SignIn(c *fiber.Ctx) error {
 	})
 }
 
-//	@Summary		Google OAuth2 Callback
-//	@Description	Handle Google OAuth2 callback and log in or create a user
-//	@Tags			Authentication
-//	@Accept			json
-//	@Produce		json
-//	@Param			requestBody	body		model.RequestBody	true	"Google OAuth2 Request Body"
-//	@Success		200			{object}	model.AuthenResponse
-//	@Failure		204			{string}	string	"User Data Fetch Failed"
-//	@Failure		500			{string}	string	"Internal Server Error"
-//	@Router			/auth/google/callback [post]
+// @Summary		Google OAuth2 Callback
+// @Description	Handle Google OAuth2 callback and log in or create a user
+// @Tags			Authentication
+// @Accept			json
+// @Produce		json
+// @Param			requestBody	body		model.RequestBody	true	"Google OAuth2 Request Body"
+// @Success		200			{object}	model.AuthenResponse
+// @Failure		204			{string}	string	"User Data Fetch Failed"
+// @Failure		500			{string}	string	"Internal Server Error"
+// @Router			/auth/google/callback [post]
 func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 
 	requestBody := new(model.RequestBody)
@@ -91,7 +91,6 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNoContent).SendString("User Data Fetch Failed")
 	}
-
 	userData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("JSON Parsing Failed")
@@ -117,8 +116,10 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 			newUser.UpdateAt = time.Now()
 			newUser.ProfileImageURL = newGoogleUser.ImageUrl
 			newUser.Password = ""
+			fmt.Println(newUser)
+
 			if err := u.userUsecase.CreateUser(*newUser); err != nil {
-				return c.SendStatus(fiber.StatusInternalServerError)
+				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 			}
 		}
 	}
@@ -147,18 +148,18 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 
 }
 
-//	@Summary		Extract User Data from JWT token
-//	@Description	handle user data extraction and token expiration check
-//	@Tags			Authentication
-//	@Accept			json
-//	@Produce		json
-//	@Security		BearerAuth
-//	@Param			Authorization	header		string	true	"Bearer {access_token}"
-//	@Success		200				{object}	model.AuthenResponse
-//	@Failure		204				{string}	string	"User Data Fetch Failed"
-//	@Failure		401				{string}	string	"token expired"
-//	@Failure		500				{string}	string	"Internal Server Error"
-//	@Router			/auth/me [get]
+// @Summary		Extract User Data from JWT token
+// @Description	handle user data extraction and token expiration check
+// @Tags			Authentication
+// @Accept			json
+// @Produce		json
+// @Security		BearerAuth
+// @Param			Authorization	header		string	true	"Bearer {access_token}"
+// @Success		200				{object}	model.AuthenResponse
+// @Failure		204				{string}	string	"User Data Fetch Failed"
+// @Failure		401				{string}	string	"token expired"
+// @Failure		500				{string}	string	"Internal Server Error"
+// @Router			/auth/me [get]
 func (u *authenUsecase) Me(c *fiber.Ctx) error {
 	reqToken := c.Locals("user").(*jwt.Token)
 	claims := reqToken.Claims.(jwt.MapClaims)
