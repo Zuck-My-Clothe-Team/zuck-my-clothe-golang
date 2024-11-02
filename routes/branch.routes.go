@@ -17,10 +17,10 @@ func BranchRoutes(routeRegister *config.RoutesRegister) {
 
 	branchGroup := application.Group("/branch", middleware.AuthRequire)
 
-	branchGroup.Post("/create", middleware.AuthRequire, middleware.IsSuperAdmin, branchController.CreateBranch)
+	branchGroup.Post("/create", middleware.IsSuperAdmin, branchController.CreateBranch)
 	branchGroup.Get("/all", branchController.GetAll)
-	branchGroup.Get("/:id", branchController.GetByBranchID)
-	branchGroup.Get("/owns", middleware.AuthRequire, middleware.IsBranchManager, branchController.GetByBranchOwner)
+	branchGroup.Get("/owns", middleware.IsBranchManager, branchController.GetByBranchOwner)
+	branchGroup.Get("/:id", middleware.IsBranchManager, branchController.GetByBranchID)
 	branchGroup.Put("/update", branchController.UpdateBranch)
-	branchGroup.Delete("/:id", middleware.AuthRequire, middleware.IsSuperAdmin, branchController.DeleteBranch)
+	branchGroup.Delete("/:id", middleware.IsSuperAdmin, branchController.DeleteBranch)
 }

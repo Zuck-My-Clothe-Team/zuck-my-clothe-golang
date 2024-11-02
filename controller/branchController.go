@@ -58,6 +58,15 @@ func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
+// @Summary		Get all branches
+// @Description	Get a list of all branches
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		model.Branch
+// @Failure		404	{string}	string	"Not Found"
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/branch/all [get]
 func (u *branchController) GetAll(c *fiber.Ctx) error {
 	branchList, err := u.branchUsecase.GetAll()
 	if err != nil {
@@ -76,14 +85,14 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 // @Produce		json
 // @Param			id	path		string	true	"branch ID"
 // @Success		200	{object}	model.Branch
-// @Failure		404	{string}	string	"Not Found"
+// @Success		204	{string}	string	"Not Found"
 // @Router			/branch/{id} [GET]
 func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 	branchID := c.Params("id")
 	branch, err := u.branchUsecase.GetByBranchID(branchID)
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -97,16 +106,16 @@ func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	model.Branch
-// @Failure		404	{string}	string	"record not found"
+// @Success		204	{string}	string	"record not found"
 // @Failure		500	{string}	string	"internal server error"
-// @Router			/branches/owner [get]
+// @Router			/branch/owns [get]
 func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	branch, err := u.branchUsecase.GetByBranchOwner(claims["userID"].(string))
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 
 			return c.SendStatus(fiber.StatusInternalServerError)
@@ -123,7 +132,7 @@ func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 // @Param			branch	body		model.Branch	true	"Branch data"
 // @Success		200		{object}	model.Branch
 // @Failure		406		{string}	string	"not acceptable"
-// @Router			/branches [put]
+// @Router			/branch/update [put]
 func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 	branch := new(model.Branch)
 	token := c.Locals("user").(*jwt.Token)
@@ -149,7 +158,7 @@ func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 // @Success		200	{string}	string	"ok"
 // @Failure		404	{string}	string	"record not found"
 // @Failure		500	{string}	string	"internal server error"
-// @Router			/branches/{id} [delete]
+// @Router			/branch/{id} [delete]
 func (u *branchController) DeleteBranch(c *fiber.Ctx) error {
 	branch := new(model.Branch)
 	branchID := c.Params("id")

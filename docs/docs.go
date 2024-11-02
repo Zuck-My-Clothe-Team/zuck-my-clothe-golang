@@ -162,6 +162,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/branch/all": {
+            "get": {
+                "description": "Get a list of all branches",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branches"
+                ],
+                "summary": "Get all branches",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Branch"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/branch/create": {
             "post": {
                 "description": "Create a new branch by using Branch model",
@@ -205,25 +243,19 @@ const docTemplate = `{
                 }
             }
         },
-        "/branch/{id}": {
+        "/branch/owns": {
             "get": {
-                "description": "Retrieve a single branch from the database based on its ID.",
+                "description": "Get branch details by branch owner",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Branches"
                 ],
-                "summary": "Get a branch by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "branch ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get branch by owner",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -231,8 +263,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.Branch"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "204": {
+                        "description": "record not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
                         "schema": {
                             "type": "string"
                         }
@@ -240,7 +278,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/branches": {
+        "/branch/update": {
             "put": {
                 "description": "Update branch details",
                 "consumes": [
@@ -280,19 +318,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/branches/owner": {
+        "/branch/{id}": {
             "get": {
-                "description": "Get branch details by branch owner",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retrieve a single branch from the database based on its ID.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Branches"
                 ],
-                "summary": "Get branch by owner",
+                "summary": "Get a branch by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "branch ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -300,22 +344,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.Branch"
                         }
                     },
-                    "404": {
-                        "description": "record not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "internal server error",
+                    "204": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "string"
                         }
                     }
                 }
-            }
-        },
-        "/branches/{id}": {
+            },
             "delete": {
                 "description": "Delete a branch",
                 "consumes": [
@@ -390,14 +426,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.MachineDetail"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "406": {
+                        "description": "Not Acceptable",
                         "schema": {
                             "type": "string"
                         }
                     },
-                    "406": {
-                        "description": "Not Acceptable",
+                    "500": {
+                        "description": "internal server error",
                         "schema": {
                             "type": "string"
                         }

@@ -57,7 +57,11 @@ func (u *machineRepository) SoftDelete(machine_serial string, deleted_by string)
 
 func (u *machineRepository) UpdateActive(machine_serial string, is_active bool, updated_by string) (*model.Machine, error) {
 	updated_machine := new(model.Machine)
-	result := u.db.Model(&model.Machine{}).Where("machine_serial = ?", machine_serial).Updates(&model.Machine{IsActive: is_active, UpdatedBy: &updated_by}).Find(updated_machine)
+	result := u.db.Model(&model.Machine{}).
+		Where("machine_serial = ?", machine_serial).
+		Update("is_active", is_active).
+		Update("updated_by", updated_by).
+		Find(updated_machine)
 
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
