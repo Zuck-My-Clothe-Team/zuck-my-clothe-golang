@@ -248,6 +248,34 @@ paths:
       tags:
       - Authentication
   /branch/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a branch
+      parameters:
+      - description: Branch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "404":
+          description: record not found
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Delete branch
+      tags:
+      - Branches
     get:
       description: Retrieve a single branch from the database based on its ID.
       parameters:
@@ -263,11 +291,36 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Branch'
-        "404":
+        "204":
           description: Not Found
           schema:
             type: string
       summary: Get a branch by ID
+      tags:
+      - Branches
+  /branch/all:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all branches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Branch'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all branches
       tags:
       - Branches
   /branch/create:
@@ -298,7 +351,30 @@ paths:
       summary: Create new branch
       tags:
       - Branches
-  /branches:
+  /branch/owns:
+    get:
+      consumes:
+      - application/json
+      description: Get branch details by branch owner
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Branch'
+        "204":
+          description: record not found
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Get branch by owner
+      tags:
+      - Branches
+  /branch/update:
     put:
       consumes:
       - application/json
@@ -322,58 +398,6 @@ paths:
           schema:
             type: string
       summary: Update branch
-      tags:
-      - Branches
-  /branches/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a branch
-      parameters:
-      - description: Branch ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            type: string
-        "404":
-          description: record not found
-          schema:
-            type: string
-        "500":
-          description: internal server error
-          schema:
-            type: string
-      summary: Delete branch
-      tags:
-      - Branches
-  /branches/owner:
-    get:
-      consumes:
-      - application/json
-      description: Get branch details by branch owner
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Branch'
-        "404":
-          description: record not found
-          schema:
-            type: string
-        "500":
-          description: internal server error
-          schema:
-            type: string
-      summary: Get branch by owner
       tags:
       - Branches
   /machine/{serial_id}:
@@ -422,12 +446,12 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.MachineDetail'
-        "403":
-          description: Forbidden
-          schema:
-            type: string
         "406":
           description: Not Acceptable
+          schema:
+            type: string
+        "500":
+          description: internal server error
           schema:
             type: string
       summary: Add new machine

@@ -33,8 +33,8 @@ func CreateMachineController(machineUsecase model.MachineUsecase) MachineControl
 // @Produce		json
 // @Param			MachineModel	body		model.AddMachineDTO	true	"New Machine Data"
 // @Success		201				{object}	model.MachineDetail	"Created"
-// @Failure		403				{string}	string				"Forbidden"
 // @Failure		406				{string}	string				"Not Acceptable"
+// @Failure		500				{string}	string				"internal server error"
 // @Router			/machine/add [post]
 func (u *machineController) AddMachine(c *fiber.Ctx) error {
 	new_machine := new(model.AddMachineDTO)
@@ -63,7 +63,7 @@ func (u *machineController) AddMachine(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
 // @Summary		Get machine details by serial

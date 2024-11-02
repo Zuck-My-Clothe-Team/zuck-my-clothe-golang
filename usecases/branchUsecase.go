@@ -57,6 +57,9 @@ func (u *branchUsecase) GetAll() (*[]model.Branch, error) {
 
 func (u *branchUsecase) GetByBranchID(branchID string) (*model.Branch, error) {
 	branch, err := u.branchRepository.GetByBranchID(branchID)
+	if err != nil {
+		return nil, err
+	}
 	branch.DeletedBy = ""
 	branch.UpdatedBy = ""
 	return branch, err
