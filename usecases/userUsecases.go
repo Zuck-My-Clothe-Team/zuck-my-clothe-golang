@@ -20,12 +20,10 @@ func CreateNewUserUsecases(repository model.UserRepository) model.UserUsecases {
 func (repo *userUsecases) CreateUser(newUser model.Users) error {
 	newUser.UserID = uuid.New().String()
 	if utils.CheckStraoPling(newUser.FirstName) ||
-		utils.CheckStraoPling(newUser.LastName) ||
 		utils.CheckStraoPling(newUser.Email) ||
 		(utils.CheckStraoPling(newUser.Password) == utils.CheckStraoPling(newUser.GoogleID)) {
 		return errors.New("null detected on one or more essential field(s)")
 	}
-
 	buffer, hashErr := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if hashErr != nil {
 		return hashErr
