@@ -13,6 +13,17 @@ func CreateMachineUsecase(machineRepository model.MachineRepository) model.Machi
 	return &machineUsecase{machineRepository: machineRepository}
 }
 
+func toMachineDetail(machine *model.Machine) model.MachineDetail {
+	result := model.MachineDetail{
+		MachineSerial: machine.MachineSerial,
+		BranchID:      machine.BranchID,
+		MachineType:   machine.MachineType,
+		Weight:        int16(machine.Weight),
+		IsActive:      machine.IsActive,
+	}
+	return result
+}
+
 func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.MachineDetail, error) {
 	machine_data := model.Machine{
 		MachineSerial: new_machine.MachineSerial,
@@ -38,13 +49,7 @@ func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.Ma
 		return nil, err
 	}
 
-	result := model.MachineDetail{
-		MachineSerial: machine.MachineSerial,
-		BranchID:      machine.BranchID,
-		MachineType:   machine.MachineType,
-		Weight:        int16(machine.Weight),
-		IsActive:      false,
-	}
+	result := toMachineDetail(machine)
 
 	return &result, nil
 }
@@ -61,15 +66,7 @@ func (u *machineUsecase) GetAll() (*[]model.MachineDetail, error) {
 	var result []model.MachineDetail
 
 	for _, machine := range *machines {
-		res := model.MachineDetail{
-			MachineSerial: machine.MachineSerial,
-			BranchID:      machine.BranchID,
-			MachineType:   machine.MachineType,
-			Weight:        int16(machine.Weight),
-			IsActive:      machine.IsActive,
-		}
-
-		result = append(result, res)
+		result = append(result, toMachineDetail(&machine))
 	}
 
 	return &result, err
@@ -82,13 +79,7 @@ func (u *machineUsecase) GetByMachineSerial(machine_serial string) (*model.Machi
 		return nil, err
 	}
 
-	result := model.MachineDetail{
-		MachineSerial: machine.MachineSerial,
-		BranchID:      machine.BranchID,
-		MachineType:   machine.MachineType,
-		Weight:        int16(machine.Weight),
-		IsActive:      false,
-	}
+	result := toMachineDetail(machine)
 
 	return &result, err
 }
@@ -103,15 +94,7 @@ func (u *machineUsecase) GetByBranchID(branch_id string) (*[]model.MachineDetail
 	var result []model.MachineDetail
 
 	for _, machine := range *machines {
-		res := model.MachineDetail{
-			MachineSerial: machine.MachineSerial,
-			BranchID:      machine.BranchID,
-			MachineType:   machine.MachineType,
-			Weight:        int16(machine.Weight),
-			IsActive:      machine.IsActive,
-		}
-
-		result = append(result, res)
+		result = append(result, toMachineDetail(&machine))
 	}
 
 	return &result, err
@@ -125,13 +108,7 @@ func (u *machineUsecase) UpdateActive(machine_serial string, set_active bool, up
 		return nil, err
 	}
 
-	result := model.MachineDetail{
-		MachineSerial: updated_machine.MachineSerial,
-		BranchID:      updated_machine.BranchID,
-		MachineType:   updated_machine.MachineType,
-		Weight:        int16(updated_machine.Weight),
-		IsActive:      updated_machine.IsActive,
-	}
+	result := toMachineDetail(updated_machine)
 
 	return &result, err
 }
@@ -143,13 +120,7 @@ func (u *machineUsecase) SoftDelete(machine_serial string, deleted_by string) (*
 		return nil, err
 	}
 
-	result := model.MachineDetail{
-		MachineSerial: deleted_machine.MachineSerial,
-		BranchID:      deleted_machine.BranchID,
-		MachineType:   deleted_machine.MachineType,
-		Weight:        int16(deleted_machine.Weight),
-		IsActive:      deleted_machine.IsActive,
-	}
+	result := toMachineDetail(deleted_machine)
 
 	return &result, err
 }

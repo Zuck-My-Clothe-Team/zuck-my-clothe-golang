@@ -181,7 +181,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Branch"
+                                "$ref": "#/definitions/model.BranchDetail"
                             }
                         }
                     },
@@ -220,13 +220,16 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Branch"
+                            "$ref": "#/definitions/model.CreateBranchDTO"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "403": {
                         "description": "Forbidden",
@@ -260,7 +263,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Branch"
+                            "$ref": "#/definitions/model.BranchDetail"
                         }
                     },
                     "204": {
@@ -298,7 +301,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Branch"
+                            "$ref": "#/definitions/model.UpdateBranchDTO"
                         }
                     }
                 ],
@@ -306,7 +309,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Branch"
+                            "$ref": "#/definitions/model.BranchDetail"
                         }
                     },
                     "406": {
@@ -341,7 +344,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Branch"
+                            "$ref": "#/definitions/model.BranchDetail"
                         }
                     },
                     "204": {
@@ -872,7 +875,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Branch": {
+        "model.BranchDetail": {
             "type": "object",
             "properties": {
                 "branch_detail": {
@@ -890,25 +893,34 @@ const docTemplate = `{
                 "branch_name": {
                     "type": "string"
                 },
-                "created_at": {
+                "owner_user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CreateBranchDTO": {
+            "type": "object",
+            "required": [
+                "branch_detail",
+                "branch_lat",
+                "branch_long",
+                "branch_name",
+                "owner_user_id"
+            ],
+            "properties": {
+                "branch_detail": {
                     "type": "string"
                 },
-                "created_by": {
-                    "type": "string"
+                "branch_lat": {
+                    "type": "number"
                 },
-                "deletedAt": {
-                    "type": "string"
+                "branch_long": {
+                    "type": "number"
                 },
-                "deleted_by": {
+                "branch_name": {
                     "type": "string"
                 },
                 "owner_user_id": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updated_by": {
                     "type": "string"
                 }
             }
@@ -966,6 +978,37 @@ const docTemplate = `{
                 "Employee",
                 "Client"
             ]
+        },
+        "model.UpdateBranchDTO": {
+            "type": "object",
+            "required": [
+                "branch_detail",
+                "branch_id",
+                "branch_lat",
+                "branch_long",
+                "branch_name",
+                "owner_user_id"
+            ],
+            "properties": {
+                "branch_detail": {
+                    "type": "string"
+                },
+                "branch_id": {
+                    "type": "string"
+                },
+                "branch_lat": {
+                    "type": "number"
+                },
+                "branch_long": {
+                    "type": "number"
+                },
+                "branch_name": {
+                    "type": "string"
+                },
+                "owner_user_id": {
+                    "type": "string"
+                }
+            }
         },
         "model.Users": {
             "type": "object",

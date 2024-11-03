@@ -79,6 +79,10 @@ func (u *machineRepository) GetByMachineSerial(machineSerial string) (*model.Mac
 
 	result := u.db.Where("machine_serial = ?", machineSerial).First(machine)
 
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
 	if result.Error != nil {
 		return nil, result.Error
 	}

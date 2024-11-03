@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"zuck-my-clothe/zuck-my-clothe-backend/middleware"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -30,14 +32,18 @@ func CreateNewBranchController(branchUsecase model.BranchUsecase) BranchControll
 // @Tags			Branches
 // @Produce		json
 // @Accept			json
-// @Param			BranchModel	body	model.Branch	true	"New Branch Data"
-// @Success		201
+// @Param			BranchModel	body model.CreateBranchDTO	true	"New Branch Data"
+// @Success		201 string mode.BranchDetail
 // @Failure		403	{string}	string	"Forbidden"
 // @Failure		406	{string}	string	"Not Acceptable"
 // @Router			/branch/create [POST]
 func (u *branchController) CreateBranch(c *fiber.Ctx) error {
-	newBranch := new(model.Branch)
+	newBranch := new(model.CreateBranchDTO)
 	if err := c.BodyParser(newBranch); err != nil {
+		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
+	}
+	if err := validatorboi.Validate(newBranch); err != nil {
+		fmt.Println(err)
 		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 	}
 
@@ -63,7 +69,7 @@ func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Accept			json
 // @Produce		json
-// @Success		200	{array}		model.Branch
+// @Success		200	{array}		model.BranchDetail
 // @Failure		404	{string}	string	"Not Found"
 // @Failure		500	{string}	string	"Internal Server Error"
 // @Router			/branch/all [get]
@@ -84,7 +90,7 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Produce		json
 // @Param			id	path		string	true	"branch ID"
-// @Success		200	{object}	model.Branch
+// @Success		200	{object}	model.BranchDetail
 // @Success		204	{string}	string	"Not Found"
 // @Router			/branch/{id} [GET]
 func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
@@ -105,7 +111,7 @@ func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Accept			json
 // @Produce		json
-// @Success		200	{object}	model.Branch
+// @Success		200	{object}	model.BranchDetail
 // @Success		204	{string}	string	"record not found"
 // @Failure		500	{string}	string	"internal server error"
 // @Router			/branch/owns [get]
@@ -129,23 +135,34 @@ func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Accept			json
 // @Produce		json
-// @Param			branch	body		model.Branch	true	"Branch data"
-// @Success		200		{object}	model.Branch
+// @Param			branch	body		model.UpdateBranchDTO	true	"Branch data"
+// @Success		200		{object}	model.BranchDetail
 // @Failure		406		{string}	string	"not acceptable"
 // @Router			/branch/update [put]
 func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
-	branch := new(model.Branch)
+	branch := new(model.UpdateBranchDTO)
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
 	if err := c.BodyParser(branch); err != nil {
 		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 	}
+
+	if err := validatorboi.Validate(branch); err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
+	}
+
+	if claims["positionID"].(string) != "SuperAdmin" && claims["userID"].(string) != branch.OwnerUserID {
+		return c.Status(fiber.StatusUnauthorized).SendString("Error: unauthorized update")
+	}
+
 	response, err := u.branchUsecase.UpdateBranch(branch, claims["positionID"].(string))
 
 	if err != nil {
 		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 	}
+
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
@@ -166,7 +183,9 @@ func (u *branchController) DeleteBranch(c *fiber.Ctx) error {
 	claims := token.Claims.(jwt.MapClaims)
 
 	branch.BranchID = branchID
-	branch.DeletedBy = claims["userID"].(string)
+
+	deleted_by := claims["userID"].(string)
+	branch.DeletedBy = &deleted_by
 
 	err := u.branchUsecase.DeleteBranch(branch)
 	if err != nil {

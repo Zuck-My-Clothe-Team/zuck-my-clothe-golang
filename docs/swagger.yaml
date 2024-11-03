@@ -54,7 +54,7 @@ definitions:
       token:
         type: string
     type: object
-  model.Branch:
+  model.BranchDetail:
     properties:
       branch_detail:
         type: string
@@ -66,20 +66,27 @@ definitions:
         type: number
       branch_name:
         type: string
-      created_at:
+      owner_user_id:
         type: string
-      created_by:
+    type: object
+  model.CreateBranchDTO:
+    properties:
+      branch_detail:
         type: string
-      deleted_by:
-        type: string
-      deletedAt:
+      branch_lat:
+        type: number
+      branch_long:
+        type: number
+      branch_name:
         type: string
       owner_user_id:
         type: string
-      updated_by:
-        type: string
-      updatedAt:
-        type: string
+    required:
+    - branch_detail
+    - branch_lat
+    - branch_long
+    - branch_name
+    - owner_user_id
     type: object
   model.MachineDetail:
     properties:
@@ -119,6 +126,28 @@ definitions:
     - BranchManager
     - Employee
     - Client
+  model.UpdateBranchDTO:
+    properties:
+      branch_detail:
+        type: string
+      branch_id:
+        type: string
+      branch_lat:
+        type: number
+      branch_long:
+        type: number
+      branch_name:
+        type: string
+      owner_user_id:
+        type: string
+    required:
+    - branch_detail
+    - branch_id
+    - branch_lat
+    - branch_long
+    - branch_name
+    - owner_user_id
+    type: object
   model.Users:
     properties:
       created_at:
@@ -290,7 +319,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Branch'
+            $ref: '#/definitions/model.BranchDetail'
         "204":
           description: Not Found
           schema:
@@ -310,7 +339,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Branch'
+              $ref: '#/definitions/model.BranchDetail'
             type: array
         "404":
           description: Not Found
@@ -334,12 +363,14 @@ paths:
         name: BranchModel
         required: true
         schema:
-          $ref: '#/definitions/model.Branch'
+          $ref: '#/definitions/model.CreateBranchDTO'
       produces:
       - application/json
       responses:
         "201":
           description: Created
+          schema:
+            type: string
         "403":
           description: Forbidden
           schema:
@@ -362,7 +393,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Branch'
+            $ref: '#/definitions/model.BranchDetail'
         "204":
           description: record not found
           schema:
@@ -385,14 +416,14 @@ paths:
         name: branch
         required: true
         schema:
-          $ref: '#/definitions/model.Branch'
+          $ref: '#/definitions/model.UpdateBranchDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Branch'
+            $ref: '#/definitions/model.BranchDetail'
         "406":
           description: not acceptable
           schema:

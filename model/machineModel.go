@@ -17,12 +17,12 @@ const (
 	Dryer  MachineType = "Dryer"
 )
 
-//	@Summary		Get machine details
-//	@Description	Retrieve details of a machine
-//	@Tags			Machine
-//	@Produce		json
-//	@Success		200	{object}	MachineResponse
-//	@Router			/machine/{id} [get]
+// @Summary		Get machine details
+// @Description	Retrieve details of a machine
+// @Tags			Machine
+// @Produce		json
+// @Success		200	{object}	MachineResponse
+// @Router			/machine/{id} [get]
 type Machine struct {
 	MachineSerial string         `json:"machine_serial" gorm:"column:machine_serial;primaryKey"`
 	BranchID      string         `json:"branch_id" gorm:"column:branch_id"`
