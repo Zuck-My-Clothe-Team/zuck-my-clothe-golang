@@ -32,7 +32,7 @@ func CreateMachineController(machineUsecase model.MachineUsecase) MachineControl
 // @Accept			json
 // @Produce		json
 // @Param			MachineModel	body		model.AddMachineDTO	true	"New Machine Data"
-// @Success		201				{object}	model.MachineDetail	"Created"
+// @Success		201				{object}	model.Machine	"Created"
 // @Failure		406				{string}	string				"Not Acceptable"
 // @Failure		500				{string}	string				"internal server error"
 // @Router			/machine/add [post]
@@ -71,7 +71,7 @@ func (u *machineController) AddMachine(c *fiber.Ctx) error {
 // @Tags			Machine
 // @Produce		json
 // @Param			serial_id	path		string				true	"Machine Serial ID"
-// @Success		200			{object}	model.MachineDetail	"OK"
+// @Success		200			{object}	model.Machine	"OK"
 // @Failure		404			{string}	string				"Not Found"
 // @Failure		500			{string}	string				"Internal Server Error"
 // @Router			/machine/{serial_id} [get]
@@ -107,7 +107,7 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 // @Tags			Machine
 // @Produce		json
 // @Param			branch_id	path		string				true	"Branch ID"
-// @Success		200			{array}		model.MachineDetail	"OK"
+// @Success		200			{object}	model.Machine	"OK"
 // @Failure		404			{string}	string				"Not Found"
 // @Failure		500			{string}	string				"Internal Server Error"
 // @Router			/machine/branch/{branch_id} [get]
@@ -142,7 +142,7 @@ func (u *machineController) GetByBranchID(c *fiber.Ctx) error {
 // @Description	Retrieve all machines in the system
 // @Tags			Machine
 // @Produce		json
-// @Success		200	{array}		model.MachineDetail	"OK"
+// @Success		200	{array}		model.Machine	"OK"
 // @Failure		404	{string}	string				"Not Found"
 // @Failure		500	{string}	string				"Internal Server Error"
 // @Router			/machine/all [get]
@@ -164,7 +164,7 @@ func (u *machineController) GetAll(c *fiber.Ctx) error {
 // @Description	Soft delete a machine by its serial ID
 // @Tags			Machine
 // @Param			serial_id	path		string				true	"Machine Serial ID"
-// @Success		200			{object}	model.MachineDetail	"OK"
+// @Success		200			{object}	model.Machine	"OK"
 // @Failure		404			{string}	string				"Not Found"
 // @Failure		500			{string}	string				"Internal Server Error"
 // @Router			/machine/delete/{serial_id} [delete]
@@ -194,7 +194,7 @@ func (u *machineController) SoftDelete(c *fiber.Ctx) error {
 // @Tags			Machine
 // @Param			serial_id	path		string				true	"Machine Serial ID"
 // @Param			set_active	path		string				true	"Set Active (true/false)"
-// @Success		200			{object}	model.MachineDetail	"OK"
+// @Success		200			{object}	model.Machine	"OK"
 // @Failure		400			{string}	string				"Bad Request"
 // @Failure		404			{string}	string				"Not Found"
 // @Failure		500			{string}	string				"Internal Server Error"

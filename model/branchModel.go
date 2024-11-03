@@ -11,7 +11,7 @@ func (Branch) TableName() string {
 }
 
 type Branch struct {
-	BranchID     string         `json:"branch_id" gorm:"column:branch_id"`
+	BranchID     string         `json:"branch_id" gorm:"column:branch_id;primaryKey"`
 	BranchName   string         `json:"branch_name" gorm:"column:branch_name"`
 	BranchDetail string         `json:"branch_detail" gorm:"column:branch_detail"`
 	BranchLat    float64        `json:"branch_lat" gorm:"column:branch_lat"`
@@ -20,9 +20,9 @@ type Branch struct {
 	CreatedAt    time.Time      `json:"created_at" gorm:"column:created_at"`
 	CreatedBy    string         `json:"created_by" gorm:"column:created_by"`
 	UpdatedAt    time.Time      `json:"updated_at" gorm:"column:updated_at"`
-	UpdatedBy    string         `json:"updated_by,omitempty" gorm:"column:updated_by"`
-	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
-	DeletedBy    *string        `json:"deleted_by,omitempty" gorm:"column:deleted_by"`
+	UpdatedBy    string         `json:"updated_by" gorm:"column:updated_by"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at;index" swaggertype:"string" example:"null"`
+	DeletedBy    *string        `json:"deleted_by" gorm:"column:deleted_by"`
 }
 
 type CreateBranchDTO struct {

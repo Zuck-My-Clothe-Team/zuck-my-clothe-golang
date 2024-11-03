@@ -33,7 +33,7 @@ func CreateNewBranchController(branchUsecase model.BranchUsecase) BranchControll
 // @Produce		json
 // @Accept			json
 // @Param			BranchModel	body model.CreateBranchDTO	true	"New Branch Data"
-// @Success		201 string mode.BranchDetail
+// @Success		201 string mode.Branch
 // @Failure		403	{string}	string	"Forbidden"
 // @Failure		406	{string}	string	"Not Acceptable"
 // @Router			/branch/create [POST]
@@ -69,7 +69,7 @@ func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Accept			json
 // @Produce		json
-// @Success		200	{array}		model.BranchDetail
+// @Success		200	{array}		model.Branch
 // @Failure		404	{string}	string	"Not Found"
 // @Failure		500	{string}	string	"Internal Server Error"
 // @Router			/branch/all [get]
@@ -100,7 +100,7 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Produce		json
 // @Param			id	path		string	true	"branch ID"
-// @Success		200	{object}	model.BranchDetail
+// @Success		200	{object}	model.Branch
 // @Success		204	{string}	string	"Not Found"
 // @Router			/branch/{id} [GET]
 func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
@@ -132,13 +132,21 @@ func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 // @Tags			Branches
 // @Accept			json
 // @Produce		json
-// @Success		200	{object}	model.BranchDetail
+// @Success		200	{object}	model.Branch
 // @Success		204	{string}	string	"record not found"
 // @Failure		500	{string}	string	"internal server error"
-// @Router			/branch/owns [get]
+// @Failure		403	{string}	string	"forbidden"
+// @Router			/branch/owner [get]
 func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
+
+	role := claims["positionID"].(string)
+
+	if role != "BranchManager" {
+		return c.SendStatus(fiber.StatusForbidden)
+	}
+
 	branch, err := u.branchUsecase.GetByBranchOwner(claims["userID"].(string))
 	if err != nil {
 		if err.Error() == "record not found" {
@@ -157,7 +165,7 @@ func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 // @Accept			json
 // @Produce		json
 // @Param			branch	body		model.UpdateBranchDTO	true	"Branch data"
-// @Success		200		{object}	model.BranchDetail
+// @Success		200		{object}	model.Branch
 // @Failure		406		{string}	string	"not acceptable"
 // @Router			/branch/update [put]
 func (u *branchController) UpdateBranch(c *fiber.Ctx) error {

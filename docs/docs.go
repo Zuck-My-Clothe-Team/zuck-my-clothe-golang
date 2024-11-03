@@ -181,7 +181,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.BranchDetail"
+                                "$ref": "#/definitions/model.Branch"
                             }
                         }
                     },
@@ -246,7 +246,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/branch/owns": {
+        "/branch/owner": {
             "get": {
                 "description": "Get branch details by branch owner",
                 "consumes": [
@@ -263,11 +263,17 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.BranchDetail"
+                            "$ref": "#/definitions/model.Branch"
                         }
                     },
                     "204": {
                         "description": "record not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
                         "schema": {
                             "type": "string"
                         }
@@ -309,7 +315,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.BranchDetail"
+                            "$ref": "#/definitions/model.Branch"
                         }
                     },
                     "406": {
@@ -344,7 +350,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.BranchDetail"
+                            "$ref": "#/definitions/model.Branch"
                         }
                     },
                     "204": {
@@ -426,7 +432,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "406": {
@@ -460,7 +466,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.MachineDetail"
+                                "$ref": "#/definitions/model.Machine"
                             }
                         }
                     },
@@ -502,10 +508,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.MachineDetail"
-                            }
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
@@ -543,7 +546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
@@ -588,7 +591,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "400": {
@@ -635,7 +638,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
@@ -875,7 +878,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.BranchDetail": {
+        "model.Branch": {
             "type": "object",
             "properties": {
                 "branch_detail": {
@@ -893,7 +896,26 @@ const docTemplate = `{
                 "branch_name": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
                 "owner_user_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
                     "type": "string"
                 }
             }
@@ -925,10 +947,24 @@ const docTemplate = `{
                 }
             }
         },
-        "model.MachineDetail": {
+        "model.Machine": {
+            "description": "Retrieve details of a machine",
             "type": "object",
             "properties": {
                 "branch_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
                     "type": "string"
                 },
                 "is_active": {
@@ -939,6 +975,12 @@ const docTemplate = `{
                 },
                 "machine_type": {
                     "$ref": "#/definitions/model.MachineType"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
                 },
                 "weight": {
                     "type": "integer"

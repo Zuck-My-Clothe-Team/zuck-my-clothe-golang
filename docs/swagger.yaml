@@ -54,7 +54,7 @@ definitions:
       token:
         type: string
     type: object
-  model.BranchDetail:
+  model.Branch:
     properties:
       branch_detail:
         type: string
@@ -66,7 +66,20 @@ definitions:
         type: number
       branch_name:
         type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
+        type: string
       owner_user_id:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
         type: string
     type: object
   model.CreateBranchDTO:
@@ -88,9 +101,19 @@ definitions:
     - branch_name
     - owner_user_id
     type: object
-  model.MachineDetail:
+  model.Machine:
+    description: Retrieve details of a machine
     properties:
       branch_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
         type: string
       is_active:
         type: boolean
@@ -98,6 +121,10 @@ definitions:
         type: string
       machine_type:
         $ref: '#/definitions/model.MachineType'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
       weight:
         type: integer
     type: object
@@ -319,7 +346,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.BranchDetail'
+            $ref: '#/definitions/model.Branch'
         "204":
           description: Not Found
           schema:
@@ -339,7 +366,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.BranchDetail'
+              $ref: '#/definitions/model.Branch'
             type: array
         "404":
           description: Not Found
@@ -382,7 +409,7 @@ paths:
       summary: Create new branch
       tags:
       - Branches
-  /branch/owns:
+  /branch/owner:
     get:
       consumes:
       - application/json
@@ -393,9 +420,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.BranchDetail'
+            $ref: '#/definitions/model.Branch'
         "204":
           description: record not found
+          schema:
+            type: string
+        "403":
+          description: forbidden
           schema:
             type: string
         "500":
@@ -423,7 +454,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.BranchDetail'
+            $ref: '#/definitions/model.Branch'
         "406":
           description: not acceptable
           schema:
@@ -446,7 +477,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.MachineDetail'
+            $ref: '#/definitions/model.Machine'
         "404":
           description: Not Found
           schema:
@@ -476,7 +507,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/model.MachineDetail'
+            $ref: '#/definitions/model.Machine'
         "406":
           description: Not Acceptable
           schema:
@@ -498,7 +529,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.MachineDetail'
+              $ref: '#/definitions/model.Machine'
             type: array
         "404":
           description: Not Found
@@ -526,9 +557,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.MachineDetail'
-            type: array
+            $ref: '#/definitions/model.Machine'
         "404":
           description: Not Found
           schema:
@@ -553,7 +582,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.MachineDetail'
+            $ref: '#/definitions/model.Machine'
         "404":
           description: Not Found
           schema:
@@ -583,7 +612,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.MachineDetail'
+            $ref: '#/definitions/model.Machine'
         "400":
           description: Bad Request
           schema:
