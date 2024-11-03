@@ -21,6 +21,6 @@ func BranchRoutes(routeRegister *config.RoutesRegister) {
 	branchGroup.Get("/all", branchController.GetAll)
 	branchGroup.Get("/owns", middleware.IsBranchManager, branchController.GetByBranchOwner)
 	branchGroup.Get("/:id", middleware.IsBranchManager, branchController.GetByBranchID)
-	branchGroup.Put("/update", branchController.UpdateBranch)
+	branchGroup.Put("/update", middleware.IsBranchManager, branchController.UpdateBranch)
 	branchGroup.Delete("/:id", middleware.IsSuperAdmin, branchController.DeleteBranch)
 }
