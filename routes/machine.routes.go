@@ -18,7 +18,7 @@ func MachineRoutes(routeRegister *config.RoutesRegister) {
 	machineGroup := application.Group("/machine", middleware.AuthRequire)
 
 	machineGroup.Post("/add", middleware.IsBranchManager, machineController.AddMachine)
-	machineGroup.Get("/all", machineController.GetAll)
+	machineGroup.Get("/all", middleware.IsSuperAdmin, machineController.GetAll)
 	machineGroup.Get("/detail/:serial_id", machineController.GetByMachineSerial)
 	machineGroup.Get("/branch/:branch_id", machineController.GetByBranchID)
 

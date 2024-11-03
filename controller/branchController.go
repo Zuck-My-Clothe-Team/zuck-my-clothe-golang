@@ -74,7 +74,17 @@ func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 // @Failure		500	{string}	string	"Internal Server Error"
 // @Router			/branch/all [get]
 func (u *branchController) GetAll(c *fiber.Ctx) error {
-	branchList, err := u.branchUsecase.GetAll()
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	role := claims["positionID"].(string)
+
+	var isAdminView bool = false
+
+	if role == "BranchManager" || role == "SuperAdmin" {
+		isAdminView = true
+	}
+
+	branchList, err := u.branchUsecase.GetAll(isAdminView)
 	if err != nil {
 		if err.Error() == "record not found" {
 			return c.SendStatus(fiber.StatusNotFound)
@@ -95,7 +105,18 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 // @Router			/branch/{id} [GET]
 func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 	branchID := c.Params("id")
-	branch, err := u.branchUsecase.GetByBranchID(branchID)
+
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	role := claims["positionID"].(string)
+
+	var isAdminView bool = false
+
+	if role == "BranchManager" || role == "SuperAdmin" {
+		isAdminView = true
+	}
+
+	branch, err := u.branchUsecase.GetByBranchID(branchID, isAdminView)
 	if err != nil {
 		if err.Error() == "record not found" {
 			return c.SendStatus(fiber.StatusNoContent)

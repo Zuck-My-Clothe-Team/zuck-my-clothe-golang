@@ -13,7 +13,7 @@ func CreateMachineUsecase(machineRepository model.MachineRepository) model.Machi
 	return &machineUsecase{machineRepository: machineRepository}
 }
 
-func toMachineDetail(machine *model.Machine) model.MachineDetail {
+func toMachineDetail(machine *model.Machine) interface{} {
 	result := model.MachineDetail{
 		MachineSerial: machine.MachineSerial,
 		BranchID:      machine.BranchID,
@@ -24,7 +24,7 @@ func toMachineDetail(machine *model.Machine) model.MachineDetail {
 	return result
 }
 
-func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.MachineDetail, error) {
+func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.Machine, error) {
 	machine_data := model.Machine{
 		MachineSerial: new_machine.MachineSerial,
 		BranchID:      new_machine.BranchID,
@@ -49,12 +49,10 @@ func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.Ma
 		return nil, err
 	}
 
-	result := toMachineDetail(machine)
-
-	return &result, nil
+	return machine, nil
 }
 
-func (u *machineUsecase) GetAll() (*[]model.MachineDetail, error) {
+func (u *machineUsecase) GetAll() (*[]model.Machine, error) {
 	var machines *[]model.Machine
 
 	machines, err := u.machineRepository.GetAll()
@@ -63,44 +61,53 @@ func (u *machineUsecase) GetAll() (*[]model.MachineDetail, error) {
 		return nil, err
 	}
 
-	var result []model.MachineDetail
-
-	for _, machine := range *machines {
-		result = append(result, toMachineDetail(&machine))
-	}
-
-	return &result, err
+	return machines, err
 }
 
-func (u *machineUsecase) GetByMachineSerial(machine_serial string) (*model.MachineDetail, error) {
+func (u *machineUsecase) GetByMachineSerial(machine_serial string, isAdminView bool) (*interface{}, error) {
 	machine, err := u.machineRepository.GetByMachineSerial(machine_serial)
 
 	if err != nil {
 		return nil, err
 	}
 
-	result := toMachineDetail(machine)
+	var result interface{} = machine
+
+	if !isAdminView {
+		result = toMachineDetail(machine)
+	}
 
 	return &result, err
 }
 
-func (u *machineUsecase) GetByBranchID(branch_id string) (*[]model.MachineDetail, error) {
+func (u *machineUsecase) GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error) {
 	machines, err := u.machineRepository.GetByBranchID(branch_id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var result []model.MachineDetail
+	var result []interface{}
 
-	for _, machine := range *machines {
-		result = append(result, toMachineDetail(&machine))
+	if len(*machines) == 0 {
+		result = []interface{}{}
+		return &result, err
+	}
+
+	if isAdminView {
+		for _, machine := range *machines {
+			result = append(result, machine)
+		}
+	} else {
+		for _, machine := range *machines {
+			result = append(result, toMachineDetail(&machine))
+		}
 	}
 
 	return &result, err
 }
 
-func (u *machineUsecase) UpdateActive(machine_serial string, set_active bool, updated_by string) (*model.MachineDetail, error) {
+func (u *machineUsecase) UpdateActive(machine_serial string, set_active bool, updated_by string) (*model.Machine, error) {
 
 	updated_machine, err := u.machineRepository.UpdateActive(machine_serial, set_active, updated_by)
 
@@ -108,19 +115,15 @@ func (u *machineUsecase) UpdateActive(machine_serial string, set_active bool, up
 		return nil, err
 	}
 
-	result := toMachineDetail(updated_machine)
-
-	return &result, err
+	return updated_machine, err
 }
 
-func (u *machineUsecase) SoftDelete(machine_serial string, deleted_by string) (*model.MachineDetail, error) {
+func (u *machineUsecase) SoftDelete(machine_serial string, deleted_by string) (*model.Machine, error) {
 	deleted_machine, err := u.machineRepository.SoftDelete(machine_serial, deleted_by)
 
 	if err != nil {
 		return nil, err
 	}
 
-	result := toMachineDetail(deleted_machine)
-
-	return &result, err
+	return deleted_machine, err
 }

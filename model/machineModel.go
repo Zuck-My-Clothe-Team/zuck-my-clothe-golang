@@ -46,11 +46,11 @@ type AddMachineDTO struct {
 }
 
 type MachineDetail struct {
-	MachineSerial string      `json:"machine_serial" gorm:"column:machine_serial"`
-	BranchID      string      `json:"branch_id" gorm:"column:branch_id"`
-	MachineType   MachineType `json:"machine_type" gorm:"column:machine_type"`
-	IsActive      bool        `json:"is_active" gorm:"column:is_active"`
-	Weight        int16       `json:"weight" gorm:"column:weight"`
+	MachineSerial string      `json:"machine_serial"`
+	BranchID      string      `json:"branch_id"`
+	MachineType   MachineType `json:"machine_type"`
+	IsActive      bool        `json:"is_active"`
+	Weight        int16       `json:"weight"`
 }
 
 type MachineRepository interface {
@@ -63,10 +63,10 @@ type MachineRepository interface {
 }
 
 type MachineUsecase interface {
-	SoftDelete(machine_serial string, deleted_by string) (*MachineDetail, error)
-	UpdateActive(branch_id string, set_active bool, updated_by string) (*MachineDetail, error)
-	GetByBranchID(branch_id string) (*[]MachineDetail, error)
-	GetAll() (*[]MachineDetail, error)
-	AddMachine(newMachine *AddMachineDTO) (*MachineDetail, error)
-	GetByMachineSerial(machineSerial string) (*MachineDetail, error)
+	SoftDelete(machine_serial string, deleted_by string) (*Machine, error)
+	UpdateActive(branch_id string, set_active bool, updated_by string) (*Machine, error)
+	GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error)
+	GetAll() (*[]Machine, error)
+	AddMachine(newMachine *AddMachineDTO) (*Machine, error)
+	GetByMachineSerial(machineSerial string, isAdminView bool) (*interface{}, error)
 }
