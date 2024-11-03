@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
@@ -49,10 +48,12 @@ func (u *branchReopository) GetByBranchID(branchID string) (*model.Branch, error
 
 func (u *branchReopository) GetByBranchOwner(ownerUserID string) (*[]model.Branch, error) {
 	branch := new([]model.Branch)
-	dbTx := u.db.Table("Branches").Where("owner_user_id = ? AND (deleted_at = ? OR deleted_at >= ?)", ownerUserID, "0001-01-01T00:00:00Z", time.Now()).Find(branch)
+	dbTx := u.db.Table("Branches").Where("owner_user_id = ?", ownerUserID).Find(branch)
+
 	if dbTx.RowsAffected == 0 {
 		return nil, errors.New("record not found")
 	}
+
 	return branch, dbTx.Error
 }
 

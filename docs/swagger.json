@@ -174,7 +174,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.BranchDetail"
+                                "$ref": "#/definitions/model.Branch"
                             }
                         }
                     },
@@ -239,7 +239,7 @@
                 }
             }
         },
-        "/branch/owns": {
+        "/branch/owner": {
             "get": {
                 "description": "Get branch details by branch owner",
                 "consumes": [
@@ -256,11 +256,17 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.BranchDetail"
+                            "$ref": "#/definitions/model.Branch"
                         }
                     },
                     "204": {
                         "description": "record not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
                         "schema": {
                             "type": "string"
                         }
@@ -302,7 +308,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.BranchDetail"
+                            "$ref": "#/definitions/model.Branch"
                         }
                     },
                     "406": {
@@ -337,7 +343,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.BranchDetail"
+                            "$ref": "#/definitions/model.Branch"
                         }
                     },
                     "204": {
@@ -419,7 +425,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "406": {
@@ -453,7 +459,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.MachineDetail"
+                                "$ref": "#/definitions/model.Machine"
                             }
                         }
                     },
@@ -495,10 +501,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.MachineDetail"
-                            }
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
@@ -536,7 +539,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
@@ -581,7 +584,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "400": {
@@ -628,7 +631,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.MachineDetail"
+                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
@@ -868,7 +871,7 @@
                 }
             }
         },
-        "model.BranchDetail": {
+        "model.Branch": {
             "type": "object",
             "properties": {
                 "branch_detail": {
@@ -886,7 +889,26 @@
                 "branch_name": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
                 "owner_user_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
                     "type": "string"
                 }
             }
@@ -918,10 +940,24 @@
                 }
             }
         },
-        "model.MachineDetail": {
+        "model.Machine": {
+            "description": "Retrieve details of a machine",
             "type": "object",
             "properties": {
                 "branch_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
                     "type": "string"
                 },
                 "is_active": {
@@ -932,6 +968,12 @@
                 },
                 "machine_type": {
                     "$ref": "#/definitions/model.MachineType"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
                 },
                 "weight": {
                     "type": "integer"

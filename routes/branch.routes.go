@@ -19,7 +19,7 @@ func BranchRoutes(routeRegister *config.RoutesRegister) {
 
 	branchGroup.Post("/create", middleware.IsSuperAdmin, branchController.CreateBranch)
 	branchGroup.Get("/all", branchController.GetAll)
-	branchGroup.Get("/owns", middleware.IsBranchManager, branchController.GetByBranchOwner)
+	branchGroup.Get("/owner", middleware.IsBranchManager, branchController.GetByBranchOwner)
 	branchGroup.Get("/:id", branchController.GetByBranchID)
 	branchGroup.Put("/update", middleware.IsBranchManager, branchController.UpdateBranch)
 	branchGroup.Delete("/:id", middleware.IsSuperAdmin, branchController.DeleteBranch)
