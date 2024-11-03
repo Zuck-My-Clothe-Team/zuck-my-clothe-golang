@@ -29,7 +29,7 @@ func toBranchDetail(branch *model.Branch) model.BranchDetail {
 	return res
 }
 
-func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranchDTO, userID string) (*model.BranchDetail, error) {
+func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranchDTO, userID string) (*model.Branch, error) {
 	data := model.Branch{
 		BranchID:     uuid.New().String(),
 		BranchName:   newBranch.BranchName,
@@ -52,47 +52,56 @@ func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranchDTO, userID st
 		return nil, err
 	}
 
-	res := toBranchDetail(branch)
-
-	return &res, nil
+	return branch, nil
 }
 
-func (u *branchUsecase) GetAll() (*[]model.BranchDetail, error) {
+func (u *branchUsecase) GetAll(isAdminView bool) (*[]interface{}, error) {
 	branchList, err := u.branchRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	var res []interface{}
 
-	var result []model.BranchDetail
-
-	for _, branch := range *branchList {
-		result = append(result, toBranchDetail(&branch))
+	if isAdminView {
+		for _, branch := range *branchList {
+			res = append(res, branch)
+		}
+	} else {
+		for _, branch := range *branchList {
+			res = append(res, toBranchDetail(&branch))
+		}
 	}
 
-	return &result, err
+	return &res, err
 }
 
-func (u *branchUsecase) GetByBranchID(branchID string) (*model.BranchDetail, error) {
+func (u *branchUsecase) GetByBranchID(branchID string, isAdminView bool) (*interface{}, error) {
 	branch, err := u.branchRepository.GetByBranchID(branchID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	res := toBranchDetail(branch)
+	var res interface{} = branch
+
+	if !isAdminView {
+		res = toBranchDetail(branch)
+	}
 
 	return &res, err
 }
 
-func (u *branchUsecase) GetByBranchOwner(owenerUserID string) (*[]model.BranchDetail, error) {
-	branchList, err := u.branchRepository.GetByBranchOwner(owenerUserID)
-	var result []model.BranchDetail
+func (u *branchUsecase) GetByBranchOwner(ownerUserID string) (*[]model.Branch, error) {
+	branchList, err := u.branchRepository.GetByBranchOwner(ownerUserID)
 
-	for _, branch := range *branchList {
-		result = append(result, toBranchDetail(&branch))
+	if err != nil {
+		return nil, err
 	}
 
-	return &result, err
+	return branchList, err
 }
 
-func (u *branchUsecase) UpdateBranch(branch *model.UpdateBranchDTO, role string) (*model.BranchDetail, error) {
+func (u *branchUsecase) UpdateBranch(branch *model.UpdateBranchDTO, role string) (*model.Branch, error) {
 	data := model.Branch{
 		BranchID:     branch.BranchID,
 		BranchName:   branch.BranchName,
@@ -113,9 +122,12 @@ func (u *branchUsecase) UpdateBranch(branch *model.UpdateBranchDTO, role string)
 	}
 
 	response, err := u.branchRepository.GetByBranchID(branch.BranchID)
-	res := toBranchDetail(response)
 
-	return &res, err
+	if err != nil {
+		return nil, err
+	}
+
+	return response, err
 }
 
 func (u *branchUsecase) DeleteBranch(branch *model.Branch) error {

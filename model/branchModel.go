@@ -19,9 +19,9 @@ type Branch struct {
 	OwnerUserID  string         `json:"owner_user_id" gorm:"column:owner_user_id"`
 	CreatedAt    time.Time      `json:"created_at" gorm:"column:created_at"`
 	CreatedBy    string         `json:"created_by" gorm:"column:created_by"`
-	UpdatedAt    time.Time      `gorm:"column:updated_at"`
+	UpdatedAt    time.Time      `json:"updated_at" gorm:"column:updated_at"`
 	UpdatedBy    string         `json:"updated_by,omitempty" gorm:"column:updated_by"`
-	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
 	DeletedBy    *string        `json:"deleted_by,omitempty" gorm:"column:deleted_by"`
 }
 
@@ -61,10 +61,10 @@ type BranchReopository interface {
 }
 
 type BranchUsecase interface {
-	CreateBranch(newBranch *CreateBranchDTO, userID string) (*BranchDetail, error)
-	GetAll() (*[]BranchDetail, error)
-	GetByBranchID(branchID string) (*BranchDetail, error)
-	GetByBranchOwner(ownerUserID string) (*[]BranchDetail, error)
-	UpdateBranch(branch *UpdateBranchDTO, role string) (*BranchDetail, error)
+	CreateBranch(newBranch *CreateBranchDTO, userID string) (*Branch, error)
+	GetAll(isAdminView bool) (*[]interface{}, error)
+	GetByBranchID(branchID string, isAdminView bool) (*interface{}, error)
+	GetByBranchOwner(ownerUserID string) (*[]Branch, error)
+	UpdateBranch(branch *UpdateBranchDTO, role string) (*Branch, error)
 	DeleteBranch(branch *Branch) error
 }

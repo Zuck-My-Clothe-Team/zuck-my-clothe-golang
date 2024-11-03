@@ -78,7 +78,17 @@ func (u *machineController) AddMachine(c *fiber.Ctx) error {
 func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 	serialID := c.Params("serial_id")
 
-	branch, err := u.machineUsecase.GetByMachineSerial(serialID)
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	role := claims["positionID"].(string)
+
+	var isAdminView bool = false
+
+	if role == "BranchManager" || role == "SuperAdmin" {
+		isAdminView = true
+	}
+
+	branch, err := u.machineUsecase.GetByMachineSerial(serialID, isAdminView)
 
 	if err != nil {
 		if err.Error() == "record not found" {
@@ -104,7 +114,17 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 func (u *machineController) GetByBranchID(c *fiber.Ctx) error {
 	branch_id := c.Params("branch_id")
 
-	result, err := u.machineUsecase.GetByBranchID(branch_id)
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	role := claims["positionID"].(string)
+
+	var isAdminView bool = false
+
+	if role == "BranchManager" || role == "SuperAdmin" {
+		isAdminView = true
+	}
+
+	result, err := u.machineUsecase.GetByBranchID(branch_id, isAdminView)
 
 	if err != nil {
 		if err.Error() == "record not found" {
