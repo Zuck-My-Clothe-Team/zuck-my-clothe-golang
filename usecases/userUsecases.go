@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
@@ -28,7 +29,14 @@ func (repo *userUsecases) CreateUser(newUser model.Users) error {
 	if hashErr != nil {
 		return hashErr
 	}
+
 	newUser.Password = string(buffer)
+	numRow, err := repo.repository.UndeleteUser(newUser)
+	if numRow == 1 && err == nil {
+		return nil
+	}
+	newUser.CreateAt = time.Now()
+	newUser.UpdateAt = time.Now()
 	repoError := repo.repository.CreateUser(newUser)
 	return repoError
 }
@@ -53,7 +61,7 @@ func (repo *userUsecases) GetAllManager() ([]model.Users, error) {
 	return users, err
 }
 
-func (repo *userUsecases) DeleteUser(userID string) error {
-	err := repo.repository.DeleteUser(userID)
-	return err
+func (repo *userUsecases) DeleteUser(userID string) (*model.Users, error) {
+	deletedUser, err := repo.repository.DeleteUser(userID)
+	return deletedUser, err
 }

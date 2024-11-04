@@ -82,13 +82,18 @@ func (controller *userController) GetAllManager(c *fiber.Ctx) error {
 // @Accept			json
 // @Produce		json
 // @Param			id	path	string	true	"User ID"
-// @Success		200
+// @Success		200 {struct}	model.Users
 // @Failure		500	{string}	string	"Internal Server Error"
 // @Router			/users/:id [delete]
 func (controller *userController) DeleteUser(c *fiber.Ctx) error {
 	userID := c.Params("id")
-	if err := controller.usecase.DeleteUser(userID); err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	deletedUser, err := controller.usecase.DeleteUser(userID)
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.Status(fiber.StatusNoContent).SendString(err.Error())
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
 	}
-	return c.SendStatus(fiber.StatusOK)
+	return c.Status(fiber.StatusOK).JSON(deletedUser)
 }
