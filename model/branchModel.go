@@ -48,6 +48,12 @@ type BranchDetail struct {
 	BranchLat    float64 `json:"branch_lat"`
 	BranchLon    float64 `json:"branch_long"`
 	OwnerUserID  string  `json:"owner_user_id"`
+	Distance     float64 `json:"distance"`
+}
+
+type UserGeoLocation struct {
+	BranchLat float64 `json:"user_lat" validate:"required"`
+	BranchLon float64 `json:"user_lon" validate:"required"`
 }
 
 type BranchReopository interface {
@@ -62,7 +68,8 @@ type BranchReopository interface {
 
 type BranchUsecase interface {
 	CreateBranch(newBranch *CreateBranchDTO, userID string) (*Branch, error)
-	GetAll(isAdminView bool) (*[]interface{}, error)
+	GetAll() (*[]Branch, error)
+	GetClosestToMe(userLocation *UserGeoLocation) (*[]BranchDetail, error)
 	GetByBranchID(branchID string, isAdminView bool) (*interface{}, error)
 	GetByBranchOwner(ownerUserID string) (*[]Branch, error)
 	UpdateBranch(branch *UpdateBranchDTO, role string) (*Branch, error)

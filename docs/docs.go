@@ -200,6 +200,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/branch/closest-to-me": {
+            "post": {
+                "description": "Get a list of all branches closest to user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Branches"
+                ],
+                "summary": "Get branches closest to user",
+                "parameters": [
+                    {
+                        "description": "User geo location data",
+                        "name": "UserGeoLocation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserGeoLocation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.BranchDetail"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/branch/create": {
             "post": {
                 "description": "Create a new branch by using Branch model",
@@ -723,7 +772,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "struct"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -920,6 +972,32 @@ const docTemplate = `{
                 }
             }
         },
+        "model.BranchDetail": {
+            "type": "object",
+            "properties": {
+                "branch_detail": {
+                    "type": "string"
+                },
+                "branch_id": {
+                    "type": "string"
+                },
+                "branch_lat": {
+                    "type": "number"
+                },
+                "branch_long": {
+                    "type": "number"
+                },
+                "branch_name": {
+                    "type": "string"
+                },
+                "distance": {
+                    "type": "number"
+                },
+                "owner_user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.CreateBranchDTO": {
             "type": "object",
             "required": [
@@ -1052,46 +1130,23 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Users": {
+        "model.UserGeoLocation": {
             "type": "object",
+            "required": [
+                "user_lat",
+                "user_lon"
+            ],
             "properties": {
-                "created_at": {
-                    "type": "string"
+                "user_lat": {
+                    "type": "number"
                 },
-                "deleteAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstname": {
-                    "type": "string"
-                },
-                "google_id": {
-                    "type": "string"
-                },
-                "lastname": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "profile_image_url": {
-                    "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/model.Roles"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
+                "user_lon": {
+                    "type": "number"
                 }
             }
+        },
+        "model.Users": {
+            "type": "object"
         }
     }
 }`

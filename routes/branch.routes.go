@@ -18,7 +18,8 @@ func BranchRoutes(routeRegister *config.RoutesRegister) {
 	branchGroup := application.Group("/branch", middleware.AuthRequire)
 
 	branchGroup.Post("/create", middleware.IsSuperAdmin, branchController.CreateBranch)
-	branchGroup.Get("/all", branchController.GetAll)
+	branchGroup.Get("/all", middleware.IsSuperAdmin, branchController.GetAll)
+	branchGroup.Post("/closest-to-me", branchController.GetClosestToMe)
 	branchGroup.Get("/owner", middleware.IsBranchManager, branchController.GetByBranchOwner)
 	branchGroup.Get("/:id", branchController.GetByBranchID)
 	branchGroup.Put("/update", middleware.IsBranchManager, branchController.UpdateBranch)

@@ -13,6 +13,7 @@ import (
 type BranchController interface {
 	CreateBranch(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
+	GetClosestToMe(c *fiber.Ctx) error
 	GetByBranchID(c *fiber.Ctx) error
 	GetByBranchOwner(c *fiber.Ctx) error
 	UpdateBranch(c *fiber.Ctx) error
@@ -74,17 +75,38 @@ func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 // @Failure		500	{string}	string	"Internal Server Error"
 // @Router			/branch/all [get]
 func (u *branchController) GetAll(c *fiber.Ctx) error {
-	token := c.Locals("user").(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
-	role := claims["positionID"].(string)
+	branchList, err := u.branchUsecase.GetAll()
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+	return c.Status(fiber.StatusOK).JSON(branchList)
+}
 
-	var isAdminView bool = false
-
-	if role == "BranchManager" || role == "SuperAdmin" {
-		isAdminView = true
+// @Summary		Get branches closest to user
+// @Description	Get a list of all branches closest to user
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Param			UserGeoLocation	body model.UserGeoLocation	true	"User geo location data"
+// @Success		200	{array}		model.BranchDetail
+// @Failure		404	{string}	string	"Not Found"
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/branch/closest-to-me [post]
+func (u *branchController) GetClosestToMe(c *fiber.Ctx) error {
+	userLocation := new(model.UserGeoLocation)
+	if err := c.BodyParser(userLocation); err != nil {
+		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
+	}
+	if err := validatorboi.Validate(userLocation); err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 	}
 
-	branchList, err := u.branchUsecase.GetAll(isAdminView)
+	branchList, err := u.branchUsecase.GetClosestToMe(userLocation)
 	if err != nil {
 		if err.Error() == "record not found" {
 			return c.SendStatus(fiber.StatusNotFound)
