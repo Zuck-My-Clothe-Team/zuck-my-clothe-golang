@@ -82,6 +82,23 @@ definitions:
       updated_by:
         type: string
     type: object
+  model.BranchDetail:
+    properties:
+      branch_detail:
+        type: string
+      branch_id:
+        type: string
+      branch_lat:
+        type: number
+      branch_long:
+        type: number
+      branch_name:
+        type: string
+      distance:
+        type: number
+      owner_user_id:
+        type: string
+    type: object
   model.CreateBranchDTO:
     properties:
       branch_detail:
@@ -175,32 +192,17 @@ definitions:
     - branch_name
     - owner_user_id
     type: object
-  model.Users:
+  model.UserGeoLocation:
     properties:
-      created_at:
-        type: string
-      deleteAt:
-        type: string
-      email:
-        type: string
-      firstname:
-        type: string
-      google_id:
-        type: string
-      lastname:
-        type: string
-      password:
-        type: string
-      phone:
-        type: string
-      profile_image_url:
-        type: string
-      role:
-        $ref: '#/definitions/model.Roles'
-      updated_at:
-        type: string
-      user_id:
-        type: string
+      user_lat:
+        type: number
+      user_lon:
+        type: number
+    required:
+    - user_lat
+    - user_lon
+    type: object
+  model.Users:
     type: object
 info:
   contact: {}
@@ -377,6 +379,38 @@ paths:
           schema:
             type: string
       summary: Get all branches
+      tags:
+      - Branches
+  /branch/closest-to-me:
+    post:
+      consumes:
+      - application/json
+      description: Get a list of all branches closest to user
+      parameters:
+      - description: User geo location data
+        in: body
+        name: UserGeoLocation
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserGeoLocation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.BranchDetail'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get branches closest to user
       tags:
       - Branches
   /branch/create:
@@ -672,6 +706,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            type: struct
         "500":
           description: Internal Server Error
           schema:
