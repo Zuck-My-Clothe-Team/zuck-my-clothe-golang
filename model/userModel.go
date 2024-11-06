@@ -44,6 +44,16 @@ type GoogleUser struct {
 	ImageUrl    string `json:"picture"`
 }
 
+type UserDTO struct {
+	Email           string `json:"email" validate:"required"`
+	Password        string `json:"password" validate:"required"`
+	Phone           string `json:"phone"`
+	FirstName       string `json:"firstname" validate:"required"`
+	LastName        string `json:"lastname" validate:"required"`
+	ProfileImageURL string `json:"profile_image_url"`
+	Role            Roles  `json:"role" validate:"required,userRoles"`
+}
+
 type UserContract struct {
 	UserID          string             `json:"user_id"`
 	Email           string             `json:"email"`
@@ -53,4 +63,15 @@ type UserContract struct {
 	ProfileImageURL string             `json:"profile_image_url"`
 	Role            Roles              `json:"role"`
 	Contracts       []EmployeeContract `json:"contracts"`
+}
+
+type UserBranch struct {
+	UserID          string   `json:"user_id"`
+	Email           string   `json:"email"`
+	Phone           string   `json:"phone"`
+	FirstName       string   `json:"firstname"`
+	LastName        string   `json:"lastname"`
+	ProfileImageURL string   `json:"profile_image_url"`
+	Role            Roles    `json:"role"`
+	Branch          []Branch `json:"branch"`
 }

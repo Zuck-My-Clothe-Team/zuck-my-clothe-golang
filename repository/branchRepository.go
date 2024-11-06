@@ -8,11 +8,21 @@ import (
 	"gorm.io/gorm"
 )
 
+type BranchReopository interface {
+	CreateBranch(newBranch *model.Branch) error
+	GetAll() (*[]model.Branch, error)
+	GetByBranchID(branchID string) (*model.Branch, error)
+	GetByBranchOwner(ownerUserID string) (*[]model.Branch, error)
+	UpdateBranch(branch *model.Branch) error
+	ManagerUpdateBranch(branch *model.Branch) error
+	DeleteBranch(branch *model.Branch) error
+}
+
 type branchReopository struct {
 	db *platform.Postgres
 }
 
-func CreateNewBranchRepository(db *platform.Postgres) model.BranchReopository {
+func CreateNewBranchRepository(db *platform.Postgres) BranchReopository {
 	return &branchReopository{db: db}
 }
 

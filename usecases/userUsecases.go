@@ -15,7 +15,7 @@ type UserUsecases interface {
 	CreateUser(newUser model.Users) error
 	FindUserByEmail(email string) (*model.Users, error)
 	FindUserByGoogleID(googleID string) (*model.Users, error)
-	GetAll() ([]model.Users, error)
+	GetAll() ([]model.UserBranch, error)
 	GetBranchEmployee(branchId string) ([]model.UserContract, error)
 	GetAllManager() ([]model.Users, error)
 	DeleteUser(userID string) (*model.Users, error)
@@ -24,15 +24,18 @@ type UserUsecases interface {
 type userUsecases struct {
 	repository                 repository.UserRepository
 	employeeContractRepository repository.EmployeeContractRepository
+	branchRepository           repository.BranchReopository
 }
 
 func CreateNewUserUsecases(
 	repository repository.UserRepository,
 	employeeContractRepository repository.EmployeeContractRepository,
+	branchRepository repository.BranchReopository,
 ) UserUsecases {
 	return &userUsecases{
 		repository:                 repository,
 		employeeContractRepository: employeeContractRepository,
+		branchRepository:           branchRepository,
 	}
 }
 
@@ -69,9 +72,85 @@ func (repo *userUsecases) FindUserByGoogleID(googleID string) (*model.Users, err
 	return user, err
 }
 
-func (repo *userUsecases) GetAll() ([]model.Users, error) {
+func (repo *userUsecases) GetAll() ([]model.UserBranch, error) {
 	users, err := repo.repository.GetAll()
-	return users, err
+
+	var allUsers []model.UserBranch
+
+	for _, user := range users {
+		var userBranch model.UserBranch
+		if user.Role == model.BranchManager {
+			branch, err := repo.branchRepository.GetByBranchOwner(user.UserID)
+			if err != nil {
+				if err.Error() == "record not found" {
+					branch = &[]model.Branch{}
+				}
+			}
+
+			userBranch = model.UserBranch{
+				UserID:          user.UserID,
+				Email:           user.Email,
+				Phone:           user.Phone,
+				FirstName:       user.FirstName,
+				LastName:        user.LastName,
+				ProfileImageURL: user.ProfileImageURL,
+				Role:            user.Role,
+				Branch:          *branch,
+			}
+
+		} else if user.Role == model.Employee {
+			contract, err := repo.employeeContractRepository.GetByUserID(user.UserID)
+			if err != nil {
+				if err.Error() == "record not found" {
+					contract = &[]model.EmployeeContract{}
+				} else {
+					return nil, err
+				}
+			}
+
+			var branch *model.Branch = nil
+
+			if len(*contract) != 0 {
+				branch, err = repo.branchRepository.GetByBranchID((*contract)[0].BranchID)
+				if err != nil {
+					if err.Error() != "record not found" {
+						return nil, err
+					}
+					branch = nil
+				}
+			}
+
+			branches := []model.Branch{}
+			if branch != nil {
+				branches = append(branches, *branch)
+			}
+
+			userBranch = model.UserBranch{
+				UserID:          user.UserID,
+				Email:           user.Email,
+				Phone:           user.Phone,
+				FirstName:       user.FirstName,
+				LastName:        user.LastName,
+				ProfileImageURL: user.ProfileImageURL,
+				Role:            user.Role,
+				Branch:          branches,
+			}
+		} else {
+			userBranch = model.UserBranch{
+				UserID:          user.UserID,
+				Email:           user.Email,
+				Phone:           user.Phone,
+				FirstName:       user.FirstName,
+				LastName:        user.LastName,
+				ProfileImageURL: user.ProfileImageURL,
+				Role:            user.Role,
+				Branch:          []model.Branch{},
+			}
+		}
+		allUsers = append(allUsers, userBranch)
+	}
+
+	return allUsers, err
 }
 
 func (repo *userUsecases) GetAllManager() ([]model.Users, error) {

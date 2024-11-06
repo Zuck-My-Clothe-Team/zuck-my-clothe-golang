@@ -1002,7 +1002,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/model.UserDTO"
                         }
                     }
                 ],
@@ -1079,7 +1079,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Users"
+                                "$ref": "#/definitions/model.UserBranch"
                             }
                         }
                     },
@@ -1543,6 +1543,38 @@ const docTemplate = `{
                 }
             }
         },
+        "model.UserBranch": {
+            "type": "object",
+            "properties": {
+                "branch": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Branch"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstname": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profile_image_url": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.Roles"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.UserContract": {
             "type": "object",
             "properties": {
@@ -1572,6 +1604,39 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "model.UserDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "firstname",
+                "lastname",
+                "password",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstname": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profile_image_url": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.Roles"
                 }
             }
         },

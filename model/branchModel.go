@@ -55,23 +55,3 @@ type UserGeoLocation struct {
 	BranchLat float64 `json:"user_lat" validate:"required"`
 	BranchLon float64 `json:"user_lon" validate:"required"`
 }
-
-type BranchReopository interface {
-	CreateBranch(newBranch *Branch) error
-	GetAll() (*[]Branch, error)
-	GetByBranchID(branchID string) (*Branch, error)
-	GetByBranchOwner(ownerUserID string) (*[]Branch, error)
-	UpdateBranch(branch *Branch) error
-	ManagerUpdateBranch(branch *Branch) error
-	DeleteBranch(branch *Branch) error
-}
-
-type BranchUsecase interface {
-	CreateBranch(newBranch *CreateBranchDTO, userID string) (*Branch, error)
-	GetAll(isAdminView bool) (interface{}, error)
-	GetClosestToMe(userLocation *UserGeoLocation) (*[]BranchDetail, error)
-	GetByBranchID(branchID string, isAdminView bool) (*interface{}, error)
-	GetByBranchOwner(ownerUserID string) (*[]Branch, error)
-	UpdateBranch(branch *UpdateBranchDTO, role string) (*Branch, error)
-	DeleteBranch(branch *Branch) error
-}

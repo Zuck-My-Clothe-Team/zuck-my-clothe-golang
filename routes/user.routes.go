@@ -12,8 +12,9 @@ func UserRoutes(routeRegister *config.RoutesRegister) {
 
 	userRepository := repository.CreatenewUserRepository(routeRegister.DbConnection)
 	employeeContractRepository := repository.CreateNewEmployeeContractRepository(routeRegister.DbConnection)
+	branchRepository := repository.CreateNewBranchRepository(routeRegister.DbConnection)
 
-	userUsecases := usecases.CreateNewUserUsecases(userRepository, employeeContractRepository)
+	userUsecases := usecases.CreateNewUserUsecases(userRepository, employeeContractRepository, branchRepository)
 	userController := controller.CreateNewUserController(userUsecases, routeRegister.Config)
 
 	application := routeRegister.Application

@@ -25,35 +25,45 @@ func CreateNewUserController(usecase usecases.UserUsecases, config *config.Confi
 	return &userController{usecase: usecase, config: config}
 }
 
-//	@Summary		Create new user
-//	@Description	Create a new user by using User model
-//	@Tags			Users
-//	@Produce		json
-//	@Accept			json
-//	@Param			UserModel	body	model.Users	true	"New User Data"
-//	@Success		201
-//	@Failure		403	{string}	string	"Forbidden"
-//	@Failure		406	{string}	string	"Not Acceptable"
-//	@Router			/users/ [POST]
+// @Summary		Create new user
+// @Description	Create a new user by using User model
+// @Tags			Users
+// @Produce		json
+// @Accept			json
+// @Param			UserModel	body	model.UserDTO	true	"New User Data"
+// @Success		201
+// @Failure		403	{string}	string	"Forbidden"
+// @Failure		406	{string}	string	"Not Acceptable"
+// @Router			/users/ [POST]
 func (controller *userController) CreateUser(c *fiber.Ctx) error {
-	newUser := new(model.Users)
-	if err := c.BodyParser(newUser); err != nil {
+	body := new(model.UserDTO)
+	if err := c.BodyParser(body); err != nil {
 		return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 	}
-	newUser.GoogleID = ""
+
+	newUser := &model.Users{
+		FirstName:       body.FirstName,
+		LastName:        body.LastName,
+		Email:           body.Email,
+		Password:        body.Password,
+		Role:            body.Role,
+		Phone:           body.Phone,
+		ProfileImageURL: body.ProfileImageURL,
+	}
+
 	if err := controller.usecase.CreateUser(*newUser); err != nil {
 		return c.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 	return c.SendStatus(fiber.StatusCreated)
 }
 
-//	@Summary		Get all users
-//	@Description	Retrieve all users from the database
-//	@Tags			Users
-//	@Produce		json
-//	@Success		200	{array}		model.Users[]
-//	@Failure		500	{string}	string	"Internal Server Error"
-//	@Router			/users/all [get]
+// @Summary		Get all users
+// @Description	Retrieve all users from the database
+// @Tags			Users
+// @Produce		json
+// @Success		200	{array}		model.UserBranch[]
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/users/all [get]
 func (controller *userController) GetAll(c *fiber.Ctx) error {
 	users, err := controller.usecase.GetAll()
 	if err != nil {
@@ -62,14 +72,14 @@ func (controller *userController) GetAll(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
-//	@Summary		Get employees by branch ID
-//	@Description	Get employees by branch ID
-//	@Tags			Users
-//	@Param			branch_id	path		string	true	"Branch ID"
-//	@Success		200			{array}		model.UserContract
-//	@Failure		204			{string}	string	"No Content"
-//	@Failure		500			{string}	string	"Internal Server Error"
-//	@Router			/users/branch/{branch_id} [get]
+// @Summary		Get employees by branch ID
+// @Description	Get employees by branch ID
+// @Tags			Users
+// @Param			branch_id	path		string	true	"Branch ID"
+// @Success		200			{array}		model.UserContract
+// @Failure		204			{string}	string	"No Content"
+// @Failure		500			{string}	string	"Internal Server Error"
+// @Router			/users/branch/{branch_id} [get]
 func (controller *userController) GetBranchEmployee(c *fiber.Ctx) error {
 	branchId := c.Params("branch_id")
 	users, err := controller.usecase.GetBranchEmployee(branchId)
@@ -83,14 +93,14 @@ func (controller *userController) GetBranchEmployee(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
-//	@Summary		Get all managers
-//	@Description	Get a list of all managers
-//	@Tags			Users
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{array}		model.Users[]
-//	@Failure		500	{string}	string	"Internal Server Error"
-//	@Router			/users/manager/all [get]
+// @Summary		Get all managers
+// @Description	Get a list of all managers
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		model.Users[]
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/users/manager/all [get]
 func (controller *userController) GetAllManager(c *fiber.Ctx) error {
 	user, err := controller.usecase.GetAllManager()
 	if err != nil {
@@ -99,15 +109,15 @@ func (controller *userController) GetAllManager(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-//	@Summary		Delete user
-//	@Description	Delete a user by ID
-//	@Tags			Users
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string	true	"User ID"
-//	@Success		200	{struct}	model.Users
-//	@Failure		500	{string}	string	"Internal Server Error"
-//	@Router			/users/:id [delete]
+// @Summary		Delete user
+// @Description	Delete a user by ID
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Param			id	path		string	true	"User ID"
+// @Success		200	{struct}	model.Users
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/users/:id [delete]
 func (controller *userController) DeleteUser(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	deletedUser, err := controller.usecase.DeleteUser(userID)
