@@ -3,16 +3,27 @@ package usecases
 import (
 	"errors"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/repository"
 	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"github.com/google/uuid"
 )
 
-type branchUsecase struct {
-	branchRepository model.BranchReopository
+type BranchUsecase interface {
+	CreateBranch(newBranch *model.CreateBranchDTO, userID string) (*model.Branch, error)
+	GetAll(isAdminView bool) (interface{}, error)
+	GetClosestToMe(userLocation *model.UserGeoLocation) (*[]model.BranchDetail, error)
+	GetByBranchID(branchID string, isAdminView bool) (*interface{}, error)
+	GetByBranchOwner(ownerUserID string) (*[]model.Branch, error)
+	UpdateBranch(branch *model.UpdateBranchDTO, role string) (*model.Branch, error)
+	DeleteBranch(branch *model.Branch) error
 }
 
-func CreateNewBranchUsecase(branchRepository model.BranchReopository) model.BranchUsecase {
+type branchUsecase struct {
+	branchRepository repository.BranchReopository
+}
+
+func CreateNewBranchUsecase(branchRepository repository.BranchReopository) BranchUsecase {
 	return &branchUsecase{branchRepository: branchRepository}
 }
 

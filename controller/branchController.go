@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"zuck-my-clothe/zuck-my-clothe-backend/middleware"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,23 +22,23 @@ type BranchController interface {
 }
 
 type branchController struct {
-	branchUsecase model.BranchUsecase
+	branchUsecase usecases.BranchUsecase
 }
 
-func CreateNewBranchController(branchUsecase model.BranchUsecase) BranchController {
+func CreateNewBranchController(branchUsecase usecases.BranchUsecase) BranchController {
 	return &branchController{branchUsecase: branchUsecase}
 }
 
-//	@Summary		Create new branch
-//	@Description	Create a new branch by using Branch model
-//	@Tags			Branches
-//	@Produce		json
-//	@Accept			json
-//	@Param			BranchModel	body		model.CreateBranchDTO	true	"New Branch Data"
-//	@Success		201			string		mode.Branch
-//	@Failure		403			{string}	string	"Forbidden"
-//	@Failure		406			{string}	string	"Not Acceptable"
-//	@Router			/branch/create [POST]
+// @Summary		Create new branch
+// @Description	Create a new branch by using Branch model
+// @Tags			Branches
+// @Produce		json
+// @Accept			json
+// @Param			BranchModel	body		model.CreateBranchDTO	true	"New Branch Data"
+// @Success		201			string		mode.Branch
+// @Failure		403			{string}	string	"Forbidden"
+// @Failure		406			{string}	string	"Not Acceptable"
+// @Router			/branch/create [POST]
 func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 	newBranch := new(model.CreateBranchDTO)
 	if err := c.BodyParser(newBranch); err != nil {
@@ -65,15 +66,15 @@ func (u *branchController) CreateBranch(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-//	@Summary		Get all branches
-//	@Description	Get a list of all branches
-//	@Tags			Branches
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{array}		model.Branch
-//	@Failure		404	{string}	string	"Not Found"
-//	@Failure		500	{string}	string	"Internal Server Error"
-//	@Router			/branch/all [get]
+// @Summary		Get all branches
+// @Description	Get a list of all branches
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		model.Branch
+// @Failure		404	{string}	string	"Not Found"
+// @Failure		500	{string}	string	"Internal Server Error"
+// @Router			/branch/all [get]
 func (u *branchController) GetAll(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
@@ -97,16 +98,16 @@ func (u *branchController) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branchList)
 }
 
-//	@Summary		Get branches closest to user
-//	@Description	Get a list of all branches closest to user
-//	@Tags			Branches
-//	@Accept			json
-//	@Produce		json
-//	@Param			UserGeoLocation	body		model.UserGeoLocation	true	"User geo location data"
-//	@Success		200				{array}		model.BranchDetail
-//	@Failure		404				{string}	string	"Not Found"
-//	@Failure		500				{string}	string	"Internal Server Error"
-//	@Router			/branch/closest-to-me [post]
+// @Summary		Get branches closest to user
+// @Description	Get a list of all branches closest to user
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Param			UserGeoLocation	body		model.UserGeoLocation	true	"User geo location data"
+// @Success		200				{array}		model.BranchDetail
+// @Failure		404				{string}	string	"Not Found"
+// @Failure		500				{string}	string	"Internal Server Error"
+// @Router			/branch/closest-to-me [post]
 func (u *branchController) GetClosestToMe(c *fiber.Ctx) error {
 	userLocation := new(model.UserGeoLocation)
 	if err := c.BodyParser(userLocation); err != nil {
@@ -128,14 +129,14 @@ func (u *branchController) GetClosestToMe(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branchList)
 }
 
-//	@Summary		Get a branch by ID
-//	@Description	Retrieve a single branch from the database based on its ID.
-//	@Tags			Branches
-//	@Produce		json
-//	@Param			id	path		string	true	"branch ID"
-//	@Success		200	{object}	model.Branch
-//	@Success		204	{string}	string	"Not Found"
-//	@Router			/branch/{id} [GET]
+// @Summary		Get a branch by ID
+// @Description	Retrieve a single branch from the database based on its ID.
+// @Tags			Branches
+// @Produce		json
+// @Param			id	path		string	true	"branch ID"
+// @Success		200	{object}	model.Branch
+// @Success		204	{string}	string	"Not Found"
+// @Router			/branch/{id} [GET]
 func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 	branchID := c.Params("id")
 
@@ -160,16 +161,16 @@ func (u *branchController) GetByBranchID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branch)
 }
 
-//	@Summary		Get branch by owner
-//	@Description	Get branch details by branch owner
-//	@Tags			Branches
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	model.Branch
-//	@Success		204	{string}	string	"record not found"
-//	@Failure		500	{string}	string	"internal server error"
-//	@Failure		403	{string}	string	"forbidden"
-//	@Router			/branch/owner [get]
+// @Summary		Get branch by owner
+// @Description	Get branch details by branch owner
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	model.Branch
+// @Success		204	{string}	string	"record not found"
+// @Failure		500	{string}	string	"internal server error"
+// @Failure		403	{string}	string	"forbidden"
+// @Router			/branch/owner [get]
 func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
@@ -192,15 +193,15 @@ func (u *branchController) GetByBranchOwner(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branch)
 }
 
-//	@Summary		Update branch
-//	@Description	Update branch details
-//	@Tags			Branches
-//	@Accept			json
-//	@Produce		json
-//	@Param			branch	body		model.UpdateBranchDTO	true	"Branch data"
-//	@Success		200		{object}	model.Branch
-//	@Failure		406		{string}	string	"not acceptable"
-//	@Router			/branch/update [put]
+// @Summary		Update branch
+// @Description	Update branch details
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Param			branch	body		model.UpdateBranchDTO	true	"Branch data"
+// @Success		200		{object}	model.Branch
+// @Failure		406		{string}	string	"not acceptable"
+// @Router			/branch/update [put]
 func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 	branch := new(model.UpdateBranchDTO)
 	token := c.Locals("user").(*jwt.Token)
@@ -228,16 +229,16 @@ func (u *branchController) UpdateBranch(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-//	@Summary		Delete branch
-//	@Description	Delete a branch
-//	@Tags			Branches
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string	true	"Branch ID"
-//	@Success		200	{string}	string	"ok"
-//	@Failure		404	{string}	string	"record not found"
-//	@Failure		500	{string}	string	"internal server error"
-//	@Router			/branch/{id} [delete]
+// @Summary		Delete branch
+// @Description	Delete a branch
+// @Tags			Branches
+// @Accept			json
+// @Produce		json
+// @Param			id	path		string	true	"Branch ID"
+// @Success		200	{string}	string	"ok"
+// @Failure		404	{string}	string	"record not found"
+// @Failure		500	{string}	string	"internal server error"
+// @Router			/branch/{id} [delete]
 func (u *branchController) DeleteBranch(c *fiber.Ctx) error {
 	branch := new(model.Branch)
 	branchID := c.Params("id")
