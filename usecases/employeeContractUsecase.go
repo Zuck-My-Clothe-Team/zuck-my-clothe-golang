@@ -19,12 +19,12 @@ type EmployeeContractUsecases interface {
 
 type employeeContractUsecases struct {
 	repository     repository.EmployeeContractRepository
-	userRepository model.UserRepository
+	userRepository repository.UserRepository
 }
 
 func CreateNewEmployeeContractUsecase(
 	employeeContractRepository repository.EmployeeContractRepository,
-	userRepository model.UserRepository,
+	userRepository repository.UserRepository,
 ) EmployeeContractUsecases {
 	return &employeeContractUsecases{
 		repository:     employeeContractRepository,

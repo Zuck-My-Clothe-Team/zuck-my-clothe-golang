@@ -9,6 +9,7 @@ import (
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -23,11 +24,11 @@ type AuthenController interface {
 
 type authenUsecase struct {
 	usecase     model.AuthenUsecase
-	userUsecase model.UserUsecases
+	userUsecase usecases.UserUsecases
 	cfg         *config.Config
 }
 
-func CreateNewAuthenController(usecase model.AuthenUsecase, userUsecase model.UserUsecases, cfg *config.Config) AuthenController {
+func CreateNewAuthenController(usecase model.AuthenUsecase, userUsecase usecases.UserUsecases, cfg *config.Config) AuthenController {
 	return &authenUsecase{usecase: usecase, userUsecase: userUsecase, cfg: cfg}
 }
 

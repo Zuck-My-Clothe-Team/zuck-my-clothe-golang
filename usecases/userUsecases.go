@@ -4,18 +4,36 @@ import (
 	"errors"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/repository"
 	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userUsecases struct {
-	repository model.UserRepository
+type UserUsecases interface {
+	CreateUser(newUser model.Users) error
+	FindUserByEmail(email string) (*model.Users, error)
+	FindUserByGoogleID(googleID string) (*model.Users, error)
+	GetAll() ([]model.Users, error)
+	GetBranchEmployee(branchId string) ([]model.UserContract, error)
+	GetAllManager() ([]model.Users, error)
+	DeleteUser(userID string) (*model.Users, error)
 }
 
-func CreateNewUserUsecases(repository model.UserRepository) model.UserUsecases {
-	return &userUsecases{repository: repository}
+type userUsecases struct {
+	repository                 repository.UserRepository
+	employeeContractRepository repository.EmployeeContractRepository
+}
+
+func CreateNewUserUsecases(
+	repository repository.UserRepository,
+	employeeContractRepository repository.EmployeeContractRepository,
+) UserUsecases {
+	return &userUsecases{
+		repository:                 repository,
+		employeeContractRepository: employeeContractRepository,
+	}
 }
 
 func (repo *userUsecases) CreateUser(newUser model.Users) error {
@@ -64,4 +82,42 @@ func (repo *userUsecases) GetAllManager() ([]model.Users, error) {
 func (repo *userUsecases) DeleteUser(userID string) (*model.Users, error) {
 	deletedUser, err := repo.repository.DeleteUser(userID)
 	return deletedUser, err
+}
+
+func (repo *userUsecases) GetBranchEmployee(branchId string) ([]model.UserContract, error) {
+	employeeContracts, err := repo.employeeContractRepository.GetByBranchID(branchId)
+	if err != nil {
+		return nil, err
+	}
+
+	userContractMap := make(map[string]model.UserContract)
+	for _, contract := range *employeeContracts {
+		user, err := repo.repository.FindUserByUserID(contract.UserID)
+		if err != nil {
+			return nil, err
+		}
+
+		if existingContract, exists := userContractMap[user.UserID]; exists {
+			existingContract.Contracts = append(existingContract.Contracts, contract)
+			userContractMap[user.UserID] = existingContract
+		} else {
+			userContractMap[user.UserID] = model.UserContract{
+				UserID:          user.UserID,
+				Email:           user.Email,
+				Phone:           user.Phone,
+				FirstName:       user.FirstName,
+				LastName:        user.LastName,
+				ProfileImageURL: user.ProfileImageURL,
+				Role:            user.Role,
+				Contracts:       []model.EmployeeContract{contract},
+			}
+		}
+	}
+
+	var userContracts []model.UserContract
+	for _, userContract := range userContractMap {
+		userContracts = append(userContracts, userContract)
+	}
+
+	return userContracts, nil
 }

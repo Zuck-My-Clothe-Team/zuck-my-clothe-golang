@@ -9,11 +9,22 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserRepository interface {
+	CreateUser(newUser model.Users) error
+	FindUserByUserID(userID string) (*model.Users, error)
+	FindUserByEmail(email string) (*model.Users, error)
+	FindUserByGoogleID(googleID string) (*model.Users, error)
+	GetAll() ([]model.Users, error)
+	GetAllManager() ([]model.Users, error)
+	DeleteUser(userID string) (*model.Users, error)
+	UndeleteUser(newUser model.Users) (int64, error)
+}
+
 type userRepository struct {
 	db *platform.Postgres
 }
 
-func CreatenewUserRepository(db *platform.Postgres) model.UserRepository {
+func CreatenewUserRepository(db *platform.Postgres) UserRepository {
 	return &userRepository{db: db}
 }
 
