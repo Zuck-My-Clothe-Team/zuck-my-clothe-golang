@@ -3,6 +3,7 @@ package usecases
 import (
 	"errors"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/repository"
 	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"golang.org/x/crypto/bcrypt"
@@ -10,10 +11,10 @@ import (
 
 type authenUsecase struct {
 	authenRepository model.AuthenRepository
-	userRepository   model.UserRepository
+	userRepository   repository.UserRepository
 }
 
-func CreateNewAuthenUsecase(authenRepository model.AuthenRepository, userRepository model.UserRepository) model.AuthenRepository {
+func CreateNewAuthenUsecase(authenRepository model.AuthenRepository, userRepository repository.UserRepository) model.AuthenRepository {
 	return &authenUsecase{authenRepository: authenRepository,
 		userRepository: userRepository}
 }

@@ -258,6 +258,27 @@ definitions:
     - branch_name
     - owner_user_id
     type: object
+  model.UserContract:
+    properties:
+      contracts:
+        items:
+          $ref: '#/definitions/model.EmployeeContract'
+        type: array
+      email:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      phone:
+        type: string
+      profile_image_url:
+        type: string
+      role:
+        $ref: '#/definitions/model.Roles'
+      user_id:
+        type: string
+    type: object
   model.UserGeoLocation:
     properties:
       user_lat:
@@ -1006,6 +1027,33 @@ paths:
           schema:
             type: string
       summary: Get all users
+      tags:
+      - Users
+  /users/branch/{branch_id}:
+    get:
+      description: Get employees by branch ID
+      parameters:
+      - description: Branch ID
+        in: path
+        name: branch_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.UserContract'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get employees by branch ID
       tags:
       - Users
   /users/manager/all:

@@ -10,7 +10,9 @@ import (
 
 func AuthRoutes(routeRegister *config.RoutesRegister) {
 	userRepository := repository.CreatenewUserRepository(routeRegister.DbConnection)
-	userUsecase := usecases.CreateNewUserUsecases(userRepository)
+	employeeContractRepository := repository.CreateNewEmployeeContractRepository(routeRegister.DbConnection)
+
+	userUsecase := usecases.CreateNewUserUsecases(userRepository, employeeContractRepository)
 	authRepository := repository.CreateNewAuthenticationRepository(routeRegister.DbConnection)
 	authUsecases := usecases.CreateNewAuthenUsecase(authRepository, userRepository)
 	authController := controller.CreateNewAuthenController(authUsecases, userUsecase, routeRegister.Config)

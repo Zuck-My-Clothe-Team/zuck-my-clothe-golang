@@ -11,15 +11,17 @@ import (
 func UserRoutes(routeRegister *config.RoutesRegister) {
 
 	userRepository := repository.CreatenewUserRepository(routeRegister.DbConnection)
-	userUsecases := usecases.CreateNewUserUsecases(userRepository)
+	employeeContractRepository := repository.CreateNewEmployeeContractRepository(routeRegister.DbConnection)
+
+	userUsecases := usecases.CreateNewUserUsecases(userRepository, employeeContractRepository)
 	userController := controller.CreateNewUserController(userUsecases, routeRegister.Config)
 
 	application := routeRegister.Application
 
 	userGroup := application.Group("/users")
-	userGroup.Get("/all", middleware.AuthRequire, middleware.IsBranchManager, userController.GetAll)
-	userGroup.Get("/manager/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAllManager)
 	userGroup.Post("/", userController.CreateUser)
 	userGroup.Delete("/:id", middleware.AuthRequire, middleware.IsSuperAdmin, userController.DeleteUser)
-
+	userGroup.Get("/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAll)
+	userGroup.Get("/branch/:branch_id", middleware.AuthRequire, middleware.IsBranchManager, userController.GetBranchEmployee)
+	userGroup.Get("/manager/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAllManager)
 }

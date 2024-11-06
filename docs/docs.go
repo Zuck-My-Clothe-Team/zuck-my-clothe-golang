@@ -1092,6 +1092,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/branch/{branch_id}": {
+            "get": {
+                "description": "Get employees by branch ID",
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get employees by branch ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Branch ID",
+                        "name": "branch_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.UserContract"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/manager/all": {
             "get": {
                 "description": "Get a list of all managers",
@@ -1498,6 +1539,38 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "owner_user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserContract": {
+            "type": "object",
+            "properties": {
+                "contracts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.EmployeeContract"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstname": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profile_image_url": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.Roles"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

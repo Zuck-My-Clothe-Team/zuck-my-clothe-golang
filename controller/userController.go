@@ -3,6 +3,7 @@ package controller
 import (
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,16 +11,17 @@ import (
 type UserController interface {
 	CreateUser(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
+	GetBranchEmployee(c *fiber.Ctx) error
 	GetAllManager(c *fiber.Ctx) error
 	DeleteUser(c *fiber.Ctx) error
 }
 
 type userController struct {
-	usecase model.UserUsecases
+	usecase usecases.UserUsecases
 	config  *config.Config
 }
 
-func CreateNewUserController(usecase model.UserUsecases, config *config.Config) UserController {
+func CreateNewUserController(usecase usecases.UserUsecases, config *config.Config) UserController {
 	return &userController{usecase: usecase, config: config}
 }
 
@@ -56,6 +58,27 @@ func (controller *userController) GetAll(c *fiber.Ctx) error {
 	users, err := controller.usecase.GetAll()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.JSON(users)
+}
+
+//	@Summary		Get employees by branch ID
+//	@Description	Get employees by branch ID
+//	@Tags			Users
+//	@Param			branch_id	path		string	true	"Branch ID"
+//	@Success		200			{array}		model.UserContract
+//	@Failure		204			{string}	string	"No Content"
+//	@Failure		500			{string}	string	"Internal Server Error"
+//	@Router			/users/branch/{branch_id} [get]
+func (controller *userController) GetBranchEmployee(c *fiber.Ctx) error {
+	branchId := c.Params("branch_id")
+	users, err := controller.usecase.GetBranchEmployee(branchId)
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.Status(fiber.StatusNoContent).SendString(err.Error())
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
 	}
 	return c.JSON(users)
 }
