@@ -8,4 +8,5 @@ func RoutesRegister(routeRegister *config.RoutesRegister) {
 	BranchRoutes(routeRegister)
 	MachineRoutes(routeRegister)
 	PaymentRoutes(routeRegister)
+	EmployeeContractRoutes(routeRegister)
 }

@@ -118,6 +118,42 @@ definitions:
     - branch_name
     - owner_user_id
     type: object
+  model.EmployeeContract:
+    properties:
+      branch_id:
+        type: string
+      contract_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
+        type: string
+      position_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  model.EmployeeContractDTO:
+    properties:
+      branch_id:
+        type: string
+      created_by:
+        type: string
+      position_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - branch_id
+    - created_by
+    - position_id
+    - user_id
+    type: object
   model.Machine:
     description: Retrieve details of a machine
     properties:
@@ -552,6 +588,135 @@ paths:
       summary: Update branch
       tags:
       - Branches
+  /employee-contract:
+    get:
+      description: Get all employee contracts
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.EmployeeContract'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all employee contracts
+      tags:
+      - EmployeeContract
+    post:
+      consumes:
+      - application/json
+      description: Create a new employee contract
+      parameters:
+      - description: Employee Contract
+        in: body
+        name: contract
+        required: true
+        schema:
+          $ref: '#/definitions/model.EmployeeContractDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable
+          schema:
+            type: string
+      summary: Create a new employee contract
+      tags:
+      - EmployeeContract
+  /employee-contract/{contract_id}:
+    delete:
+      description: Soft delete an employee contract
+      parameters:
+      - description: Contract ID
+        in: path
+        name: contract_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.EmployeeContract'
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Soft delete an employee contract
+      tags:
+      - EmployeeContract
+  /employee-contract/branch/{branch_id}:
+    get:
+      description: Get employee contracts by branch ID
+      parameters:
+      - description: Branch ID
+        in: path
+        name: branch_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.EmployeeContract'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get employee contracts by branch ID
+      tags:
+      - EmployeeContract
+  /employee-contract/user/{user_id}:
+    get:
+      description: Get employee contracts by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.EmployeeContract'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get employee contracts by user ID
+      tags:
+      - EmployeeContract
   /machine/{serial_id}:
     get:
       description: Get details of a specific machine by its serial number

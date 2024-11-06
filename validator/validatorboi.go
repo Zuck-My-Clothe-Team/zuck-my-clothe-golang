@@ -16,6 +16,7 @@ func CreateValidator() string {
 	}
 
 	validate.RegisterValidation("machineType", machineTypeValidation)
+	validate.RegisterValidation("employeeContractPosition", employeeContractValidation)
 
 	return "success"
 }
@@ -29,6 +30,16 @@ func machineTypeValidation(fl validator.FieldLevel) bool {
 	machineType := fl.Field().String()
 
 	if machineType == "Washer" || machineType == "Dryer" {
+		return true
+	} else {
+		return false
+	}
+}
+
+func employeeContractValidation(fl validator.FieldLevel) bool {
+	employeeContract := fl.Field().String()
+
+	if employeeContract == "Worker" || employeeContract == "Deliver" {
 		return true
 	} else {
 		return false
