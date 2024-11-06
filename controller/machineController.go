@@ -26,16 +26,16 @@ func CreateMachineController(machineUsecase model.MachineUsecase) MachineControl
 	return &machineController{machineUsecase: machineUsecase}
 }
 
-// @Summary		Add new machine
-// @Description	Add a new machine to the system
-// @Tags			Machine
-// @Accept			json
-// @Produce		json
-// @Param			MachineModel	body		model.AddMachineDTO	true	"New Machine Data"
-// @Success		201				{object}	model.Machine	"Created"
-// @Failure		406				{string}	string				"Not Acceptable"
-// @Failure		500				{string}	string				"internal server error"
-// @Router			/machine/add [post]
+//	@Summary		Add new machine
+//	@Description	Add a new machine to the system
+//	@Tags			Machine
+//	@Accept			json
+//	@Produce		json
+//	@Param			MachineModel	body		model.AddMachineDTO	true	"New Machine Data"
+//	@Success		201				{object}	model.Machine		"Created"
+//	@Failure		406				{string}	string				"Not Acceptable"
+//	@Failure		500				{string}	string				"internal server error"
+//	@Router			/machine/add [post]
 func (u *machineController) AddMachine(c *fiber.Ctx) error {
 	new_machine := new(model.AddMachineDTO)
 
@@ -66,15 +66,15 @@ func (u *machineController) AddMachine(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// @Summary		Get machine details by serial
-// @Description	Get details of a specific machine by its serial number
-// @Tags			Machine
-// @Produce		json
-// @Param			serial_id	path		string				true	"Machine Serial ID"
-// @Success		200			{object}	model.Machine	"OK"
-// @Failure		404			{string}	string				"Not Found"
-// @Failure		500			{string}	string				"Internal Server Error"
-// @Router			/machine/{serial_id} [get]
+//	@Summary		Get machine details by serial
+//	@Description	Get details of a specific machine by its serial number
+//	@Tags			Machine
+//	@Produce		json
+//	@Param			serial_id	path		string			true	"Machine Serial ID"
+//	@Success		200			{object}	model.Machine	"OK"
+//	@Failure		404			{string}	string			"Not Found"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/machine/{serial_id} [get]
 func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 	serialID := c.Params("serial_id")
 
@@ -102,15 +102,15 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(branch)
 }
 
-// @Summary		Get machines by branch ID
-// @Description	Get all machines under a specific branch
-// @Tags			Machine
-// @Produce		json
-// @Param			branch_id	path		string				true	"Branch ID"
-// @Success		200			{object}	model.Machine	"OK"
-// @Failure		404			{string}	string				"Not Found"
-// @Failure		500			{string}	string				"Internal Server Error"
-// @Router			/machine/branch/{branch_id} [get]
+//	@Summary		Get machines by branch ID
+//	@Description	Get all machines under a specific branch
+//	@Tags			Machine
+//	@Produce		json
+//	@Param			branch_id	path		string			true	"Branch ID"
+//	@Success		200			{object}	model.Machine	"OK"
+//	@Failure		404			{string}	string			"Not Found"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/machine/branch/{branch_id} [get]
 func (u *machineController) GetByBranchID(c *fiber.Ctx) error {
 	branch_id := c.Params("branch_id")
 
@@ -138,14 +138,14 @@ func (u *machineController) GetByBranchID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Get all machines
-// @Description	Retrieve all machines in the system
-// @Tags			Machine
-// @Produce		json
-// @Success		200	{array}		model.Machine	"OK"
-// @Failure		404	{string}	string				"Not Found"
-// @Failure		500	{string}	string				"Internal Server Error"
-// @Router			/machine/all [get]
+//	@Summary		Get all machines
+//	@Description	Retrieve all machines in the system
+//	@Tags			Machine
+//	@Produce		json
+//	@Success		200	{array}		model.Machine	"OK"
+//	@Failure		404	{string}	string			"Not Found"
+//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Router			/machine/all [get]
 func (u *machineController) GetAll(c *fiber.Ctx) error {
 	result, err := u.machineUsecase.GetAll()
 
@@ -160,14 +160,14 @@ func (u *machineController) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Soft delete machine
-// @Description	Soft delete a machine by its serial ID
-// @Tags			Machine
-// @Param			serial_id	path		string				true	"Machine Serial ID"
-// @Success		200			{object}	model.Machine	"OK"
-// @Failure		404			{string}	string				"Not Found"
-// @Failure		500			{string}	string				"Internal Server Error"
-// @Router			/machine/delete/{serial_id} [delete]
+//	@Summary		Soft delete machine
+//	@Description	Soft delete a machine by its serial ID
+//	@Tags			Machine
+//	@Param			serial_id	path		string			true	"Machine Serial ID"
+//	@Success		200			{object}	model.Machine	"OK"
+//	@Failure		404			{string}	string			"Not Found"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/machine/delete/{serial_id} [delete]
 func (u *machineController) SoftDelete(c *fiber.Ctx) error {
 	serial_id := c.Params("serial_id")
 
@@ -189,16 +189,16 @@ func (u *machineController) SoftDelete(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Update machine active status
-// @Description	Set the active status of a machine
-// @Tags			Machine
-// @Param			serial_id	path		string				true	"Machine Serial ID"
-// @Param			set_active	path		string				true	"Set Active (true/false)"
-// @Success		200			{object}	model.Machine	"OK"
-// @Failure		400			{string}	string				"Bad Request"
-// @Failure		404			{string}	string				"Not Found"
-// @Failure		500			{string}	string				"Internal Server Error"
-// @Router			/machine/update/{serial_id}/set_active/{set_active} [put]
+//	@Summary		Update machine active status
+//	@Description	Set the active status of a machine
+//	@Tags			Machine
+//	@Param			serial_id	path		string			true	"Machine Serial ID"
+//	@Param			set_active	path		string			true	"Set Active (true/false)"
+//	@Success		200			{object}	model.Machine	"OK"
+//	@Failure		400			{string}	string			"Bad Request"
+//	@Failure		404			{string}	string			"Not Found"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/machine/update/{serial_id}/set_active/{set_active} [put]
 func (u *machineController) UpdateActive(c *fiber.Ctx) error {
 	machine_serial := c.Params("serial_id")
 	set_active_param := c.Params("set_active")
