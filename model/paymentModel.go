@@ -25,7 +25,7 @@ type Payments struct {
 	Payment_Status PaymentStatus  `json:"payment_status" db:"payment_status"`
 	DueDate        time.Time      `json:"due_date" db:"due_date"`
 	CreatedAt      time.Time      `json:"created_at" db:"created_at"`
-	DeletedAt      gorm.DeletedAt `json:"deleted_at,omitempty" db:"deleted_at"`
+	DeletedAt      gorm.DeletedAt `json:"deleted_at,omitempty" db:"deleted_at" swaggertype:"string" example:"null"`
 }
 
 type PaymentRepository interface {

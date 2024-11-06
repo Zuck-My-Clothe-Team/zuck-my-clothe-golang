@@ -153,6 +153,36 @@ definitions:
     x-enum-varnames:
     - Washer
     - Dryer
+  model.PaymentStatus:
+    enum:
+    - Pending
+    - Completed
+    - Expired
+    - Cancel
+    type: string
+    x-enum-varnames:
+    - Pending
+    - Completed
+    - Expired
+    - Cancel
+  model.Payments:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      due_date:
+        type: string
+      payment_id:
+        type: string
+      payment_status:
+        $ref: '#/definitions/model.PaymentStatus'
+    required:
+    - amount
+    type: object
   model.RequestBody:
     properties:
       accessToken:
@@ -203,6 +233,32 @@ definitions:
     - user_lon
     type: object
   model.Users:
+    properties:
+      created_at:
+        type: string
+      deleteAt:
+        example: "null"
+        type: string
+      email:
+        type: string
+      firstname:
+        type: string
+      google_id:
+        type: string
+      lastname:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      profile_image_url:
+        type: string
+      role:
+        $ref: '#/definitions/model.Roles'
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
 info:
   contact: {}
@@ -662,6 +718,59 @@ paths:
       summary: Update machine active status
       tags:
       - Machine
+  /payment/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a new payment record to db [mockup]
+      parameters:
+      - description: New Payment Data
+        in: body
+        name: PaymentModel
+        required: true
+        schema:
+          $ref: '#/definitions/model.Payments'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Payments'
+        "202":
+          description: Accepted
+          schema:
+            type: string
+      summary: Add new payment
+      tags:
+      - Payment
+  /payment/detail/{paymentID}:
+    get:
+      description: Find payment by paymentID [mockup]
+      parameters:
+      - description: PaymentID
+        in: path
+        name: paymentID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Payments'
+        "204":
+          description: no content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Find payment by id
+      tags:
+      - Payment
   /users/:
     post:
       consumes:

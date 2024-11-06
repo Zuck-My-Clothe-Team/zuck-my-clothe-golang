@@ -31,7 +31,7 @@ type Users struct {
 	Role            Roles          `json:"role" gorm:"column:role"`
 	CreateAt        time.Time      `json:"created_at" gorm:"column:created_at"`
 	UpdateAt        time.Time      `json:"updated_at" gorm:"column:updated_at"`
-	DeleteAt        gorm.DeletedAt `gorm:"column:deleted_at"`
+	DeleteAt        gorm.DeletedAt `gorm:"column:deleted_at" swaggertype:"string" example:"null"`
 }
 
 type GoogleUser struct {
