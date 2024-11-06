@@ -72,7 +72,7 @@ deploy:
     - ssh-keyscan $DEPLOY_SERVER > ~/.ssh/known_hosts
     - echo "$ENV" > .env
     - scp -r * .env $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_PATH
-    - ssh $DEPLOY_USER@$DEPLOY_SERVER 'cd cpe334/backend && docker compose down && docker compose --env-file .env up -d --build'
+    - ssh $DEPLOY_USER@$DEPLOY_SERVER 'cd cpe334/backend && docker compose --env-file .env up -d --build'
     - |
       curl -H "Content-Type: application/json" \
            -d '{"content": "✅ Backend Deployment complete!"}' \
