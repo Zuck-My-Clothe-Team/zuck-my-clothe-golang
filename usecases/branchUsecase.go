@@ -55,13 +55,26 @@ func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranchDTO, userID st
 	return branch, nil
 }
 
-func (u *branchUsecase) GetAll() (*[]model.Branch, error) {
+func (u *branchUsecase) GetAll(isAdminView bool) (interface{}, error) {
 	branchList, err := u.branchRepository.GetAll()
+
 	if err != nil {
 		return nil, err
 	}
 
-	return branchList, err
+	var res interface{} = *branchList
+
+	if !isAdminView {
+		var branchDetailList []model.BranchDetail
+
+		for _, branch := range *branchList {
+			branchDetailList = append(branchDetailList, toBranchDetail(&branch))
+		}
+
+		res = branchDetailList
+	}
+
+	return res, err
 }
 
 func (u *branchUsecase) GetClosestToMe(userLocation *model.UserGeoLocation) (*[]model.BranchDetail, error) {
