@@ -7,4 +7,5 @@ func RoutesRegister(routeRegister *config.RoutesRegister) {
 	AuthRoutes(routeRegister)
 	BranchRoutes(routeRegister)
 	MachineRoutes(routeRegister)
+	PaymentRoutes(routeRegister)
 }
