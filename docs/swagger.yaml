@@ -19,6 +19,33 @@ definitions:
     - machine_type
     - weight
     type: object
+  model.AddUserAddressDTO:
+    properties:
+      address:
+        type: string
+      address_id:
+        type: string
+      district:
+        type: string
+      lat:
+        type: number
+      long:
+        type: number
+      province:
+        type: string
+      subdistrict:
+        type: string
+      zipcode:
+        type: string
+    required:
+    - address
+    - district
+    - lat
+    - long
+    - province
+    - subdistrict
+    - zipcode
+    type: object
   model.AuthenDetail:
     properties:
       email:
@@ -258,6 +285,46 @@ definitions:
     - branch_name
     - owner_user_id
     type: object
+  model.UpdateUserAddressDTO:
+    properties:
+      address:
+        type: string
+      district:
+        type: string
+      lat:
+        type: number
+      long:
+        type: number
+      province:
+        type: string
+      subDistrict:
+        type: string
+      updatedAt:
+        type: string
+      zipcode:
+        type: string
+    type: object
+  model.UserAddressDetail:
+    properties:
+      address:
+        type: string
+      address_id:
+        type: string
+      district:
+        type: string
+      lat:
+        type: number
+      long:
+        type: number
+      province:
+        type: string
+      subdistrict:
+        type: string
+      user_id:
+        type: string
+      zipcode:
+        type: string
+    type: object
   model.UserBranch:
     properties:
       branch:
@@ -367,6 +434,118 @@ info:
   title: Zuck-my-clothe API
   version: "1.0"
 paths:
+  /address/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a new user address information to system
+      parameters:
+      - description: New Address Data
+        in: body
+        name: UserAddresses
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddUserAddressDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.UserAddressDetail'
+        "406":
+          description: Not Acceptable
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Add new user address
+      tags:
+      - UserAddress
+  /address/delete/{addressID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete requested address from system
+      parameters:
+      - description: Address ID
+        in: path
+        name: address_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            type: string
+        "202":
+          description: Accepted
+          schema:
+            type: string
+        "204":
+          description: record not found
+          schema:
+            type: string
+      summary: Delete address
+      tags:
+      - UserAddress
+  /address/detail/owner:
+    get:
+      consumes:
+      - application/json
+      description: List all owned address of thant user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserAddressDetail'
+        "202":
+          description: Accepted
+          schema:
+            type: string
+      summary: Find owned address
+      tags:
+      - UserAddress
+  /address/update:
+    put:
+      consumes:
+      - application/json
+      description: Update requested address information
+      parameters:
+      - description: New Address Data
+        in: body
+        name: UserAddresses
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserAddressDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserAddressDetail'
+        "202":
+          description: Accepted
+          schema:
+            type: string
+        "204":
+          description: record not found
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable
+          schema:
+            type: string
+      summary: Update address information
+      tags:
+      - UserAddress
   /auth/google/callback:
     post:
       consumes:
