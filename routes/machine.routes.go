@@ -21,7 +21,7 @@ func MachineRoutes(routeRegister *config.RoutesRegister) {
 	machineGroup.Get("/all", middleware.IsSuperAdmin, machineController.GetAll)
 	machineGroup.Get("/detail/:serial_id", machineController.GetByMachineSerial)
 	machineGroup.Get("/branch/:branch_id", machineController.GetByBranchID)
-
 	machineGroup.Put("/update/:serial_id/set_active/:set_active", middleware.IsBranchManager, machineController.UpdateActive)
+	machineGroup.Put("/update/:serial_id/set_label/:label", middleware.IsBranchManager, machineController.UpdateLabel)
 	machineGroup.Delete("/delete/:serial_id", middleware.IsBranchManager, machineController.SoftDelete)
 }

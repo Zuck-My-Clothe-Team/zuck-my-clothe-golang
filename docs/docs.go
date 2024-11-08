@@ -1031,6 +1031,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/machine/update/{serial_id}/set_label/{label}": {
+            "put": {
+                "description": "Update machine label",
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Update machine label",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine Serial ID",
+                        "name": "serial_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "New label (int)",
+                        "name": "label",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Machine"
+                        }
+                    },
+                    "204": {
+                        "description": "Not Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/machine/{serial_id}": {
             "get": {
                 "description": "Get details of a specific machine by its serial number",
@@ -1342,6 +1393,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "branch_id",
+                "machine_label",
                 "machine_serial",
                 "machine_type",
                 "weight"
@@ -1352,6 +1404,9 @@ const docTemplate = `{
                 },
                 "createdBy": {
                     "type": "string"
+                },
+                "machine_label": {
+                    "type": "integer"
                 },
                 "machine_serial": {
                     "type": "string"
@@ -1606,7 +1661,6 @@ const docTemplate = `{
             }
         },
         "model.Machine": {
-            "description": "Retrieve details of a machine",
             "type": "object",
             "properties": {
                 "branch_id": {
@@ -1627,6 +1681,9 @@ const docTemplate = `{
                 },
                 "is_active": {
                     "type": "boolean"
+                },
+                "machine_label": {
+                    "type": "string"
                 },
                 "machine_serial": {
                     "type": "string"

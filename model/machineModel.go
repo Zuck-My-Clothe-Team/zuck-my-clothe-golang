@@ -17,14 +17,9 @@ const (
 	Dryer  MachineType = "Dryer"
 )
 
-// @Summary		Get machine details
-// @Description	Retrieve details of a machine
-// @Tags			Machine
-// @Produce		json
-// @Success		200	{object}	MachineResponse
-// @Router			/machine/{id} [get]
 type Machine struct {
 	MachineSerial string         `json:"machine_serial" gorm:"column:machine_serial;primaryKey"`
+	MachineLabel  string         `json:"machine_label" gorm:"column:machine_label"`
 	BranchID      string         `json:"branch_id" gorm:"column:branch_id"`
 	MachineType   MachineType    `json:"machine_type" gorm:"column:machine_type"`
 	IsActive      bool           `json:"is_active" gorm:"column:is_active"`
@@ -39,6 +34,7 @@ type Machine struct {
 
 type AddMachineDTO struct {
 	MachineSerial string      `json:"machine_serial" validate:"required"`
+	MachineLabel  int         `json:"machine_label" validate:"required"`
 	BranchID      string      `json:"branch_id" validate:"required"`
 	MachineType   MachineType `json:"machine_type" validate:"required,machineType"`
 	Weight        int         `json:"weight" validate:"required,gte=0"`
@@ -47,26 +43,9 @@ type AddMachineDTO struct {
 
 type MachineDetail struct {
 	MachineSerial string      `json:"machine_serial"`
+	MachineLabel  string      `json:"machine_label"`
 	BranchID      string      `json:"branch_id"`
 	MachineType   MachineType `json:"machine_type"`
 	IsActive      bool        `json:"is_active"`
 	Weight        int16       `json:"weight"`
-}
-
-type MachineRepository interface {
-	SoftDelete(machine_serial string, deleted_by string) (*Machine, error)
-	UpdateActive(branch_id string, set_active bool, updated_by string) (*Machine, error)
-	GetByBranchID(branch_id string) (*[]Machine, error)
-	GetAll() (*[]Machine, error)
-	AddMachine(newMachine *Machine) error
-	GetByMachineSerial(machineSerial string) (*Machine, error)
-}
-
-type MachineUsecase interface {
-	SoftDelete(machine_serial string, deleted_by string) (*Machine, error)
-	UpdateActive(branch_id string, set_active bool, updated_by string) (*Machine, error)
-	GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error)
-	GetAll() (*[]Machine, error)
-	AddMachine(newMachine *AddMachineDTO) (*Machine, error)
-	GetByMachineSerial(machineSerial string, isAdminView bool) (*interface{}, error)
 }

@@ -2,7 +2,9 @@ package controller
 
 import (
 	"fmt"
+	"strconv"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,15 +16,16 @@ type MachineController interface {
 	GetByBranchID(c *fiber.Ctx) error
 	GetByMachineSerial(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
+	UpdateLabel(c *fiber.Ctx) error
 	UpdateActive(c *fiber.Ctx) error
 	SoftDelete(c *fiber.Ctx) error
 }
 
 type machineController struct {
-	machineUsecase model.MachineUsecase
+	machineUsecase usecases.MachineUsecase
 }
 
-func CreateMachineController(machineUsecase model.MachineUsecase) MachineController {
+func CreateMachineController(machineUsecase usecases.MachineUsecase) MachineController {
 	return &machineController{machineUsecase: machineUsecase}
 }
 
@@ -223,6 +226,44 @@ func (u *machineController) UpdateActive(c *fiber.Ctx) error {
 	if err != nil {
 		if err.Error() == "record not found" {
 			return c.SendStatus(fiber.StatusNotFound)
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
+}
+
+//	@Summary		Update machine label
+//	@Description	Update machine label
+//	@Tags			Machine
+//	@Param			serial_id	path		string			true	"Machine Serial ID"
+//	@Param			label		path		string			true	"New label (int)"
+//	@Success		200			{object}	model.Machine	"OK"
+//	@Success		204			{string}	string			"Not Content"
+//	@Failure		404			{string}	string			"Not Found"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/machine/update/{serial_id}/set_label/{label} [put]
+func (u *machineController) UpdateLabel(c *fiber.Ctx) error {
+	machine_serial := c.Params("serial_id")
+	label := c.Params("label")
+
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	updated_by := claims["userID"].(string)
+
+	intLabel, err := strconv.Atoi(label)
+
+	if err != nil {
+		return c.SendStatus(fiber.ErrBadRequest.Code)
+	}
+
+	result, err := u.machineUsecase.UpdateLabel(machine_serial, intLabel, updated_by)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
