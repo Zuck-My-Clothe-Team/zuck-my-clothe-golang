@@ -6,6 +6,8 @@ definitions:
         type: string
       createdBy:
         type: string
+      machine_label:
+        type: integer
       machine_serial:
         type: string
       machine_type:
@@ -15,6 +17,7 @@ definitions:
         type: integer
     required:
     - branch_id
+    - machine_label
     - machine_serial
     - machine_type
     - weight
@@ -182,7 +185,6 @@ definitions:
     - user_id
     type: object
   model.Machine:
-    description: Retrieve details of a machine
     properties:
       branch_id:
         type: string
@@ -197,6 +199,8 @@ definitions:
         type: string
       is_active:
         type: boolean
+      machine_label:
+        type: string
       machine_serial:
         type: string
       machine_type:
@@ -1125,6 +1129,40 @@ paths:
           schema:
             type: string
       summary: Update machine active status
+      tags:
+      - Machine
+  /machine/update/{serial_id}/set_label/{label}:
+    put:
+      description: Update machine label
+      parameters:
+      - description: Machine Serial ID
+        in: path
+        name: serial_id
+        required: true
+        type: string
+      - description: New label (int)
+        in: path
+        name: label
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Machine'
+        "204":
+          description: Not Content
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update machine label
       tags:
       - Machine
   /payment/add:

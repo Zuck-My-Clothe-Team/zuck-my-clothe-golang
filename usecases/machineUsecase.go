@@ -1,15 +1,27 @@
 package usecases
 
 import (
+	"strconv"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
+	"zuck-my-clothe/zuck-my-clothe-backend/repository"
 )
 
-type machineUsecase struct {
-	machineRepository model.MachineRepository
+type MachineUsecase interface {
+	SoftDelete(machine_serial string, deleted_by string) (*model.Machine, error)
+	UpdateActive(machine_serial string, set_active bool, updated_by string) (*model.Machine, error)
+	UpdateLabel(machine_serial string, label int, updated_by string) (*model.Machine, error)
+	GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error)
+	GetAll() (*[]model.Machine, error)
+	AddMachine(newMachine *model.AddMachineDTO) (*model.Machine, error)
+	GetByMachineSerial(machineSerial string, isAdminView bool) (*interface{}, error)
 }
 
-func CreateMachineUsecase(machineRepository model.MachineRepository) model.MachineUsecase {
+type machineUsecase struct {
+	machineRepository repository.MachineRepository
+}
+
+func CreateMachineUsecase(machineRepository repository.MachineRepository) MachineUsecase {
 	return &machineUsecase{machineRepository: machineRepository}
 }
 
@@ -25,8 +37,18 @@ func toMachineDetail(machine *model.Machine) interface{} {
 }
 
 func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.Machine, error) {
+
+	var newMachineLabel string
+
+	if new_machine.MachineType == model.Washer {
+		newMachineLabel = "เครื่องซักที่ " + strconv.Itoa(new_machine.MachineLabel)
+	} else {
+		newMachineLabel = "เครื่องอบที่ " + strconv.Itoa(new_machine.MachineLabel)
+	}
+
 	machine_data := model.Machine{
 		MachineSerial: new_machine.MachineSerial,
+		MachineLabel:  newMachineLabel,
 		BranchID:      new_machine.BranchID,
 		MachineType:   new_machine.MachineType,
 		Weight:        int16(new_machine.Weight),
@@ -110,6 +132,29 @@ func (u *machineUsecase) GetByBranchID(branch_id string, isAdminView bool) (*[]i
 func (u *machineUsecase) UpdateActive(machine_serial string, set_active bool, updated_by string) (*model.Machine, error) {
 
 	updated_machine, err := u.machineRepository.UpdateActive(machine_serial, set_active, updated_by)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return updated_machine, err
+}
+
+func (u *machineUsecase) UpdateLabel(machine_serial string, label int, updated_by string) (*model.Machine, error) {
+
+	current_machine, err := u.machineRepository.GetByMachineSerial(machine_serial)
+	if err != nil {
+		return nil, err
+	}
+	var newMachineLabel string
+
+	if current_machine.MachineType == model.Washer {
+		newMachineLabel = "เครื่องซักที่ " + strconv.Itoa(label)
+	} else {
+		newMachineLabel = "เครื่องอบที่ " + strconv.Itoa(label)
+	}
+
+	updated_machine, err := u.machineRepository.UpdateLabel(machine_serial, newMachineLabel, updated_by)
 
 	if err != nil {
 		return nil, err

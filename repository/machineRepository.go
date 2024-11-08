@@ -7,17 +7,26 @@ import (
 	"gorm.io/gorm"
 )
 
+type MachineRepository interface {
+	SoftDelete(machine_serial string, deleted_by string) (*model.Machine, error)
+	UpdateActive(branch_id string, set_active bool, updated_by string) (*model.Machine, error)
+	UpdateLabel(branch_id string, label string, updated_by string) (*model.Machine, error)
+	GetByBranchID(branch_id string) (*[]model.Machine, error)
+	GetAll() (*[]model.Machine, error)
+	AddMachine(newMachine *model.Machine) error
+	GetByMachineSerial(machineSerial string) (*model.Machine, error)
+}
+
 type machineRepository struct {
 	db *platform.Postgres
 }
 
-func CreateMachineRepository(db *platform.Postgres) model.MachineRepository {
+func CreateMachineRepository(db *platform.Postgres) MachineRepository {
 	return &machineRepository{db: db}
 }
 
 func (u *machineRepository) GetAll() (*[]model.Machine, error) {
 	machineList := new([]model.Machine)
-	// result := u.db.Unscoped().Find(machineList)
 	result := u.db.Find(machineList)
 
 	if result.Error != nil {
@@ -46,7 +55,11 @@ func (u *machineRepository) SoftDelete(machine_serial string, deleted_by string)
 		return nil, result.Error
 	}
 
-	queryErr := u.db.Unscoped().Model(&model.Machine{}).Where("machine_serial = ?", machine_serial).Update("deleted_by", deleted_by).First(&deleted_machine)
+	queryErr := u.db.Unscoped().Model(&model.Machine{}).
+		Where("machine_serial = ?", machine_serial).
+		Update("machine_label", nil).
+		Update("deleted_by", deleted_by).
+		First(&deleted_machine)
 
 	if queryErr.Error != nil {
 		return nil, queryErr.Error
@@ -60,6 +73,25 @@ func (u *machineRepository) UpdateActive(machine_serial string, is_active bool, 
 	result := u.db.Model(&model.Machine{}).
 		Where("machine_serial = ?", machine_serial).
 		Update("is_active", is_active).
+		Update("updated_by", updated_by).
+		Find(updated_machine)
+
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return updated_machine, result.Error
+}
+
+func (u *machineRepository) UpdateLabel(machine_serial string, label string, updated_by string) (*model.Machine, error) {
+	updated_machine := new(model.Machine)
+	result := u.db.Model(&model.Machine{}).
+		Where("machine_serial = ?", machine_serial).
+		Update("machine_label", label).
 		Update("updated_by", updated_by).
 		Find(updated_machine)
 
