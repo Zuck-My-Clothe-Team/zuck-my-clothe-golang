@@ -22,6 +22,16 @@ definitions:
     - machine_type
     - weight
     type: object
+  model.AddMachineReportDTO:
+    properties:
+      machine_serial:
+        type: string
+      report_desc:
+        type: string
+    required:
+    - machine_serial
+    - report_desc
+    type: object
   model.AddUserAddressDTO:
     properties:
       address:
@@ -273,6 +283,49 @@ definitions:
       weight:
         type: integer
     type: object
+  model.MachineReportDetail:
+    properties:
+      machine_serial:
+        type: string
+      report_desc:
+        type: string
+      report_id:
+        type: string
+      report_status:
+        $ref: '#/definitions/model.MachineReportStatus'
+      user_id:
+        type: string
+    type: object
+  model.MachineReportStatus:
+    enum:
+    - Pending
+    - In Progress
+    - Fixed
+    - Cancel
+    type: string
+    x-enum-varnames:
+    - ReportPending
+    - ReportInProgress
+    - ReportFixed
+    - ReportCanceled
+  model.MachineReports:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      machine_serial:
+        type: string
+      report_desc:
+        type: string
+      report_id:
+        type: string
+      report_status:
+        $ref: '#/definitions/model.MachineReportStatus'
+      user_id:
+        type: string
+    type: object
   model.MachineType:
     enum:
     - Washer
@@ -491,6 +544,16 @@ definitions:
     - branch_long
     - branch_name
     - owner_user_id
+    type: object
+  model.UpdateMachineReportStatusDTO:
+    properties:
+      report_id:
+        type: string
+      report_status:
+        $ref: '#/definitions/model.MachineReportStatus'
+    required:
+    - report_id
+    - report_status
     type: object
   model.UpdateOrder:
     properties:
@@ -1686,6 +1749,178 @@ paths:
       summary: Find payment by id
       tags:
       - Payment
+  /report/:
+    get:
+      description: Retrieve all machine reports in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.MachineReports'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get all machine reports
+      tags:
+      - Machine Reports
+  /report/add:
+    post:
+      consumes:
+      - application/json
+      description: Create a new machine report for a specific user
+      parameters:
+      - description: Machine Report
+        in: body
+        name: report
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddMachineReportDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineReportDetail'
+        "202":
+          description: Validation error
+          schema:
+            type: string
+        "406":
+          description: Invalid request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create a new machine report
+      tags:
+      - Machine Reports
+  /report/branch/{branchID}:
+    get:
+      description: Retrieve all machine reports for a specific branch
+      parameters:
+      - description: Branch ID
+        in: path
+        name: branchID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.MachineReportDetail'
+            type: array
+        "202":
+          description: No records found
+          schema:
+            type: string
+        "204":
+          description: Invalid request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get machine reports by branch ID
+      tags:
+      - Machine Reports
+  /report/delete/{reportID}:
+    delete:
+      description: Delete a specific machine report by ID
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            type: string
+        "204":
+          description: Record not found
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Invalid request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete a machine report
+      tags:
+      - Machine Reports
+  /report/update:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of a specific machine report
+      parameters:
+      - description: Updated Status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMachineReportStatusDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MachineReportDetail'
+        "204":
+          description: Record not found
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Invalid request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update the status of a machine report
+      tags:
+      - Machine Reports
+  /report/user/{userID}:
+    get:
+      description: Retrieve all machine reports associated with a specific user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.MachineReportDetail'
+            type: array
+        "202":
+          description: Accepted
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get machine reports by user ID
+      tags:
+      - Machine Reports
   /users/:
     post:
       consumes:

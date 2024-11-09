@@ -81,6 +81,14 @@ func IsBranchManager(c *fiber.Ctx) error {
 	return c.Next()
 }
 
+func IsBranchMember(c *fiber.Ctx) error {
+	claims := Claimer(c)
+	if claims["positionID"] == "Employee" || claims["positionID"] == "BranchManager" {
+		return c.Next()
+	}
+	return c.SendStatus(fiber.StatusUnauthorized)
+}
+
 func IsEmployee(c *fiber.Ctx) error {
 	claims := Claimer(c)
 	if claims["positionID"] != "SuperAdmin" && claims["positionID"] != "BranchManager" && claims["positionID"] != "Employee" {
