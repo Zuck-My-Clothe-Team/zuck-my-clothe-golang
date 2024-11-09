@@ -1,6 +1,8 @@
 package validatorboi
 
 import (
+	"zuck-my-clothe/zuck-my-clothe-backend/model"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -50,7 +52,7 @@ func employeeContractValidation(fl validator.FieldLevel) bool {
 func userRolesValidation(fl validator.FieldLevel) bool {
 	userRoles := fl.Field().String()
 
-	if userRoles == "Superadmin" || userRoles == "Manager" || userRoles == "Employee" || userRoles == "Client" {
+	if userRoles == string(model.SuperAdmin) || userRoles == string(model.BranchManager) || userRoles == string(model.Employee) || userRoles == string(model.Client) {
 		return true
 	} else {
 		return false

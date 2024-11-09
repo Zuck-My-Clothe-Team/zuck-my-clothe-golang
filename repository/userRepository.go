@@ -18,6 +18,7 @@ type UserRepository interface {
 	GetAllManager() ([]model.Users, error)
 	DeleteUser(userID string) (*model.Users, error)
 	UndeleteUser(newUser model.Users) (int64, error)
+	UpdateUser(newUser model.Users) error
 }
 
 type userRepository struct {
@@ -117,4 +118,9 @@ func (repo *userRepository) UndeleteUser(newUser model.Users) (int64, error) {
 		DeleteAt:        deletedUser.DeleteAt})
 
 	return dbResponse.RowsAffected, dbResponse.Error
+}
+
+func (repo *userRepository) UpdateUser(newUser model.Users) error {
+	returnValue := repo.db.Model(&model.Users{}).Where("user_id = ?", newUser.UserID).Updates(newUser)
+	return returnValue.Error
 }

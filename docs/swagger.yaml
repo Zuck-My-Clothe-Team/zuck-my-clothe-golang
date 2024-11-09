@@ -404,6 +404,28 @@ definitions:
     - user_lat
     - user_lon
     type: object
+  model.UserUpdateDTO:
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+      phone:
+        type: string
+      role:
+        $ref: '#/definitions/model.Roles'
+    required:
+    - firstname
+    - lastname
+    - role
+    type: object
+  model.UserUpdatePasswordDTO:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
   model.Users:
     properties:
       created_at:
@@ -1269,6 +1291,84 @@ paths:
           schema:
             type: string
       summary: Delete user
+      tags:
+      - Users
+  /users/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Update user details by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated User Data
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserUpdateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update user
+      tags:
+      - Users
+  /users/{id}/password:
+    patch:
+      consumes:
+      - application/json
+      description: Update the password of a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New password data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserUpdatePasswordDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password updated successfully
+          schema:
+            type: string
+        "403":
+          description: You are not allowed to update
+          schema:
+            type: string
+        "406":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update user password
       tags:
       - Users
   /users/all:
