@@ -11,4 +11,5 @@ func RoutesRegister(routeRegister *config.RoutesRegister) {
 	PaymentRoutes(routeRegister)
 	UserAddressesRoutes(routeRegister)
 	EmployeeContractRoutes(routeRegister)
+	MachineReportRoutes(routeRegister)
 }

@@ -1532,6 +1532,280 @@ const docTemplate = `{
                 }
             }
         },
+        "/report/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all machine reports in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine Reports"
+                ],
+                "summary": "Get all machine reports",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MachineReports"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/add": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new machine report for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine Reports"
+                ],
+                "summary": "Create a new machine report",
+                "parameters": [
+                    {
+                        "description": "Machine Report",
+                        "name": "report",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddMachineReportDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineReportDetail"
+                        }
+                    },
+                    "202": {
+                        "description": "Validation error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/branch/{branchID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all machine reports for a specific branch",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine Reports"
+                ],
+                "summary": "Get machine reports by branch ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Branch ID",
+                        "name": "branchID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MachineReportDetail"
+                            }
+                        }
+                    },
+                    "202": {
+                        "description": "No records found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "204": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/delete/{reportID}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a specific machine report by ID",
+                "tags": [
+                    "Machine Reports"
+                ],
+                "summary": "Delete a machine report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "204": {
+                        "description": "Record not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the status of a specific machine report",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine Reports"
+                ],
+                "summary": "Update the status of a machine report",
+                "parameters": [
+                    {
+                        "description": "Updated Status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateMachineReportStatusDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.MachineReportDetail"
+                        }
+                    },
+                    "204": {
+                        "description": "Record not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/user/{userID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all machine reports associated with a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine Reports"
+                ],
+                "summary": "Get machine reports by user ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MachineReportDetail"
+                            }
+                        }
+                    },
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/": {
             "post": {
                 "description": "Create a new user by using User model",
@@ -1863,6 +2137,21 @@ const docTemplate = `{
                 "weight": {
                     "type": "integer",
                     "minimum": 0
+                }
+            }
+        },
+        "model.AddMachineReportDTO": {
+            "type": "object",
+            "required": [
+                "machine_serial",
+                "report_desc"
+            ],
+            "properties": {
+                "machine_serial": {
+                    "type": "string"
+                },
+                "report_desc": {
+                    "type": "string"
                 }
             }
         },
@@ -2239,6 +2528,68 @@ const docTemplate = `{
                 }
             }
         },
+        "model.MachineReportDetail": {
+            "type": "object",
+            "properties": {
+                "machine_serial": {
+                    "type": "string"
+                },
+                "report_desc": {
+                    "type": "string"
+                },
+                "report_id": {
+                    "type": "string"
+                },
+                "report_status": {
+                    "$ref": "#/definitions/model.MachineReportStatus"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MachineReportStatus": {
+            "type": "string",
+            "enum": [
+                "Pending",
+                "In Progress",
+                "Fixed",
+                "Cancel"
+            ],
+            "x-enum-varnames": [
+                "ReportPending",
+                "ReportInProgress",
+                "ReportFixed",
+                "ReportCanceled"
+            ]
+        },
+        "model.MachineReports": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "machine_serial": {
+                    "type": "string"
+                },
+                "report_desc": {
+                    "type": "string"
+                },
+                "report_id": {
+                    "type": "string"
+                },
+                "report_status": {
+                    "$ref": "#/definitions/model.MachineReportStatus"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.MachineType": {
             "type": "string",
             "enum": [
@@ -2550,6 +2901,21 @@ const docTemplate = `{
                 },
                 "owner_user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "model.UpdateMachineReportStatusDTO": {
+            "type": "object",
+            "required": [
+                "report_id",
+                "report_status"
+            ],
+            "properties": {
+                "report_id": {
+                    "type": "string"
+                },
+                "report_status": {
+                    "$ref": "#/definitions/model.MachineReportStatus"
                 }
             }
         },
