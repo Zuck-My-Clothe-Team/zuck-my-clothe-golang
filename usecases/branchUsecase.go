@@ -10,7 +10,8 @@ import (
 )
 
 type branchUsecase struct {
-	branchRepository repo.BranchReopository
+	branchRepository  repo.BranchReopository
+	machineRepository repo.MachineRepository
 }
 
 type BranchUsecase interface {
@@ -23,8 +24,11 @@ type BranchUsecase interface {
 	DeleteBranch(branch *model.Branch) error
 }
 
-func CreateNewBranchUsecase(branchRepository repo.BranchReopository) BranchUsecase {
-	return &branchUsecase{branchRepository: branchRepository}
+func CreateNewBranchUsecase(branchRepository repo.BranchReopository, machineRepository repo.MachineRepository) BranchUsecase {
+	return &branchUsecase{
+		branchRepository:  branchRepository,
+		machineRepository: machineRepository,
+	}
 }
 
 func toBranchDetail(branch *model.Branch, isAdminView bool) model.BranchDetail {
@@ -122,6 +126,20 @@ func (u *branchUsecase) GetByBranchID(branchID string, isAdminView bool) (*model
 
 	res := toBranchDetail(branch, isAdminView)
 
+	// Get available machines
+	machines, err := u.machineRepository.GetAvailableMachine(branchID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*machines) != 0 {
+		res.AvailableMachine = machines
+	} else {
+		res.AvailableMachine = &[]model.MachineInBranch{}
+	}
+
+	// Get review
 	reviews, err := u.branchRepository.GetReviewsByBranchID(branchID)
 
 	if err != nil {
@@ -131,7 +149,7 @@ func (u *branchUsecase) GetByBranchID(branchID string, isAdminView bool) (*model
 	if len(*reviews) > 0 {
 		res.UserReview = reviews
 
-		// calculate average star
+		// Calculate average star
 		var averageStar float32 = 0
 
 		for _, r := range *reviews {

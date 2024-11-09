@@ -10,7 +10,9 @@ import (
 
 func BranchRoutes(routeRegister *config.RoutesRegister) {
 	branchRepo := repository.CreateNewBranchRepository(routeRegister.DbConnection)
-	branchUsecase := usecases.CreateNewBranchUsecase(branchRepo)
+	machineRepo := repository.CreateMachineRepository(routeRegister.DbConnection)
+
+	branchUsecase := usecases.CreateNewBranchUsecase(branchRepo, machineRepo)
 	branchController := controller.CreateNewBranchController(branchUsecase)
 
 	application := routeRegister.Application
