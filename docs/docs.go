@@ -1168,6 +1168,15 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Get full order by branch id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "branch id",
+                        "name": "branch_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1262,7 +1271,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Order Header ID",
-                        "name": "id",
+                        "name": "order_header_id",
                         "in": "path",
                         "required": true
                     }
@@ -2342,6 +2351,12 @@ const docTemplate = `{
                 "distance": {
                     "type": "number"
                 },
+                "machines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.MachineInBranch"
+                    }
+                },
                 "owner_user_id": {
                     "type": "string"
                 },
@@ -2538,6 +2553,29 @@ const docTemplate = `{
                 },
                 "updated_by": {
                     "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.MachineInBranch": {
+            "type": "object",
+            "properties": {
+                "finished_at": {
+                    "type": "string"
+                },
+                "is_available": {
+                    "type": "boolean"
+                },
+                "machine_label": {
+                    "type": "string"
+                },
+                "machine_serial": {
+                    "type": "string"
+                },
+                "machine_type": {
+                    "$ref": "#/definitions/model.MachineType"
                 },
                 "weight": {
                     "type": "integer"

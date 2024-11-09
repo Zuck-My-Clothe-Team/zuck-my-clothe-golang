@@ -8,13 +8,14 @@ import (
 )
 
 type MachineRepository interface {
-	SoftDelete(machine_serial string, deleted_by string) (*model.Machine, error)
-	UpdateActive(branch_id string, set_active bool, updated_by string) (*model.Machine, error)
-	UpdateLabel(branch_id string, label string, updated_by string) (*model.Machine, error)
-	GetByBranchID(branch_id string) (*[]model.Machine, error)
+	SoftDelete(machineSerial string, deletedBy string) (*model.Machine, error)
+	UpdateActive(branchId string, setActive bool, updatedBy string) (*model.Machine, error)
+	UpdateLabel(branchId string, label string, updatedBy string) (*model.Machine, error)
+	GetByBranchID(branchId string) (*[]model.Machine, error)
 	GetAll() (*[]model.Machine, error)
 	AddMachine(newMachine *model.Machine) error
 	GetByMachineSerial(machineSerial string) (*model.Machine, error)
+	GetAvailableMachine(branchID string) (*[]model.MachineInBranch, error)
 }
 
 type machineRepository struct {
@@ -42,10 +43,10 @@ func (u *machineRepository) AddMachine(newMachine *model.Machine) error {
 	return result.Error
 }
 
-func (u *machineRepository) SoftDelete(machine_serial string, deleted_by string) (*model.Machine, error) {
-	deleted_machine := new(model.Machine)
+func (u *machineRepository) SoftDelete(machineSerial string, deletedBy string) (*model.Machine, error) {
+	deletedMachine := new(model.Machine)
 
-	result := u.db.Where("machine_serial = ?", machine_serial).Delete(&deleted_machine)
+	result := u.db.Where("machine_serial = ?", machineSerial).Delete(&deletedMachine)
 
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
@@ -56,25 +57,25 @@ func (u *machineRepository) SoftDelete(machine_serial string, deleted_by string)
 	}
 
 	queryErr := u.db.Unscoped().Model(&model.Machine{}).
-		Where("machine_serial = ?", machine_serial).
+		Where("machine_serial = ?", machineSerial).
 		Update("machine_label", nil).
-		Update("deleted_by", deleted_by).
-		First(&deleted_machine)
+		Update("deleted_by", deletedBy).
+		First(&deletedMachine)
 
 	if queryErr.Error != nil {
 		return nil, queryErr.Error
 	}
 
-	return deleted_machine, result.Error
+	return deletedMachine, result.Error
 }
 
-func (u *machineRepository) UpdateActive(machine_serial string, is_active bool, updated_by string) (*model.Machine, error) {
-	updated_machine := new(model.Machine)
+func (u *machineRepository) UpdateActive(machineSerial string, isActive bool, updatedBy string) (*model.Machine, error) {
+	updatedMachine := new(model.Machine)
 	result := u.db.Model(&model.Machine{}).
-		Where("machine_serial = ?", machine_serial).
-		Update("is_active", is_active).
-		Update("updated_by", updated_by).
-		Find(updated_machine)
+		Where("machine_serial = ?", machineSerial).
+		Update("is_active", isActive).
+		Update("updated_by", updatedBy).
+		Find(updatedMachine)
 
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
@@ -84,16 +85,16 @@ func (u *machineRepository) UpdateActive(machine_serial string, is_active bool, 
 		return nil, result.Error
 	}
 
-	return updated_machine, result.Error
+	return updatedMachine, result.Error
 }
 
-func (u *machineRepository) UpdateLabel(machine_serial string, label string, updated_by string) (*model.Machine, error) {
-	updated_machine := new(model.Machine)
+func (u *machineRepository) UpdateLabel(machineSerial string, label string, updatedBy string) (*model.Machine, error) {
+	updatedMachine := new(model.Machine)
 	result := u.db.Model(&model.Machine{}).
-		Where("machine_serial = ?", machine_serial).
+		Where("machine_serial = ?", machineSerial).
 		Update("machine_label", label).
-		Update("updated_by", updated_by).
-		Find(updated_machine)
+		Update("updated_by", updatedBy).
+		Find(updatedMachine)
 
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
@@ -103,7 +104,7 @@ func (u *machineRepository) UpdateLabel(machine_serial string, label string, upd
 		return nil, result.Error
 	}
 
-	return updated_machine, result.Error
+	return updatedMachine, result.Error
 }
 
 func (u *machineRepository) GetByMachineSerial(machineSerial string) (*model.Machine, error) {
@@ -122,14 +123,33 @@ func (u *machineRepository) GetByMachineSerial(machineSerial string) (*model.Mac
 	return machine, nil
 }
 
-func (u *machineRepository) GetByBranchID(branch_id string) (*[]model.Machine, error) {
+func (u *machineRepository) GetByBranchID(branchID string) (*[]model.Machine, error) {
 	machine := new([]model.Machine)
 
-	result := u.db.Where("branch_id = ?", branch_id).Find(&machine)
+	result := u.db.Where("branch_id = ?", branchID).Find(&machine)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	return machine, nil
+}
+
+func (u *machineRepository) GetAvailableMachine(branchID string) (*[]model.MachineInBranch, error) {
+	machines := new([]model.MachineInBranch)
+
+	result := u.db.Table("\"Machines\" AS M").
+		Select(`M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
+			CASE 
+					WHEN OD.order_status = 'Processing' THEN FALSE ELSE TRUE 
+			END AS is_available`).
+		Joins("LEFT JOIN \"OrderDetails\" AS OD ON M.machine_serial = OD.machine_serial").
+		Where("M.branch_id = ? AND M.is_active = TRUE", branchID).
+		Scan(&machines)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return machines, nil
 }

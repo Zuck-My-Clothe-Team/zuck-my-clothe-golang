@@ -137,9 +137,10 @@ func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 //	@Description	Retrieve full order by branch id
 //	@Tags			Order
 //	@Produce		json
-//	@Success		200	{array}		model.FullOrder	"OK"
-//	@Failure		404	{string}	string			"Not Found - No orders available"
-//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Param			branch_id	path		string			true	"branch id"
+//	@Success		200			{array}		model.FullOrder	"OK"
+//	@Failure		404			{string}	string			"Not Found - No orders available"
+//	@Failure		500			{string}	string			"Internal Server Error"
 //	@Router			/order/branch/{branch_id} [get]
 func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 	branchID := c.Params("branch_id")
@@ -260,10 +261,10 @@ func (u *orderController) UpdateReview(c *fiber.Ctx) error {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"Order Header ID"
-//	@Success		200	{string}	string	"ok"
-//	@Failure		404	{string}	string	"record not found"
-//	@Failure		500	{string}	string	"internal server error"
+//	@Param			order_header_id	path		string	true	"Order Header ID"
+//	@Success		200				{string}	string	"ok"
+//	@Failure		404				{string}	string	"record not found"
+//	@Failure		500				{string}	string	"internal server error"
 //	@Router			/order/delete/{order_header_id} [delete]
 func (u *orderController) SoftDelete(c *fiber.Ctx) error {
 	orderHeaderID := c.Params("order_header_id")

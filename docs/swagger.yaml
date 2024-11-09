@@ -147,6 +147,10 @@ definitions:
         type: string
       distance:
         type: number
+      machines:
+        items:
+          $ref: '#/definitions/model.MachineInBranch'
+        type: array
       owner_user_id:
         type: string
       updated_at:
@@ -280,6 +284,21 @@ definitions:
         type: string
       updated_by:
         type: string
+      weight:
+        type: integer
+    type: object
+  model.MachineInBranch:
+    properties:
+      finished_at:
+        type: string
+      is_available:
+        type: boolean
+      machine_label:
+        type: string
+      machine_serial:
+        type: string
+      machine_type:
+        $ref: '#/definitions/model.MachineType'
       weight:
         type: integer
     type: object
@@ -1541,6 +1560,12 @@ paths:
   /order/branch/{branch_id}:
     get:
       description: Retrieve full order by branch id
+      parameters:
+      - description: branch id
+        in: path
+        name: branch_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1603,7 +1628,7 @@ paths:
       parameters:
       - description: Order Header ID
         in: path
-        name: id
+        name: order_header_id
         required: true
         type: string
       produces:
