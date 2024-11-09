@@ -28,6 +28,7 @@ func CreateMachineUsecase(machineRepository repository.MachineRepository) Machin
 func toMachineDetail(machine *model.Machine) interface{} {
 	result := model.MachineDetail{
 		MachineSerial: machine.MachineSerial,
+		MachineLabel:  machine.MachineLabel,
 		BranchID:      machine.BranchID,
 		MachineType:   machine.MachineType,
 		Weight:        int16(machine.Weight),
