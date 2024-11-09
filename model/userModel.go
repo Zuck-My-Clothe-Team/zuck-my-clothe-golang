@@ -54,6 +54,17 @@ type UserDTO struct {
 	Role            Roles  `json:"role" validate:"required,userRoles"`
 }
 
+type UserUpdateDTO struct {
+	Phone     string `json:"phone"`
+	FirstName string `json:"firstname" validate:"required"`
+	LastName  string `json:"lastname" validate:"required"`
+	Role      Roles  `json:"role" validate:"required,userRoles"`
+}
+
+type UserUpdatePasswordDTO struct {
+	Password string `json:"password" validate:"required"`
+}
+
 type UserContract struct {
 	UserID          string             `json:"user_id"`
 	Email           string             `json:"email"`

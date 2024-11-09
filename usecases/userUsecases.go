@@ -2,10 +2,12 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/repository"
 	"zuck-my-clothe/zuck-my-clothe-backend/utils"
+	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -19,6 +21,8 @@ type UserUsecases interface {
 	GetBranchEmployee(branchId string) ([]model.UserContract, error)
 	GetAllManager() ([]model.Users, error)
 	DeleteUser(userID string) (*model.Users, error)
+	UpdateUser(userID string, newUser model.UserUpdateDTO, role string) error
+	UpdateUserPassword(userID string, newUser model.UserUpdatePasswordDTO) error
 }
 
 type userUsecases struct {
@@ -199,4 +203,85 @@ func (repo *userUsecases) GetBranchEmployee(branchId string) ([]model.UserContra
 	}
 
 	return userContracts, nil
+}
+
+func (repo *userUsecases) UpdateUser(userID string, body model.UserUpdateDTO, role string) error {
+
+	if err := validatorboi.Validate(body); err != nil {
+		return err
+	}
+	existingUser, err := repo.repository.FindUserByUserID(userID)
+
+	var newRole model.Roles
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(existingUser.Role + " " + body.Role)
+	if body.Role != existingUser.Role && (role == string(model.Employee) || role == string(model.BranchManager) || role == string(model.Client)) {
+		return fmt.Errorf("role cannot be changed")
+	} else {
+		newRole = body.Role
+	}
+
+	updatedUser := model.Users{
+		UserID:          existingUser.UserID,
+		Email:           existingUser.Email,
+		Phone:           body.Phone,
+		FirstName:       body.FirstName,
+		LastName:        body.LastName,
+		ProfileImageURL: existingUser.ProfileImageURL,
+		Role:            newRole,
+		Password:        existingUser.Password,
+		CreateAt:        existingUser.CreateAt,
+		UpdateAt:        time.Now(),
+	}
+
+	err = repo.repository.UpdateUser(updatedUser)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *userUsecases) UpdateUserPassword(userID string, body model.UserUpdatePasswordDTO) error {
+
+	if err := validatorboi.Validate(body); err != nil {
+		return err
+	}
+	existingUser, err := repo.repository.FindUserByUserID(userID)
+
+	if err != nil {
+		return err
+	}
+
+	newPassword, hashErr := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
+
+	if hashErr != nil {
+		return hashErr
+	}
+
+	updatedUser := model.Users{
+		UserID:          existingUser.UserID,
+		Email:           existingUser.Email,
+		Phone:           existingUser.Phone,
+		FirstName:       existingUser.FirstName,
+		LastName:        existingUser.LastName,
+		ProfileImageURL: existingUser.ProfileImageURL,
+		Role:            existingUser.Role,
+		Password:        string(newPassword),
+		CreateAt:        existingUser.CreateAt,
+		UpdateAt:        time.Now(),
+	}
+
+	err = repo.repository.UpdateUser(updatedUser)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

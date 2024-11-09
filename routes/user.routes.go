@@ -21,6 +21,8 @@ func UserRoutes(routeRegister *config.RoutesRegister) {
 
 	userGroup := application.Group("/users")
 	userGroup.Post("/", userController.CreateUser)
+	userGroup.Patch("/:id", middleware.AuthRequire, userController.UpdateUser)
+	userGroup.Patch("/:id/password", middleware.AuthRequire, userController.UpdateUserPassword)
 	userGroup.Delete("/:id", middleware.AuthRequire, middleware.IsSuperAdmin, userController.DeleteUser)
 	userGroup.Get("/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAll)
 	userGroup.Get("/branch/:branch_id", middleware.AuthRequire, middleware.IsBranchManager, userController.GetBranchEmployee)
