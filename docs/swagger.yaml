@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  model.AddMachineDTO:
+  model.AddMachine:
     properties:
       branch_id:
         type: string
@@ -114,6 +114,8 @@ definitions:
     type: object
   model.BranchDetail:
     properties:
+      average_star:
+        type: number
       branch_detail:
         type: string
       branch_id:
@@ -124,12 +126,29 @@ definitions:
         type: number
       branch_name:
         type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
+        type: string
       distance:
         type: number
       owner_user_id:
         type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user_reviews:
+        items:
+          $ref: '#/definitions/model.UserReview'
+        type: array
     type: object
-  model.CreateBranchDTO:
+  model.CreateBranch:
     properties:
       branch_detail:
         type: string
@@ -184,6 +203,48 @@ definitions:
     - position_id
     - user_id
     type: object
+  model.FullOrder:
+    properties:
+      branch_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
+        type: string
+      delivery_address:
+        type: string
+      delivery_lat:
+        type: number
+      delivery_long:
+        type: number
+      order_details:
+        items:
+          $ref: '#/definitions/model.OrderDetail'
+        type: array
+      order_header_id:
+        type: string
+      order_note:
+        type: string
+      payment_id:
+        type: string
+      review_comment:
+        type: string
+      star_rating:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user_id:
+        type: string
+      zuck_onsite:
+        type: boolean
+    type: object
   model.Machine:
     properties:
       branch_id:
@@ -220,16 +281,148 @@ definitions:
     x-enum-varnames:
     - Washer
     - Dryer
+  model.NewOrder:
+    properties:
+      branch_id:
+        type: string
+      delivery_address:
+        type: string
+      delivery_lat:
+        type: number
+      delivery_long:
+        type: number
+      order_details:
+        items:
+          $ref: '#/definitions/model.NewOrderDetail'
+        type: array
+      order_note:
+        type: string
+      userID:
+        type: string
+      zuck_onsite:
+        type: boolean
+    required:
+    - branch_id
+    - order_details
+    type: object
+  model.NewOrderDetail:
+    properties:
+      machine_serial:
+        type: string
+      service_type:
+        $ref: '#/definitions/model.ServiceType'
+      weight:
+        type: integer
+    required:
+    - service_type
+    - weight
+    type: object
+  model.OrderDetail:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
+        type: string
+      finished_at:
+        type: string
+      machine_serial:
+        type: string
+      order_basket_id:
+        type: string
+      order_header_id:
+        type: string
+      order_status:
+        $ref: '#/definitions/model.OrderStatus'
+      service_type:
+        $ref: '#/definitions/model.ServiceType'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      weight:
+        type: integer
+    type: object
+  model.OrderHeader:
+    properties:
+      branch_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
+      deleted_by:
+        type: string
+      delivery_address:
+        type: string
+      delivery_lat:
+        type: number
+      delivery_long:
+        type: number
+      order_header_id:
+        type: string
+      order_note:
+        type: string
+      payment_id:
+        type: string
+      review_comment:
+        type: string
+      star_rating:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user_id:
+        type: string
+      zuck_onsite:
+        type: boolean
+    type: object
+  model.OrderReview:
+    properties:
+      order_header_id:
+        type: string
+      review_comment:
+        type: string
+      star_rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      userID:
+        type: string
+    required:
+    - order_header_id
+    - star_rating
+    type: object
+  model.OrderStatus:
+    enum:
+    - Waiting
+    - Processing
+    - Completed
+    - Canceled
+    type: string
+    x-enum-varnames:
+    - Waiting
+    - Processing
+    - Completed
+    - Canceled
   model.PaymentStatus:
     enum:
     - Pending
-    - Completed
+    - Paid
     - Expired
     - Cancel
     type: string
     x-enum-varnames:
     - Pending
-    - Completed
+    - Paid
     - Expired
     - Cancel
   model.Payments:
@@ -267,7 +460,17 @@ definitions:
     - BranchManager
     - Employee
     - Client
-  model.UpdateBranchDTO:
+  model.ServiceType:
+    enum:
+    - Washing
+    - Drying
+    - Delivery
+    type: string
+    x-enum-varnames:
+    - Washing
+    - Drying
+    - Delivery
+  model.UpdateBranch:
     properties:
       branch_detail:
         type: string
@@ -288,6 +491,21 @@ definitions:
     - branch_long
     - branch_name
     - owner_user_id
+    type: object
+  model.UpdateOrder:
+    properties:
+      finished_at:
+        type: string
+      machine_serial:
+        type: string
+      order_basket_id:
+        type: string
+      order_status:
+        $ref: '#/definitions/model.OrderStatus'
+      updatedBy:
+        type: string
+    required:
+    - order_basket_id
     type: object
   model.UpdateUserAddressDTO:
     properties:
@@ -403,6 +621,19 @@ definitions:
     required:
     - user_lat
     - user_lon
+    type: object
+  model.UserReview:
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+      profile_image_url:
+        type: string
+      review_comment:
+        type: string
+      star_rating:
+        type: integer
     type: object
   model.UserUpdateDTO:
     properties:
@@ -710,7 +941,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Branch'
+            $ref: '#/definitions/model.BranchDetail'
         "204":
           description: Not Found
           schema:
@@ -786,7 +1017,7 @@ paths:
         name: BranchModel
         required: true
         schema:
-          $ref: '#/definitions/model.CreateBranchDTO'
+          $ref: '#/definitions/model.CreateBranch'
       produces:
       - application/json
       responses:
@@ -843,7 +1074,7 @@ paths:
         name: branch
         required: true
         schema:
-          $ref: '#/definitions/model.UpdateBranchDTO'
+          $ref: '#/definitions/model.UpdateBranch'
       produces:
       - application/json
       responses:
@@ -1025,7 +1256,7 @@ paths:
         name: MachineModel
         required: true
         schema:
-          $ref: '#/definitions/model.AddMachineDTO'
+          $ref: '#/definitions/model.AddMachine'
       produces:
       - application/json
       responses:
@@ -1187,6 +1418,221 @@ paths:
       summary: Update machine label
       tags:
       - Machine
+  /order/{order_header_id}/{option}:
+    get:
+      description: Retrieve full order by order header id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.FullOrder'
+            type: array
+        "404":
+          description: Not Found - No orders available
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get full order by order header id
+      tags:
+      - Order
+  /order/all:
+    get:
+      description: Retrieve all orders in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.OrderHeader'
+            type: array
+        "404":
+          description: Not Found - No orders available
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all orders
+      tags:
+      - Order
+  /order/branch/{branch_id}:
+    get:
+      description: Retrieve full order by branch id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.FullOrder'
+            type: array
+        "404":
+          description: Not Found - No orders available
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get full order by branch id
+      tags:
+      - Order
+  /order/create:
+    post:
+      consumes:
+      - application/json
+      description: Add a new order to the system
+      parameters:
+      - description: New Order Data
+        in: body
+        name: NewOrder
+        required: true
+        schema:
+          $ref: '#/definitions/model.NewOrder'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.FullOrder'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable - Validation failed
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add new order
+      tags:
+      - Order
+  /order/delete/{order_header_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an order
+      parameters:
+      - description: Order Header ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "404":
+          description: record not found
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Delete an order
+      tags:
+      - Order
+  /order/me:
+    get:
+      description: Retrieve full order by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.FullOrder'
+            type: array
+        "404":
+          description: Not Found - No orders available
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get full order by user id
+      tags:
+      - Order
+  /order/review:
+    put:
+      description: Update order review
+      parameters:
+      - description: Updated order field
+        in: body
+        name: OrderReview
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrderReview'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.FullOrder'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update order review
+      tags:
+      - Order
+  /order/update:
+    put:
+      description: Update order status
+      parameters:
+      - description: Updated order field
+        in: body
+        name: UpdateOrder
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateOrder'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.FullOrder'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update order status
+      tags:
+      - Order
   /payment/add:
     post:
       consumes:

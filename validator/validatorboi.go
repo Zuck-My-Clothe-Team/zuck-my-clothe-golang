@@ -1,6 +1,7 @@
 package validatorboi
 
 import (
+	"reflect"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 
 	"github.com/go-playground/validator/v10"
@@ -18,6 +19,9 @@ func CreateValidator() string {
 	}
 
 	validate.RegisterValidation("machineType", machineTypeValidation)
+	validate.RegisterValidation("serviceType", serviceTypeValidation)
+	validate.RegisterValidation("orderStatus", orderStatusValidation)
+	validate.RegisterValidation("requiredBool", requiredBool)
 	validate.RegisterValidation("employeeContractPosition", employeeContractValidation)
 	validate.RegisterValidation("userRoles", userRolesValidation)
 
@@ -39,10 +43,41 @@ func machineTypeValidation(fl validator.FieldLevel) bool {
 	}
 }
 
+func requiredBool(fl validator.FieldLevel) bool {
+	field := fl.Field()
+	return field.Kind() == reflect.Bool
+}
+
+func serviceTypeValidation(fl validator.FieldLevel) bool {
+	serviceType := fl.Field().String()
+
+	if serviceType == "Washing" ||
+		serviceType == "Drying" ||
+		serviceType == "Delivery" {
+		return true
+	} else {
+		return false
+	}
+}
+
 func employeeContractValidation(fl validator.FieldLevel) bool {
 	employeeContract := fl.Field().String()
 
 	if employeeContract == "Worker" || employeeContract == "Deliver" {
+		return true
+	} else {
+		return false
+	}
+}
+
+
+func orderStatusValidation(fl validator.FieldLevel) bool {
+	orderStatus := fl.Field().String()
+
+	if orderStatus == "Waiting" ||
+		orderStatus == "Processing" ||
+		orderStatus == "Completed" ||
+		orderStatus == "Canceled" {
 		return true
 	} else {
 		return false

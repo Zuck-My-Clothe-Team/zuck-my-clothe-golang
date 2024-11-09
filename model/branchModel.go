@@ -25,14 +25,14 @@ type Branch struct {
 	DeletedBy    *string        `json:"deleted_by" gorm:"column:deleted_by"`
 }
 
-type CreateBranchDTO struct {
+type CreateBranch struct {
 	BranchName   string  `json:"branch_name" validate:"required"`
 	BranchDetail string  `json:"branch_detail" validate:"required"`
 	BranchLat    float64 `json:"branch_lat" validate:"required"`
 	BranchLon    float64 `json:"branch_long" validate:"required"`
 	OwnerUserID  string  `json:"owner_user_id" validate:"required"`
 }
-type UpdateBranchDTO struct {
+type UpdateBranch struct {
 	BranchID     string  `json:"branch_id" validate:"required"`
 	BranchName   string  `json:"branch_name" validate:"required"`
 	BranchDetail string  `json:"branch_detail" validate:"required"`
@@ -42,13 +42,29 @@ type UpdateBranchDTO struct {
 }
 
 type BranchDetail struct {
-	BranchID     string  `json:"branch_id"`
-	BranchName   string  `json:"branch_name"`
-	BranchDetail string  `json:"branch_detail"`
-	BranchLat    float64 `json:"branch_lat"`
-	BranchLon    float64 `json:"branch_long"`
-	OwnerUserID  string  `json:"owner_user_id"`
-	Distance     float64 `json:"distance,omitempty"`
+	BranchID     string          `json:"branch_id"`
+	BranchName   string          `json:"branch_name"`
+	BranchDetail string          `json:"branch_detail"`
+	BranchLat    float64         `json:"branch_lat"`
+	BranchLon    float64         `json:"branch_long"`
+	OwnerUserID  string          `json:"owner_user_id"`
+	CreatedAt    *time.Time      `json:"created_at,omitempty"`
+	CreatedBy    *string         `json:"created_by,omitempty"`
+	UpdatedAt    *time.Time      `json:"updated_at,omitempty"`
+	UpdatedBy    *string         `json:"updated_by,omitempty"`
+	DeletedAt    *gorm.DeletedAt `json:"deleted_at,omitempty" swaggertype:"string" example:"null"`
+	DeletedBy    *string         `json:"deleted_by,omitempty"`
+	Distance     float64         `json:"distance,omitempty"`
+	AverageStar  float32         `json:"average_star"`
+	UserReview   *[]UserReview   `json:"user_reviews,omitempty"`
+}
+
+type UserReview struct {
+	StarRating      int16   `json:"star_rating" gorm:"column:star_rating"`
+	ReviewComment   *string `json:"review_comment" gorm:"column:review_comment"`
+	FirstName       string  `json:"firstname" gorm:"column:firstname"`
+	LastName        string  `json:"lastname" gorm:"column:lastname"`
+	ProfileImageURL string  `json:"profile_image_url" gorm:"column:profile_image_url"`
 }
 
 type UserGeoLocation struct {

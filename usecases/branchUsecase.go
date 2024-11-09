@@ -3,31 +3,31 @@ package usecases
 import (
 	"errors"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
-	"zuck-my-clothe/zuck-my-clothe-backend/repository"
+	repo "zuck-my-clothe/zuck-my-clothe-backend/repository"
 	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"github.com/google/uuid"
 )
 
+type branchUsecase struct {
+	branchRepository repo.BranchReopository
+}
+
 type BranchUsecase interface {
-	CreateBranch(newBranch *model.CreateBranchDTO, userID string) (*model.Branch, error)
+	CreateBranch(newBranch *model.CreateBranch, userID string) (*model.Branch, error)
 	GetAll(isAdminView bool) (interface{}, error)
 	GetClosestToMe(userLocation *model.UserGeoLocation) (*[]model.BranchDetail, error)
-	GetByBranchID(branchID string, isAdminView bool) (*interface{}, error)
+	GetByBranchID(branchID string, isAdminView bool) (*model.BranchDetail, error)
 	GetByBranchOwner(ownerUserID string) (*[]model.Branch, error)
-	UpdateBranch(branch *model.UpdateBranchDTO, role string) (*model.Branch, error)
+	UpdateBranch(branch *model.UpdateBranch, role string) (*model.Branch, error)
 	DeleteBranch(branch *model.Branch) error
 }
 
-type branchUsecase struct {
-	branchRepository repository.BranchReopository
-}
-
-func CreateNewBranchUsecase(branchRepository repository.BranchReopository) BranchUsecase {
+func CreateNewBranchUsecase(branchRepository repo.BranchReopository) BranchUsecase {
 	return &branchUsecase{branchRepository: branchRepository}
 }
 
-func toBranchDetail(branch *model.Branch) model.BranchDetail {
+func toBranchDetail(branch *model.Branch, isAdminView bool) model.BranchDetail {
 	res := model.BranchDetail{
 		BranchID:     branch.BranchID,
 		BranchName:   branch.BranchName,
@@ -35,12 +35,21 @@ func toBranchDetail(branch *model.Branch) model.BranchDetail {
 		BranchLat:    branch.BranchLat,
 		BranchLon:    branch.BranchLon,
 		OwnerUserID:  branch.OwnerUserID,
+		CreatedAt:    &branch.CreatedAt,
+		CreatedBy:    &branch.CreatedBy,
+		UpdatedAt:    &branch.UpdatedAt,
+		UpdatedBy:    &branch.UpdatedBy,
+	}
+
+	if !isAdminView {
+		res.CreatedBy = nil
+		res.UpdatedBy = nil
 	}
 
 	return res
 }
 
-func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranchDTO, userID string) (*model.Branch, error) {
+func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranch, userID string) (*model.Branch, error) {
 	data := model.Branch{
 		BranchID:     uuid.New().String(),
 		BranchName:   newBranch.BranchName,
@@ -79,7 +88,7 @@ func (u *branchUsecase) GetAll(isAdminView bool) (interface{}, error) {
 		var branchDetailList []model.BranchDetail
 
 		for _, branch := range *branchList {
-			branchDetailList = append(branchDetailList, toBranchDetail(&branch))
+			branchDetailList = append(branchDetailList, toBranchDetail(&branch, false))
 		}
 
 		res = branchDetailList
@@ -96,7 +105,7 @@ func (u *branchUsecase) GetClosestToMe(userLocation *model.UserGeoLocation) (*[]
 	var res []model.BranchDetail
 
 	for _, branch := range *branchList {
-		res = append(res, toBranchDetail(&branch))
+		res = append(res, toBranchDetail(&branch, false))
 	}
 
 	sortedBranches := utils.SortBranchesByDistance(5, userLocation.BranchLat, userLocation.BranchLon, res)
@@ -104,17 +113,37 @@ func (u *branchUsecase) GetClosestToMe(userLocation *model.UserGeoLocation) (*[]
 	return &sortedBranches, err
 }
 
-func (u *branchUsecase) GetByBranchID(branchID string, isAdminView bool) (*interface{}, error) {
+func (u *branchUsecase) GetByBranchID(branchID string, isAdminView bool) (*model.BranchDetail, error) {
 	branch, err := u.branchRepository.GetByBranchID(branchID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var res interface{} = branch
+	res := toBranchDetail(branch, isAdminView)
 
-	if !isAdminView {
-		res = toBranchDetail(branch)
+	reviews, err := u.branchRepository.GetReviewsByBranchID(branchID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*reviews) > 0 {
+		res.UserReview = reviews
+
+		// calculate average star
+		var averageStar float32 = 0
+
+		for _, r := range *reviews {
+			averageStar += float32(r.StarRating)
+		}
+
+		averageStar /= float32(len(*reviews))
+
+		res.AverageStar = averageStar
+	} else {
+		res.UserReview = &[]model.UserReview{}
+		res.AverageStar = 0
 	}
 
 	return &res, err
@@ -130,7 +159,7 @@ func (u *branchUsecase) GetByBranchOwner(ownerUserID string) (*[]model.Branch, e
 	return branchList, err
 }
 
-func (u *branchUsecase) UpdateBranch(branch *model.UpdateBranchDTO, role string) (*model.Branch, error) {
+func (u *branchUsecase) UpdateBranch(branch *model.UpdateBranch, role string) (*model.Branch, error) {
 	data := model.Branch{
 		BranchID:     branch.BranchID,
 		BranchName:   branch.BranchName,

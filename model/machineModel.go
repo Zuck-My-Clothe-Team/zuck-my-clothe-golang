@@ -32,7 +32,7 @@ type Machine struct {
 	DeletedBy     *string        `json:"deleted_by" gorm:"column:deleted_by"`
 }
 
-type AddMachineDTO struct {
+type AddMachine struct {
 	MachineSerial string      `json:"machine_serial" validate:"required"`
 	MachineLabel  int         `json:"machine_label" validate:"required"`
 	BranchID      string      `json:"branch_id" validate:"required"`
