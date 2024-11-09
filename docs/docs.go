@@ -1426,6 +1426,22 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Get full order by order header id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order Header ID",
+                        "name": "order_header_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Option = full, header, detail",
+                        "name": "option",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

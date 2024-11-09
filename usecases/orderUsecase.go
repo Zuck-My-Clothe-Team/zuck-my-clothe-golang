@@ -7,6 +7,7 @@ import (
 	repo "zuck-my-clothe/zuck-my-clothe-backend/repository"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type orderUsecase struct {
@@ -138,7 +139,7 @@ func (u *orderUsecase) GetAllHeader() (*[]model.OrderHeader, error) {
 	headers, err := u.orderHeaderRepo.GetAll()
 
 	if err != nil {
-		return nil, err
+		return &[]model.OrderHeader{}, err
 	}
 
 	return headers, err
@@ -148,6 +149,10 @@ func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, opt
 	headers, err := u.orderHeaderRepo.GetByID(orderHeaderID, isAdminView)
 	if err != nil {
 		return nil, err
+	}
+
+	if headers.OrderHeaderID == "" {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	if option == "header" {
@@ -170,22 +175,27 @@ func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, opt
 }
 
 func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]interface{}, error) {
+
 	manager, err := u.userRepo.FindUserByUserID(managerUserID)
 	if err != nil {
-		return nil, err
+		return []interface{}{}, err
 	}
 	if manager.Role != "SuperAdmin" && manager.UserID != managerUserID {
-		return nil, errors.New("ERR: forbidden manager try to access unautherized branch")
+		return []interface{}{}, errors.New("ERR: forbidden manager try to access unautherized branch")
 	}
 
 	headers, err := u.orderHeaderRepo.GetByBranchID(branchID)
 	if err != nil {
-		return nil, err
+		return []interface{}{}, err
 	}
 
 	detail, err := u.orderDetailRepo.GetAll()
 	if err != nil {
-		return nil, err
+		return []interface{}{}, err
+	}
+
+	if len(*headers) == 0 {
+		return []interface{}{}, nil
 	}
 
 	var fullOrder []interface{}
@@ -204,13 +214,18 @@ func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]i
 
 func (u *orderUsecase) GetByUserID(userID string) ([]interface{}, error) {
 	headers, err := u.orderHeaderRepo.GetByUserID(userID)
+
 	if err != nil {
-		return nil, err
+		return []interface{}{}, err
 	}
 
 	detail, err := u.orderDetailRepo.GetAll()
 	if err != nil {
-		return nil, err
+		return []interface{}{}, err
+	}
+
+	if len(*headers) == 0 {
+		return []interface{}{}, nil
 	}
 
 	var fullOrder []interface{}

@@ -22,12 +22,10 @@ func OrderRoutes(routeRegister *config.RoutesRegister) {
 
 	orderGroup.Post("/new", orderController.CreateNewOrder)
 	orderGroup.Get("/all", middleware.IsSuperAdmin, orderController.GetAll)
-	orderGroup.Get("/:order_header_id/:option", orderController.GetByHeaderID)
-
 	orderGroup.Get("/branch/:branch_id", middleware.IsEmployee, orderController.GetByBranchID)
+	orderGroup.Get("/:order_header_id/:option", orderController.GetByHeaderID)
 	orderGroup.Get("/me", orderController.GetByUserID)
 
-	// GetReviewInBranch
 	orderGroup.Put("/review", orderController.UpdateReview)
 	orderGroup.Put("/update", middleware.IsEmployee, orderController.UpdateStatus)
 	orderGroup.Delete("/delete/:order_header_id", middleware.IsBranchManager, orderController.SoftDelete)

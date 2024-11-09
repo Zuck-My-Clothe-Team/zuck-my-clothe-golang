@@ -1484,6 +1484,17 @@ paths:
   /order/{order_header_id}/{option}:
     get:
       description: Retrieve full order by order header id
+      parameters:
+      - description: Order Header ID
+        in: path
+        name: order_header_id
+        required: true
+        type: string
+      - description: Option = full, header, detail
+        in: path
+        name: option
+        required: true
+        type: string
       produces:
       - application/json
       responses:

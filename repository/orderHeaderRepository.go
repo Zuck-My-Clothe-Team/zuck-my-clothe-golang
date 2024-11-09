@@ -64,8 +64,12 @@ func (u *orderHeaderRepository) GetByID(orderHeaderID string, isAdminView bool) 
 		result = u.db.Select("order_header_id", "user_id", "branch_id", "order_note", "payment_id", "zuck_onsite", "delivery_address", "delivery_lat", "delivery_long", "created_at", "updated_at").Where("order_header_id = ?", orderHeaderID).Find(&order)
 	}
 
+	if result.RowsAffected == 0 {
+		return &model.OrderHeader{}, nil
+	}
+
 	if result.Error != nil {
-		return nil, result.Error
+		return &model.OrderHeader{}, result.Error
 	}
 
 	return order, result.Error
@@ -87,6 +91,10 @@ func (u *orderHeaderRepository) GetByUserID(userID string) (*[]model.OrderHeader
 	order := new([]model.OrderHeader)
 
 	result := u.db.Where("user_id = ?", userID).Find(&order)
+
+	if result.RowsAffected == 0 {
+		return new([]model.OrderHeader), nil
+	}
 
 	if result.Error != nil {
 		return nil, result.Error
