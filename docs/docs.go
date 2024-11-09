@@ -440,7 +440,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CreateBranchDTO"
+                            "$ref": "#/definitions/model.CreateBranch"
                         }
                     }
                 ],
@@ -527,7 +527,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UpdateBranchDTO"
+                            "$ref": "#/definitions/model.UpdateBranch"
                         }
                     }
                 ],
@@ -570,7 +570,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Branch"
+                            "$ref": "#/definitions/model.BranchDetail"
                         }
                     },
                     "204": {
@@ -840,7 +840,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.AddMachineDTO"
+                            "$ref": "#/definitions/model.AddMachine"
                         }
                     }
                 ],
@@ -1110,6 +1110,334 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/all": {
+            "get": {
+                "description": "Retrieve all orders in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get all orders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.OrderHeader"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - No orders available",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/branch/{branch_id}": {
+            "get": {
+                "description": "Retrieve full order by branch id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get full order by branch id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.FullOrder"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - No orders available",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/create": {
+            "post": {
+                "description": "Add a new order to the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Add new order",
+                "parameters": [
+                    {
+                        "description": "New Order Data",
+                        "name": "NewOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.NewOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.FullOrder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable - Validation failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/delete/{order_header_id}": {
+            "delete": {
+                "description": "Delete an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Delete an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order Header ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "record not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/me": {
+            "get": {
+                "description": "Retrieve full order by user id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get full order by user id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.FullOrder"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - No orders available",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/review": {
+            "put": {
+                "description": "Update order review",
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Update order review",
+                "parameters": [
+                    {
+                        "description": "Updated order field",
+                        "name": "OrderReview",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.OrderReview"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.FullOrder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/update": {
+            "put": {
+                "description": "Update order status",
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Update order status",
+                "parameters": [
+                    {
+                        "description": "Updated order field",
+                        "name": "UpdateOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.FullOrder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{order_header_id}/{option}": {
+            "get": {
+                "description": "Retrieve full order by order header id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get full order by order header id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.FullOrder"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - No orders available",
                         "schema": {
                             "type": "string"
                         }
@@ -1507,7 +1835,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.AddMachineDTO": {
+        "model.AddMachine": {
             "type": "object",
             "required": [
                 "branch_id",
@@ -1675,6 +2003,9 @@ const docTemplate = `{
         "model.BranchDetail": {
             "type": "object",
             "properties": {
+                "average_star": {
+                    "type": "number"
+                },
                 "branch_detail": {
                     "type": "string"
                 },
@@ -1690,15 +2021,40 @@ const docTemplate = `{
                 "branch_name": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
                 "distance": {
                     "type": "number"
                 },
                 "owner_user_id": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user_reviews": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.UserReview"
+                    }
                 }
             }
         },
-        "model.CreateBranchDTO": {
+        "model.CreateBranch": {
             "type": "object",
             "required": [
                 "branch_detail",
@@ -1778,6 +2134,69 @@ const docTemplate = `{
                 }
             }
         },
+        "model.FullOrder": {
+            "type": "object",
+            "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
+                "delivery_address": {
+                    "type": "string"
+                },
+                "delivery_lat": {
+                    "type": "number"
+                },
+                "delivery_long": {
+                    "type": "number"
+                },
+                "order_details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.OrderDetail"
+                    }
+                },
+                "order_header_id": {
+                    "type": "string"
+                },
+                "order_note": {
+                    "type": "string"
+                },
+                "payment_id": {
+                    "type": "string"
+                },
+                "review_comment": {
+                    "type": "string"
+                },
+                "star_rating": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "zuck_onsite": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.Machine": {
             "type": "object",
             "properties": {
@@ -1831,17 +2250,211 @@ const docTemplate = `{
                 "Dryer"
             ]
         },
+        "model.NewOrder": {
+            "type": "object",
+            "required": [
+                "branch_id",
+                "order_details"
+            ],
+            "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "delivery_address": {
+                    "type": "string"
+                },
+                "delivery_lat": {
+                    "type": "number"
+                },
+                "delivery_long": {
+                    "type": "number"
+                },
+                "order_details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.NewOrderDetail"
+                    }
+                },
+                "order_note": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                },
+                "zuck_onsite": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.NewOrderDetail": {
+            "type": "object",
+            "required": [
+                "service_type",
+                "weight"
+            ],
+            "properties": {
+                "machine_serial": {
+                    "type": "string"
+                },
+                "service_type": {
+                    "$ref": "#/definitions/model.ServiceType"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
+                "finished_at": {
+                    "type": "string"
+                },
+                "machine_serial": {
+                    "type": "string"
+                },
+                "order_basket_id": {
+                    "type": "string"
+                },
+                "order_header_id": {
+                    "type": "string"
+                },
+                "order_status": {
+                    "$ref": "#/definitions/model.OrderStatus"
+                },
+                "service_type": {
+                    "$ref": "#/definitions/model.ServiceType"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.OrderHeader": {
+            "type": "object",
+            "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
+                "deleted_by": {
+                    "type": "string"
+                },
+                "delivery_address": {
+                    "type": "string"
+                },
+                "delivery_lat": {
+                    "type": "number"
+                },
+                "delivery_long": {
+                    "type": "number"
+                },
+                "order_header_id": {
+                    "type": "string"
+                },
+                "order_note": {
+                    "type": "string"
+                },
+                "payment_id": {
+                    "type": "string"
+                },
+                "review_comment": {
+                    "type": "string"
+                },
+                "star_rating": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "zuck_onsite": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.OrderReview": {
+            "type": "object",
+            "required": [
+                "order_header_id",
+                "star_rating"
+            ],
+            "properties": {
+                "order_header_id": {
+                    "type": "string"
+                },
+                "review_comment": {
+                    "type": "string"
+                },
+                "star_rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "Waiting",
+                "Processing",
+                "Completed",
+                "Canceled"
+            ],
+            "x-enum-varnames": [
+                "Waiting",
+                "Processing",
+                "Completed",
+                "Canceled"
+            ]
+        },
         "model.PaymentStatus": {
             "type": "string",
             "enum": [
                 "Pending",
-                "Completed",
+                "Paid",
                 "Expired",
                 "Cancel"
             ],
             "x-enum-varnames": [
                 "Pending",
-                "Completed",
+                "Paid",
                 "Expired",
                 "Cancel"
             ]
@@ -1896,7 +2509,20 @@ const docTemplate = `{
                 "Client"
             ]
         },
-        "model.UpdateBranchDTO": {
+        "model.ServiceType": {
+            "type": "string",
+            "enum": [
+                "Washing",
+                "Drying",
+                "Delivery"
+            ],
+            "x-enum-varnames": [
+                "Washing",
+                "Drying",
+                "Delivery"
+            ]
+        },
+        "model.UpdateBranch": {
             "type": "object",
             "required": [
                 "branch_detail",
@@ -1923,6 +2549,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "owner_user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UpdateOrder": {
+            "type": "object",
+            "required": [
+                "order_basket_id"
+            ],
+            "properties": {
+                "finished_at": {
+                    "type": "string"
+                },
+                "machine_serial": {
+                    "type": "string"
+                },
+                "order_basket_id": {
+                    "type": "string"
+                },
+                "order_status": {
+                    "$ref": "#/definitions/model.OrderStatus"
+                },
+                "updatedBy": {
                     "type": "string"
                 }
             }
@@ -2097,6 +2746,26 @@ const docTemplate = `{
                 },
                 "user_lon": {
                     "type": "number"
+                }
+            }
+        },
+        "model.UserReview": {
+            "type": "object",
+            "properties": {
+                "firstname": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "profile_image_url": {
+                    "type": "string"
+                },
+                "review_comment": {
+                    "type": "string"
+                },
+                "star_rating": {
+                    "type": "integer"
                 }
             }
         },

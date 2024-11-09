@@ -80,3 +80,11 @@ func IsBranchManager(c *fiber.Ctx) error {
 	}
 	return c.Next()
 }
+
+func IsEmployee(c *fiber.Ctx) error {
+	claims := Claimer(c)
+	if claims["positionID"] != "SuperAdmin" && claims["positionID"] != "BranchManager" && claims["positionID"] != "Employee" {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+	return c.Next()
+}

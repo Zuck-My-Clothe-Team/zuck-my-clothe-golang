@@ -22,6 +22,7 @@ func BranchRoutes(routeRegister *config.RoutesRegister) {
 	branchGroup.Post("/closest-to-me", branchController.GetClosestToMe)
 	branchGroup.Get("/owner", middleware.IsBranchManager, branchController.GetByBranchOwner)
 	branchGroup.Get("/:id", branchController.GetByBranchID)
+
 	branchGroup.Put("/update", middleware.IsBranchManager, branchController.UpdateBranch)
 	branchGroup.Delete("/:id", middleware.IsSuperAdmin, branchController.DeleteBranch)
 }

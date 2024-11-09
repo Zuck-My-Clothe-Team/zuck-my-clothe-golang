@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -106,7 +105,7 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 	_, Geterr := u.userUsecase.FindUserByGoogleID(newGoogleUser.GoogleID)
 	if Geterr != nil {
 		if errors.Is(Geterr, gorm.ErrRecordNotFound) {
-			fmt.Println("Yedtood")
+			// fmt.Println("Yedtood")
 			newUser := new(model.Users)
 			newUser.GoogleID = newGoogleUser.GoogleID
 			newUser.Email = newGoogleUser.Email
@@ -117,7 +116,7 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 			newUser.UpdateAt = time.Now()
 			newUser.ProfileImageURL = newGoogleUser.ImageUrl
 			newUser.Password = ""
-			fmt.Println(newUser)
+			// fmt.Println(newUser)
 
 			if err := u.userUsecase.CreateUser(*newUser); err != nil {
 				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())

@@ -13,7 +13,7 @@ type MachineUsecase interface {
 	UpdateLabel(machine_serial string, label int, updated_by string) (*model.Machine, error)
 	GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error)
 	GetAll() (*[]model.Machine, error)
-	AddMachine(newMachine *model.AddMachineDTO) (*model.Machine, error)
+	AddMachine(newMachine *model.AddMachine) (*model.Machine, error)
 	GetByMachineSerial(machineSerial string, isAdminView bool) (*interface{}, error)
 }
 
@@ -36,8 +36,7 @@ func toMachineDetail(machine *model.Machine) interface{} {
 	return result
 }
 
-func (u *machineUsecase) AddMachine(new_machine *model.AddMachineDTO) (*model.Machine, error) {
-
+func (u *machineUsecase) AddMachine(new_machine *model.AddMachine) (*model.Machine, error) {
 	var newMachineLabel string
 
 	if new_machine.MachineType == model.Washer {

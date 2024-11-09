@@ -13,10 +13,10 @@ func (Payments) TableName() string {
 type PaymentStatus string
 
 const (
-	Pending   PaymentStatus = "Pending"
-	Completed PaymentStatus = "Completed"
-	Expired   PaymentStatus = "Expired"
-	Cancel    PaymentStatus = "Cancel"
+	Pending PaymentStatus = "Pending"
+	Paid    PaymentStatus = "Paid"
+	Expired PaymentStatus = "Expired"
+	Cancel  PaymentStatus = "Cancel"
 )
 
 type Payments struct {
