@@ -85,7 +85,7 @@ func (u *orderController) GetAll(c *fiber.Ctx) error {
 
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -98,9 +98,11 @@ func (u *orderController) GetAll(c *fiber.Ctx) error {
 //	@Description	Retrieve full order by order header id
 //	@Tags			Order
 //	@Produce		json
-//	@Success		200	{array}		model.FullOrder	"OK"
-//	@Failure		404	{string}	string			"Not Found - No orders available"
-//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Param			order_header_id	path		string			true	"Order Header ID"
+//	@Param			option			path		string			true	"Option = full, header, detail"
+//	@Success		200				{array}		model.FullOrder	"OK"
+//	@Failure		404				{string}	string			"Not Found - No orders available"
+//	@Failure		500				{string}	string			"Internal Server Error"
 //	@Router			/order/{order_header_id}/{option} [get]
 func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 	orderHeaderID := c.Params("order_header_id")
@@ -122,7 +124,7 @@ func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -148,7 +150,7 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -172,7 +174,7 @@ func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -211,7 +213,7 @@ func (u *orderController) UpdateStatus(c *fiber.Ctx) error {
 
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -244,7 +246,7 @@ func (u *orderController) UpdateReview(c *fiber.Ctx) error {
 
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
@@ -271,7 +273,7 @@ func (u *orderController) SoftDelete(c *fiber.Ctx) error {
 	result, err := u.orderUsecase.SoftDelete(orderHeaderID, deleteBy)
 	if err != nil {
 		if err.Error() == "record not found" {
-			return c.SendStatus(fiber.StatusNotFound)
+			return c.SendStatus(fiber.StatusNoContent)
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
