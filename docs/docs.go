@@ -1578,7 +1578,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.MachineReports"
+                                "$ref": "#/definitions/model.MachineReportDetail"
                             }
                         }
                     },
@@ -2585,6 +2585,16 @@ const docTemplate = `{
         "model.MachineReportDetail": {
             "type": "object",
             "properties": {
+                "branch": {
+                    "$ref": "#/definitions/model.BranchDetail"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "null"
+                },
                 "machine_serial": {
                     "type": "string"
                 },
@@ -2616,33 +2626,6 @@ const docTemplate = `{
                 "ReportFixed",
                 "ReportCanceled"
             ]
-        },
-        "model.MachineReports": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string",
-                    "example": "null"
-                },
-                "machine_serial": {
-                    "type": "string"
-                },
-                "report_desc": {
-                    "type": "string"
-                },
-                "report_id": {
-                    "type": "string"
-                },
-                "report_status": {
-                    "$ref": "#/definitions/model.MachineReportStatus"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
         },
         "model.MachineType": {
             "type": "string",

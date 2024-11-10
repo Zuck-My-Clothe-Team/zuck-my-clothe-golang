@@ -304,6 +304,13 @@ definitions:
     type: object
   model.MachineReportDetail:
     properties:
+      branch:
+        $ref: '#/definitions/model.BranchDetail'
+      created_at:
+        type: string
+      deleted_at:
+        example: "null"
+        type: string
       machine_serial:
         type: string
       report_desc:
@@ -327,24 +334,6 @@ definitions:
     - ReportInProgress
     - ReportFixed
     - ReportCanceled
-  model.MachineReports:
-    properties:
-      created_at:
-        type: string
-      deleted_at:
-        example: "null"
-        type: string
-      machine_serial:
-        type: string
-      report_desc:
-        type: string
-      report_id:
-        type: string
-      report_status:
-        $ref: '#/definitions/model.MachineReportStatus'
-      user_id:
-        type: string
-    type: object
   model.MachineType:
     enum:
     - Washer
@@ -1795,7 +1784,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.MachineReports'
+              $ref: '#/definitions/model.MachineReportDetail'
             type: array
         "500":
           description: Internal server error

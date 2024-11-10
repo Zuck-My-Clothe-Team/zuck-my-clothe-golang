@@ -31,28 +31,6 @@ func CreateNewBranchUsecase(branchRepository repo.BranchReopository, machineRepo
 	}
 }
 
-func toBranchDetail(branch *model.Branch, isAdminView bool) model.BranchDetail {
-	res := model.BranchDetail{
-		BranchID:     branch.BranchID,
-		BranchName:   branch.BranchName,
-		BranchDetail: branch.BranchDetail,
-		BranchLat:    branch.BranchLat,
-		BranchLon:    branch.BranchLon,
-		OwnerUserID:  branch.OwnerUserID,
-		CreatedAt:    &branch.CreatedAt,
-		CreatedBy:    &branch.CreatedBy,
-		UpdatedAt:    &branch.UpdatedAt,
-		UpdatedBy:    &branch.UpdatedBy,
-	}
-
-	if !isAdminView {
-		res.CreatedBy = nil
-		res.UpdatedBy = nil
-	}
-
-	return res
-}
-
 func (u *branchUsecase) CreateBranch(newBranch *model.CreateBranch, userID string) (*model.Branch, error) {
 	data := model.Branch{
 		BranchID:     uuid.New().String(),
@@ -92,7 +70,7 @@ func (u *branchUsecase) GetAll(isAdminView bool) (interface{}, error) {
 		var branchDetailList []model.BranchDetail
 
 		for _, branch := range *branchList {
-			branchDetailList = append(branchDetailList, toBranchDetail(&branch, false))
+			branchDetailList = append(branchDetailList, utils.ToBranchDetail(&branch, false))
 		}
 
 		res = branchDetailList
@@ -109,7 +87,7 @@ func (u *branchUsecase) GetClosestToMe(userLocation *model.UserGeoLocation) (*[]
 	var res []model.BranchDetail
 
 	for _, branch := range *branchList {
-		res = append(res, toBranchDetail(&branch, false))
+		res = append(res, utils.ToBranchDetail(&branch, false))
 	}
 
 	sortedBranches := utils.SortBranchesByDistance(5, userLocation.BranchLat, userLocation.BranchLon, res)
@@ -124,7 +102,7 @@ func (u *branchUsecase) GetByBranchID(branchID string, isAdminView bool) (*model
 		return nil, err
 	}
 
-	res := toBranchDetail(branch, isAdminView)
+	res := utils.ToBranchDetail(branch, isAdminView)
 
 	// Get available machines
 	machines, err := u.machineRepository.GetAvailableMachine(branchID)

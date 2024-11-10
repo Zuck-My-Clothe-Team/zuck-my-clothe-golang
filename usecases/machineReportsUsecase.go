@@ -2,9 +2,11 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/repository"
+	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"github.com/google/uuid"
 )
@@ -24,13 +26,25 @@ func CreateNewMachineReportUsecase(machineReportRepository model.MachineReportsR
 	}
 }
 
-func toMachineReportDetail(machineReport *model.MachineReports) interface{} {
+func (u *machineReportUsecase) toMachineReportDetail(machineReport *model.MachineReports, isAdminView bool) interface{} {
+	branch, err := u.branchRepository.GetByBranchID(machineReport.BranchID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	result := utils.ToBranchDetail(branch, isAdminView)
 	reportData := model.MachineReportDetail{
 		ReportID:          machineReport.ReportID,
 		UserID:            machineReport.UserID,
 		ReportDescription: machineReport.ReportDescription,
 		MacineSerial:      machineReport.MacineSerial,
 		ReportStatus:      machineReport.ReportStatus,
+		CreatedAt:         machineReport.CreatedAt,
+		DeletedAt:         &machineReport.DeletedAt,
+		BranchInfo:        result,
+	}
+	if !isAdminView {
+		reportData.DeletedAt = nil
 	}
 	return reportData
 }
@@ -95,7 +109,7 @@ func (u *machineReportUsecase) CreateMachineReport(newReport *model.AddMachineRe
 	if err != nil {
 		return nil, err
 	}
-	detail := toMachineReportDetail(report)
+	detail := u.toMachineReportDetail(report, false)
 	return &detail, nil
 }
 
@@ -106,30 +120,37 @@ func (u *machineReportUsecase) FindMachineReportByUserID(userID string) (*[]inte
 	}
 	var result []interface{}
 	for _, machineReport := range *machineReportList {
-		result = append(result, toMachineReportDetail(&machineReport))
+		result = append(result, u.toMachineReportDetail(&machineReport, false))
 	}
 	return &result, nil
 }
 
-func (u *machineReportUsecase) FindMachineReportByBranch(branchID string, userID string) (*[]interface{}, error) {
-	reportList, err := u.machineReportRepository.FindMachineReportByBranch(branchID, userID)
+func (u *machineReportUsecase) FindMachineReportByBranch(branchID string, userID string, userRole string) (*[]interface{}, error) {
+	reportList, err := u.machineReportRepository.FindMachineReportByBranch(branchID, userID, userRole)
 	if err != nil {
 		return nil, err
 	}
-
+	var isAdmin bool = false
+	if userRole == "SuperAdmin" {
+		isAdmin = true
+	}
 	var result []interface{}
 	for _, report := range *reportList {
-		result = append(result, toMachineReportDetail(&report))
+		result = append(result, u.toMachineReportDetail(&report, isAdmin))
 	}
 	return &result, nil
 }
 
-func (u *machineReportUsecase) GetAll() (*[]model.MachineReports, error) {
+func (u *machineReportUsecase) GetAll() (*[]interface{}, error) {
 	reportList, err := u.machineReportRepository.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	return reportList, nil
+	var result []interface{}
+	for _, report := range *reportList {
+		result = append(result, u.toMachineReportDetail(&report, true))
+	}
+	return &result, nil
 }
 
 func (u *machineReportUsecase) UpdateMachineReportStatus(updateReport model.UpdateMachineReportStatusDTO, userID string, userRole string) (*interface{}, error) {
@@ -144,7 +165,7 @@ func (u *machineReportUsecase) UpdateMachineReportStatus(updateReport model.Upda
 	if err != nil {
 		return nil, err
 	}
-	result := toMachineReportDetail(updatedReport)
+	result := u.toMachineReportDetail(updatedReport, false)
 	return &result, nil
 }
 
