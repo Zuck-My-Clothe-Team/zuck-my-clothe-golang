@@ -42,18 +42,18 @@ func (u *machineReportsRepository) FindMachineReportByUserID(userID string) (*[]
 	return machineReportLists, dbTx.Error
 }
 
-func (u *machineReportsRepository) FindMachineReportByBranch(branchID string, userID string,userRole string) (*[]model.MachineReports, error) {
+func (u *machineReportsRepository) FindMachineReportByBranch(branchID string, userID string, userRole string) (*[]model.MachineReports, error) {
 	machineReportLists := new([]model.MachineReports)
 	var dbTx *gorm.DB
-	if userRole == "SuperAdmin"{
+	if userRole == "SuperAdmin" {
 		dbTx = u.db.DB.Raw(
 			`SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"Machines".branch_id,"MachineReports".created_at,"MachineReports".deleted_at
 			FROM "MachineReports"
 			INNER JOIN "Machines" ON "Machines".machine_serial = "MachineReports".machine_serial
 			WHERE "MachineReports".deleted_at IS NULL AND "Machines".branch_id = ?
-			ORDER BY "MachineReports".created_at DESC`,
+			ORDER BY "MachineReports".created_at ASC`,
 			branchID).Scan(machineReportLists)
-	} else{
+	} else {
 		dbTx = u.db.Raw(
 			`SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"Machines".branch_id,"MachineReports".created_at,"MachineReports".deleted_at
 			FROM "MachineReports"
@@ -68,7 +68,7 @@ func (u *machineReportsRepository) FindMachineReportByBranch(branchID string, us
 				FROM "Branches"
 				WHERE "Branches".owner_user_id = ? AND "Branches".branch_id = ?
 			)
-			ORDER BY "MachineReports".created_at DESC`,
+			ORDER BY "MachineReports".created_at ASC`,
 			userID, branchID, userID, branchID).Scan(machineReportLists)
 	}
 
@@ -85,7 +85,7 @@ func (u *machineReportsRepository) GetAll() (*[]model.MachineReports, error) {
 	SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"Machines".branch_id,"MachineReports".created_at,"MachineReports".deleted_at
 	FROM "MachineReports"
 	INNER JOIN "Machines" ON "Machines".machine_serial = "MachineReports".machine_serial
-	ORDER BY "MachineReports".created_at DESC
+	ORDER BY "MachineReports".created_at ASC
 	`).Scan(machineReportLists)
 	if dbTx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound

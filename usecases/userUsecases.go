@@ -18,6 +18,7 @@ type UserUsecases interface {
 	FindUserByEmail(email string) (*model.Users, error)
 	FindUserByGoogleID(googleID string) (*model.Users, error)
 	GetAll() ([]model.UserBranch, error)
+	GetUserById(userID string) (*model.Users, error)
 	GetBranchEmployee(branchId string) ([]model.UserContract, error)
 	GetAllManager() ([]model.Users, error)
 	DeleteUser(userID string) (*model.Users, error)
@@ -155,6 +156,11 @@ func (repo *userUsecases) GetAll() ([]model.UserBranch, error) {
 	}
 
 	return allUsers, err
+}
+
+func (repo *userUsecases) GetUserById(userID string) (*model.Users, error) {
+	user, err := repo.repository.FindUserByUserID(userID)
+	return user, err
 }
 
 func (repo *userUsecases) GetAllManager() ([]model.Users, error) {
