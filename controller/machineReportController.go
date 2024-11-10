@@ -35,17 +35,17 @@ func CreateNewMachineReportController(machineReportUsecase model.MachineReportsU
 	return &machineReportController{machineReportUsecase: machineReportUsecase}
 }
 
-//	@Summary		Create a new machine report
-//	@Description	Create a new machine report for a specific user
-//	@Tags			Machine Reports
-//	@Accept			json
-//	@Produce		json
-//	@Param			report	body		model.AddMachineReportDTO	true	"Machine Report"
-//	@Success		200		{object}	model.MachineReportDetail
-//	@Failure		406		{string}	string	"Invalid request"
-//	@Failure		202		{string}	string	"Validation error"
-//	@Security		BearerAuth
-//	@Router			/report/add [post]
+// @Summary		Create a new machine report
+// @Description	Create a new machine report for a specific user
+// @Tags			Machine Reports
+// @Accept			json
+// @Produce		json
+// @Param			report	body		model.AddMachineReportDTO	true	"Machine Report"
+// @Success		200		{object}	model.MachineReportDetail
+// @Failure		406		{string}	string	"Invalid request"
+// @Failure		202		{string}	string	"Validation error"
+// @Security		BearerAuth
+// @Router			/report/add [post]
 func (u *machineReportController) CreateMachineReport(c *fiber.Ctx) error {
 	userID := tokenClaimer(c, "user", "userID")
 	newReport := new(model.AddMachineReportDTO)
@@ -62,14 +62,14 @@ func (u *machineReportController) CreateMachineReport(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(createdReport)
 }
 
-//	@Summary		Get machine reports by user ID
-//	@Description	Retrieve all machine reports associated with a specific user
-//	@Tags			Machine Reports
-//	@Produce		json
-//	@Success		200	{array}		model.MachineReportDetail
-//	@Failure		202	{string}	string	"Accepted"
-//	@Security		BearerAuth
-//	@Router			/report/user/{userID} [get]
+// @Summary		Get machine reports by user ID
+// @Description	Retrieve all machine reports associated with a specific user
+// @Tags			Machine Reports
+// @Produce		json
+// @Success		200	{array}		model.MachineReportDetail
+// @Failure		202	{string}	string	"Accepted"
+// @Security		BearerAuth
+// @Router			/report/user/{userID} [get]
 func (u *machineReportController) FindMachineReportByUserID(c *fiber.Ctx) error {
 	userID := tokenClaimer(c, "user", "userID")
 	reportList, err := u.machineReportUsecase.FindMachineReportByUserID(userID)
@@ -79,20 +79,21 @@ func (u *machineReportController) FindMachineReportByUserID(c *fiber.Ctx) error 
 	return c.Status(fiber.StatusOK).JSON(reportList)
 }
 
-//	@Summary		Get machine reports by branch ID
-//	@Description	Retrieve all machine reports for a specific branch
-//	@Tags			Machine Reports
-//	@Produce		json
-//	@Param			branchID	path		string	true	"Branch ID"
-//	@Success		200			{array}		model.MachineReportDetail
-//	@Failure		202			{string}	string	"No records found"
-//	@Failure		204			{string}	string	"Invalid request"
-//	@Security		BearerAuth
-//	@Router			/report/branch/{branchID} [get]
+// @Summary		Get machine reports by branch ID
+// @Description	Retrieve all machine reports for a specific branch
+// @Tags			Machine Reports
+// @Produce		json
+// @Param			branchID	path		string	true	"Branch ID"
+// @Success		200			{array}		model.MachineReportDetail
+// @Failure		202			{string}	string	"No records found"
+// @Failure		204			{string}	string	"Invalid request"
+// @Security		BearerAuth
+// @Router			/report/branch/{branchID} [get]
 func (u *machineReportController) FindMachineReportByBranch(c *fiber.Ctx) error {
 	userID := tokenClaimer(c, "user", "userID")
+	userRole := tokenClaimer(c, "user", "positionID")
 	branchID := c.Params("branchID")
-	result, err := u.machineReportUsecase.FindMachineReportByBranch(branchID, userID)
+	result, err := u.machineReportUsecase.FindMachineReportByBranch(branchID, userID, userRole)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNoContent).SendString(err.Error())
@@ -102,14 +103,14 @@ func (u *machineReportController) FindMachineReportByBranch(c *fiber.Ctx) error 
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-//	@Summary		Get all machine reports
-//	@Description	Retrieve all machine reports in the system
-//	@Tags			Machine Reports
-//	@Produce		json
-//	@Success		200	{array}		model.MachineReports
-//	@Failure		500	{string}	string	"Internal server error"
-//	@Security		BearerAuth
-//	@Router			/report/ [get]
+// @Summary		Get all machine reports
+// @Description	Retrieve all machine reports in the system
+// @Tags			Machine Reports
+// @Produce		json
+// @Success		200	{array}		model.MachineReportDetail
+// @Failure		500	{string}	string	"Internal server error"
+// @Security		BearerAuth
+// @Router			/report/ [get]
 func (u *machineReportController) GetAll(c *fiber.Ctx) error {
 	reportList, err := u.machineReportUsecase.GetAll()
 	if err != nil {
@@ -118,18 +119,18 @@ func (u *machineReportController) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(reportList)
 }
 
-//	@Summary		Update the status of a machine report
-//	@Description	Update the status of a specific machine report
-//	@Tags			Machine Reports
-//	@Accept			json
-//	@Produce		json
-//	@Param			status	body		model.UpdateMachineReportStatusDTO	true	"Updated Status"
-//	@Success		200		{object}	model.MachineReportDetail
-//	@Failure		204		{string}	string	"Record not found"
-//	@Failure		401		{string}	string	"Unauthorized"
-//	@Failure		500		{string}	string	"Invalid request"
-//	@Security		BearerAuth
-//	@Router			/report/update [put]
+// @Summary		Update the status of a machine report
+// @Description	Update the status of a specific machine report
+// @Tags			Machine Reports
+// @Accept			json
+// @Produce		json
+// @Param			status	body		model.UpdateMachineReportStatusDTO	true	"Updated Status"
+// @Success		200		{object}	model.MachineReportDetail
+// @Failure		204		{string}	string	"Record not found"
+// @Failure		401		{string}	string	"Unauthorized"
+// @Failure		500		{string}	string	"Invalid request"
+// @Security		BearerAuth
+// @Router			/report/update [put]
 func (u *machineReportController) UpdateMachineReportStatus(c *fiber.Ctx) error {
 	updateReport := new(model.UpdateMachineReportStatusDTO)
 	userID := tokenClaimer(c, "user", "userID")
@@ -149,16 +150,16 @@ func (u *machineReportController) UpdateMachineReportStatus(c *fiber.Ctx) error 
 	return c.Status(fiber.StatusOK).JSON(updatedReport)
 }
 
-//	@Summary		Delete a machine report
-//	@Description	Delete a specific machine report by ID
-//	@Tags			Machine Reports
-//	@Param			reportID	path		string	true	"Report ID"
-//	@Success		200			{string}	string	"Successfully deleted"
-//	@Failure		204			{string}	string	"Record not found"
-//	@Failure		401			{string}	string	"Unauthorized"
-//	@Failure		500			{string}	string	"Invalid request"
-//	@Security		BearerAuth
-//	@Router			/report/delete/{reportID} [delete]
+// @Summary		Delete a machine report
+// @Description	Delete a specific machine report by ID
+// @Tags			Machine Reports
+// @Param			reportID	path		string	true	"Report ID"
+// @Success		200			{string}	string	"Successfully deleted"
+// @Failure		204			{string}	string	"Record not found"
+// @Failure		401			{string}	string	"Unauthorized"
+// @Failure		500			{string}	string	"Invalid request"
+// @Security		BearerAuth
+// @Router			/report/delete/{reportID} [delete]
 func (u *machineReportController) DeleteMachineReport(c *fiber.Ctx) error {
 	reportID := c.Params("reportID")
 	userID := tokenClaimer(c, "user", "userID")

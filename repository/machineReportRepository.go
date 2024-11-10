@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
@@ -41,25 +42,37 @@ func (u *machineReportsRepository) FindMachineReportByUserID(userID string) (*[]
 	return machineReportLists, dbTx.Error
 }
 
-func (u *machineReportsRepository) FindMachineReportByBranch(branchID string, userID string) (*[]model.MachineReports, error) {
+func (u *machineReportsRepository) FindMachineReportByBranch(branchID string, userID string,userRole string) (*[]model.MachineReports, error) {
 	machineReportLists := new([]model.MachineReports)
-
-	dbTx := u.db.Raw(
-		`SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"MachineReports".created_at,"MachineReports".deleted_at
-		FROM "MachineReports"
-		INNER JOIN "Machines" ON "Machines".machine_serial = "MachineReports".machine_serial
-		WHERE "MachineReports".deleted_at IS NULL AND "Machines".branch_id IN (
-			SELECT DISTINCT "EmployeeContracts".branch_id
-			FROM "EmployeeContracts"
-			WHERE "EmployeeContracts".user_id = ? AND "EmployeeContracts".branch_id = ?
+	var dbTx *gorm.DB
+	if userRole == "SuperAdmin"{
+		dbTx = u.db.DB.Raw(
+			`SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"Machines".branch_id,"MachineReports".created_at,"MachineReports".deleted_at
+			FROM "MachineReports"
+			INNER JOIN "Machines" ON "Machines".machine_serial = "MachineReports".machine_serial
+			WHERE "MachineReports".deleted_at IS NULL AND "Machines".branch_id = ?
+			ORDER BY "MachineReports".created_at DESC`,
+			branchID).Scan(machineReportLists)
+	} else{
+		dbTx = u.db.Raw(
+			`SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"Machines".branch_id,"MachineReports".created_at,"MachineReports".deleted_at
+			FROM "MachineReports"
+			INNER JOIN "Machines" ON "Machines".machine_serial = "MachineReports".machine_serial
+			WHERE "MachineReports".deleted_at IS NULL AND "Machines".branch_id IN (
+				SELECT DISTINCT "EmployeeContracts".branch_id
+				FROM "EmployeeContracts"
+				WHERE "EmployeeContracts".user_id = ? AND "EmployeeContracts".branch_id = ?
+				)
+				OR  "Machines".branch_id IN (
+				SELECT DISTINCT "Branches".branch_id
+				FROM "Branches"
+				WHERE "Branches".owner_user_id = ? AND "Branches".branch_id = ?
 			)
-			OR  "Machines".branch_id IN (
-			SELECT DISTINCT "Branches".branch_id
-			FROM "Branches"
-			WHERE "Branches".owner_user_id = ? AND "Branches".branch_id = ?
-		)`,
-		userID, branchID, userID, branchID).Scan(machineReportLists)
+			ORDER BY "MachineReports".created_at DESC`,
+			userID, branchID, userID, branchID).Scan(machineReportLists)
+	}
 
+	fmt.Println(machineReportLists)
 	if dbTx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
@@ -69,8 +82,10 @@ func (u *machineReportsRepository) FindMachineReportByBranch(branchID string, us
 func (u *machineReportsRepository) GetAll() (*[]model.MachineReports, error) {
 	machineReportLists := new([]model.MachineReports)
 	dbTx := u.db.Raw(`
-	SELECT *
+	SELECT "MachineReports".report_id,"MachineReports".user_id,"MachineReports".report_desc,"MachineReports".machine_serial,"MachineReports".report_status,"Machines".branch_id,"MachineReports".created_at,"MachineReports".deleted_at
 	FROM "MachineReports"
+	INNER JOIN "Machines" ON "Machines".machine_serial = "MachineReports".machine_serial
+	ORDER BY "MachineReports".created_at DESC
 	`).Scan(machineReportLists)
 	if dbTx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
