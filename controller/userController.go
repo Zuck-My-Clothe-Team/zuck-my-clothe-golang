@@ -12,6 +12,7 @@ import (
 type UserController interface {
 	CreateUser(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
+	GetUserById(c *fiber.Ctx) error
 	GetBranchEmployee(c *fiber.Ctx) error
 	GetAllManager(c *fiber.Ctx) error
 	UpdateUser(c *fiber.Ctx) error
@@ -73,6 +74,37 @@ func (controller *userController) GetAll(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(users)
+}
+
+//	@Summary		Get a user by ID
+//	@Description	Get a user by ID from the database
+//	@Tags			Users
+//	@Param			id	path		string	true	"User ID"
+//	@Success		200	{object}	model.Users
+//	@Failure		204	{string}	string	"record not found"
+//	@Failure		500	{string}	string	"internal server error"
+//	@Router			/users/{id} [get]
+func (controller *userController) GetUserById(c *fiber.Ctx) error {
+	userID := c.Params("id")
+
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	tokenUserID := claims["userID"].(string)
+	role := claims["positionID"].(string)
+
+	if role == string(model.Client) && userID != tokenUserID {
+		return c.Status(fiber.StatusForbidden).SendString("You are not allowed to fetch this data")
+	}
+
+	user, err := controller.usecase.GetUserById(userID)
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.Status(fiber.StatusNoContent).SendString(err.Error())
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	}
+	return c.Status(fiber.StatusOK).JSON(user)
 }
 
 //	@Summary		Get employees by branch ID
@@ -174,6 +206,7 @@ func (contr *userController) UpdateUser(c *fiber.Ctx) error {
 }
 
 // UpdateUserPassword handles the request to update a user's password.
+//
 //	@Summary		Update user password
 //	@Description	Update the password of a user by their ID
 //	@Tags			Users
