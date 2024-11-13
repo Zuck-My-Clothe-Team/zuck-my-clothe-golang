@@ -662,6 +662,10 @@ definitions:
     type: object
   model.UserDTO:
     properties:
+      contracts:
+        items:
+          $ref: '#/definitions/model.EmployeeContractDTO'
+        type: array
       email:
         type: string
       firstname:

@@ -45,13 +45,14 @@ type GoogleUser struct {
 }
 
 type UserDTO struct {
-	Email           string `json:"email" validate:"required"`
-	Password        string `json:"password" validate:"required"`
-	Phone           string `json:"phone"`
-	FirstName       string `json:"firstname" validate:"required"`
-	LastName        string `json:"lastname" validate:"required"`
-	ProfileImageURL string `json:"profile_image_url"`
-	Role            Roles  `json:"role" validate:"required,userRoles"`
+	Email           string                `json:"email" validate:"required"`
+	Password        string                `json:"password" validate:"required"`
+	Phone           string                `json:"phone"`
+	FirstName       string                `json:"firstname" validate:"required"`
+	LastName        string                `json:"lastname" validate:"required"`
+	ProfileImageURL string                `json:"profile_image_url"`
+	Role            Roles                 `json:"role" validate:"required,userRoles"`
+	Contracts       []EmployeeContractDTO `json:"contracts,omitempty"`
 }
 
 type UserUpdateDTO struct {
