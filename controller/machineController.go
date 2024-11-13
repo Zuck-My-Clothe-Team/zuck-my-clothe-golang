@@ -75,7 +75,7 @@ func (u *machineController) AddMachine(c *fiber.Ctx) error {
 // @Success		200			{object}	model.Machine	"OK"
 // @Failure		404			{string}	string			"Not Found"
 // @Failure		500			{string}	string			"Internal Server Error"
-// @Router			/machine/{serial_id} [get]
+// @Router			/machine/detail/{serial_id} [get]
 func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 	serialID := c.Params("serial_id")
 

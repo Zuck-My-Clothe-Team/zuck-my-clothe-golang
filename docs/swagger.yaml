@@ -1289,33 +1289,6 @@ paths:
       summary: Get employee contracts by user ID
       tags:
       - EmployeeContract
-  /machine/{serial_id}:
-    get:
-      description: Get details of a specific machine by its serial number
-      parameters:
-      - description: Machine Serial ID
-        in: path
-        name: serial_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Machine'
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get machine details by serial
-      tags:
-      - Machine
   /machine/add:
     post:
       consumes:
@@ -1419,6 +1392,33 @@ paths:
           schema:
             type: string
       summary: Soft delete machine
+      tags:
+      - Machine
+  /machine/detail/{serial_id}:
+    get:
+      description: Get details of a specific machine by its serial number
+      parameters:
+      - description: Machine Serial ID
+        in: path
+        name: serial_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Machine'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get machine details by serial
       tags:
       - Machine
   /machine/update/{serial_id}/set_active/{set_active}:
