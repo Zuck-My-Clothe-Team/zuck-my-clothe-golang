@@ -980,6 +980,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/machine/detail/{serial_id}": {
+            "get": {
+                "description": "Get details of a specific machine by its serial number",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Get machine details by serial",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine Serial ID",
+                        "name": "serial_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Machine"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/machine/update/{serial_id}/set_active/{set_active}": {
             "put": {
                 "description": "Set the active status of a machine",
@@ -1065,47 +1106,6 @@ const docTemplate = `{
                         "description": "Not Content",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/machine/{serial_id}": {
-            "get": {
-                "description": "Get details of a specific machine by its serial number",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Machine"
-                ],
-                "summary": "Get machine details by serial",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Machine Serial ID",
-                        "name": "serial_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Machine"
                         }
                     },
                     "404": {
