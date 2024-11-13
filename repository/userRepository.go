@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(newUser model.Users) error
+	CreateUser(newUser model.Users) (*model.Users, error)
 	FindUserByUserID(userID string) (*model.Users, error)
 	FindUserByEmail(email string) (*model.Users, error)
 	FindUserByGoogleID(googleID string) (*model.Users, error)
@@ -29,9 +29,11 @@ func CreatenewUserRepository(db *platform.Postgres) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (repo *userRepository) CreateUser(newUser model.Users) error {
-	returnValue := repo.db.Create(newUser)
-	return returnValue.Error
+func (repo *userRepository) CreateUser(newUser model.Users) (*model.Users, error) {
+	if err := repo.db.Create(&newUser).Error; err != nil {
+		return nil, err
+	}
+	return &newUser, nil
 }
 
 func (repo *userRepository) FindUserByUserID(userID string) (*model.Users, error) {

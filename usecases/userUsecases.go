@@ -14,7 +14,7 @@ import (
 )
 
 type UserUsecases interface {
-	CreateUser(newUser model.Users) error
+	CreateUser(newUser model.Users) (*model.Users, error)
 	FindUserByEmail(email string) (*model.Users, error)
 	FindUserByGoogleID(googleID string) (*model.Users, error)
 	GetAll() ([]model.UserBranch, error)
@@ -44,27 +44,32 @@ func CreateNewUserUsecases(
 	}
 }
 
-func (repo *userUsecases) CreateUser(newUser model.Users) error {
+func (repo *userUsecases) CreateUser(newUser model.Users) (*model.Users, error) {
 	newUser.UserID = uuid.New().String()
 	if utils.CheckStraoPling(newUser.FirstName) ||
 		utils.CheckStraoPling(newUser.Email) ||
 		(utils.CheckStraoPling(newUser.Password) == utils.CheckStraoPling(newUser.GoogleID)) {
-		return errors.New("null detected on one or more essential field(s)")
+		return nil, errors.New("null detected on one or more essential field(s)")
 	}
 	buffer, hashErr := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	if hashErr != nil {
-		return hashErr
+		return nil, hashErr
 	}
 
 	newUser.Password = string(buffer)
 	numRow, err := repo.repository.UndeleteUser(newUser)
 	if numRow == 1 && err == nil {
-		return nil
+		return nil, nil
 	}
 	newUser.CreateAt = time.Now()
 	newUser.UpdateAt = time.Now()
-	repoError := repo.repository.CreateUser(newUser)
-	return repoError
+	userData, repoError := repo.repository.CreateUser(newUser)
+
+	if repoError != nil {
+		return nil, repoError
+	}
+
+	return userData, nil
 }
 
 func (repo *userUsecases) FindUserByEmail(email string) (*model.Users, error) {

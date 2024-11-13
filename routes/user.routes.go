@@ -13,9 +13,12 @@ func UserRoutes(routeRegister *config.RoutesRegister) {
 	userRepository := repository.CreatenewUserRepository(routeRegister.DbConnection)
 	employeeContractRepository := repository.CreateNewEmployeeContractRepository(routeRegister.DbConnection)
 	branchRepository := repository.CreateNewBranchRepository(routeRegister.DbConnection)
+	machineRepository := repository.CreateMachineRepository(routeRegister.DbConnection)
 
 	userUsecases := usecases.CreateNewUserUsecases(userRepository, employeeContractRepository, branchRepository)
-	userController := controller.CreateNewUserController(userUsecases, routeRegister.Config)
+	branchUseCase := usecases.CreateNewBranchUsecase(branchRepository, machineRepository)
+	employeeContractUseCase := usecases.CreateNewEmployeeContractUsecase(employeeContractRepository, userRepository)
+	userController := controller.CreateNewUserController(userUsecases, routeRegister.Config, employeeContractUseCase, branchUseCase)
 
 	application := routeRegister.Application
 
@@ -23,6 +26,7 @@ func UserRoutes(routeRegister *config.RoutesRegister) {
 	userGroup.Post("/", userController.CreateUser)
 	userGroup.Get("/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAll)
 	userGroup.Get("/branch/:branch_id", middleware.AuthRequire, middleware.IsBranchManager, userController.GetBranchEmployee)
+	userGroup.Delete("/branch/:branch_id/:id", middleware.AuthRequire, middleware.IsBranchManager, userController.DeleteEmployeeFromBranch)
 	userGroup.Get("/manager/all", middleware.AuthRequire, middleware.IsSuperAdmin, userController.GetAllManager)
 	userGroup.Get("/:id", middleware.AuthRequire, userController.GetUserById)
 	userGroup.Patch("/:id", middleware.AuthRequire, userController.UpdateUser)

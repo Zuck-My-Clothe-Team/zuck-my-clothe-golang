@@ -117,8 +117,9 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 			newUser.ProfileImageURL = newGoogleUser.ImageUrl
 			newUser.Password = ""
 			// fmt.Println(newUser)
+			_, err := u.userUsecase.CreateUser(*newUser)
 
-			if err := u.userUsecase.CreateUser(*newUser); err != nil {
+			if err != nil {
 				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 			}
 		}

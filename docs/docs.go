@@ -3150,6 +3150,12 @@ const docTemplate = `{
                 "role"
             ],
             "properties": {
+                "contracts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.EmployeeContractDTO"
+                    }
+                },
                 "email": {
                     "type": "string"
                 },
