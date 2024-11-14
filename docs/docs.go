@@ -624,6 +624,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/detail/aid/{addressID}": {
+            "get": {
+                "description": "Find requested address by address id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserAddress"
+                ],
+                "summary": "Find address by Address id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Address ID",
+                        "name": "addressID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserAddressDetail"
+                        }
+                    },
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/employee-contract": {
             "get": {
                 "description": "Get all employee contracts",

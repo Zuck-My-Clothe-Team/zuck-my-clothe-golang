@@ -47,7 +47,7 @@ func (u *userAddressesUsecase) AddUserAddress(owenrID string, newUserAddress *mo
 	if err := u.userAddressesRepository.AddUserAddress(&data); err != nil {
 		return nil, err
 	}
-	createdRecord, err := u.userAddressesRepository.FindUserAddressByID(data.AddressID)
+	createdRecord, err := u.userAddressesRepository.FindUserAddressByID(data.AddressID, owenrID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,18 +55,14 @@ func (u *userAddressesUsecase) AddUserAddress(owenrID string, newUserAddress *mo
 	return &createdRecordDetail, nil
 }
 
-// func (u *userAddressesUsecase) FindUserAddressByID(addressID string, isSuperAdmin bool) (*interface{}, error) {
-// 	userAddress, err := u.userAddressesRepository.FindUserAddressByID(addressID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	var result interface{} = userAddress
-
-// 	if !isSuperAdmin {
-// 		result = toUserAddressDetail(userAddress)
-// 	}
-// 	return &result, nil
-// }
+func (u *userAddressesUsecase) FindUserAddressByID(addressID string, userID string) (*interface{}, error) {
+	userAddress, err := u.userAddressesRepository.FindUserAddressByID(addressID, userID)
+	if err != nil {
+		return nil, err
+	}
+	var result interface{} = toUserAddressDetail(userAddress)
+	return &result, nil
+}
 
 func (u *userAddressesUsecase) FindUserAddresByOwnerID(ownerID string) (*[]interface{}, error) {
 	addressList, err := u.userAddressesRepository.FindUserAddresByOwnerID(ownerID)
@@ -99,7 +95,7 @@ func (u *userAddressesUsecase) UpdateUserAddressData(userID string, updatedAddre
 	if err := u.userAddressesRepository.UpdateUserAddressData(userID, updatedAddressData.AddressID, &data); err != nil {
 		return nil, err
 	}
-	updatedData, err := u.userAddressesRepository.FindUserAddressByID(updatedAddressData.AddressID)
+	updatedData, err := u.userAddressesRepository.FindUserAddressByID(updatedAddressData.AddressID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +103,7 @@ func (u *userAddressesUsecase) UpdateUserAddressData(userID string, updatedAddre
 	return &result, nil
 }
 
-func (u *userAddressesUsecase) DeleteUserAddress(userID string, addressID string) error{
-	err := u.userAddressesRepository.DeleteUserAddress(userID,addressID)
+func (u *userAddressesUsecase) DeleteUserAddress(userID string, addressID string) error {
+	err := u.userAddressesRepository.DeleteUserAddress(userID, addressID)
 	return err
 }

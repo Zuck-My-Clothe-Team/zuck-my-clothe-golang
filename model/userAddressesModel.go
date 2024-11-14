@@ -61,7 +61,7 @@ type UserAddressDetail struct {
 
 type UserAddressesRepository interface {
 	AddUserAddress(newUserAddress *UserAddresses) error
-	FindUserAddressByID(addressID string) (*UserAddresses, error)
+	FindUserAddressByID(addressID string, userID string) (*UserAddresses, error)
 	FindUserAddresByOwnerID(ownerID string) (*[]UserAddresses, error)
 	UpdateUserAddressData(userID string, addressID string, updatedAddressData *UpdateUserAddressDTO) error
 	DeleteUserAddress(userID string, addressID string) error
@@ -69,7 +69,7 @@ type UserAddressesRepository interface {
 
 type UserAddressesUsecase interface {
 	AddUserAddress(owenrID string, newUserAddress *AddUserAddressDTO) (*interface{}, error)
-	//FindUserAddressByID(addressID string, isSuperAdmin bool) (*interface{}, error)
+	FindUserAddressByID(addressID string, userID string) (*interface{}, error)
 	FindUserAddresByOwnerID(ownerID string) (*[]interface{}, error)
 	UpdateUserAddressData(userID string, updatedAddressData *AddUserAddressDTO) (*interface{}, error)
 	DeleteUserAddress(userID string, addressID string) error
