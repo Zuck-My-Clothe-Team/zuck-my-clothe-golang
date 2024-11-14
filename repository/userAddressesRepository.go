@@ -20,9 +20,12 @@ func (u *userAddressReopository) AddUserAddress(newUserAddress *model.UserAddres
 	return dbTx.Error
 }
 
-func (u *userAddressReopository) FindUserAddressByID(addressID string) (*model.UserAddresses, error) {
+func (u *userAddressReopository) FindUserAddressByID(addressID string, userID string) (*model.UserAddresses, error) {
 	data := new(model.UserAddresses)
-	dbTx := u.db.First(data, "address_id = ?", addressID)
+	dbTx := u.db.First(data, "address_id = ? AND user_id = ?", addressID, userID)
+	if dbTx.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
 	if dbTx.Error != nil {
 		return nil, dbTx.Error
 	}

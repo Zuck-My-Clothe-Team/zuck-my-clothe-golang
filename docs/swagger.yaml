@@ -1164,6 +1164,29 @@ paths:
       summary: Update branch
       tags:
       - Branches
+  /detail/aid/{addressID}:
+    get:
+      description: Find requested address by address id
+      parameters:
+      - description: Address ID
+        in: path
+        name: addressID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserAddressDetail'
+        "202":
+          description: Accepted
+          schema:
+            type: string
+      summary: Find address by Address id
+      tags:
+      - UserAddress
   /employee-contract:
     get:
       description: Get all employee contracts

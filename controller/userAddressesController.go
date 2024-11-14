@@ -10,7 +10,7 @@ import (
 
 type UserAddressesController interface {
 	AddUserAddress(c *fiber.Ctx) error
-	//FindByAddressID(c *fiber.Ctx) error
+	FindByAddressID(c *fiber.Ctx) error
 	FindUserAddresByOwnerID(c *fiber.Ctx) error
 	UpdateUserAddressData(c *fiber.Ctx) error
 	DeleteUserAddress(c *fiber.Ctx) error
@@ -54,23 +54,27 @@ func (u *userAddressesController) AddUserAddress(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(createdRecord)
 }
 
-// func (u *userAddressesController) FindByAddressID(c *fiber.Ctx) error {
-// 	addressID := c.Params("addressID")
+//	@Summary		Find address by Address id
+//	@Description	Find requested address by address id
+//	@Tags			UserAddress
+//	@Param			addressID	path	string	true	"Address ID"
+//	@Produce		json
+//	@Success		200	{object}	model.UserAddressDetail
+//	@Failure		202	{string}	string	"Accepted"
+//	@Router			/detail/aid/{addressID} [get]
+func (u *userAddressesController) FindByAddressID(c *fiber.Ctx) error {
+	addressID := c.Params("addressID")
 
-// 	token := c.Locals("user").(*jwt.Token)
-// 	claims := token.Claims.(jwt.MapClaims)
-// 	role := claims["positionID"].(string)
-// 	var isAdmin bool = false
-// 	if role == "SuperAdmin" {
-// 		isAdmin = true
-// 	}
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	var ownerID = claims["userID"].(string)
 
-// 	addressDetail, err := u.userAddressesUsecase.FindUserAddressByID(addressID, isAdmin)
-// 	if err != nil {
-// 		return c.Status(fiber.StatusAccepted).SendString(err.Error())
-// 	}
-// 	return c.Status(fiber.StatusOK).JSON(addressDetail)
-// }
+	addressDetail, err := u.userAddressesUsecase.FindUserAddressByID(addressID, ownerID)
+	if err != nil {
+		return c.Status(fiber.StatusAccepted).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(addressDetail)
+}
 
 //	@Summary		Find owned address
 //	@Description	List all owned address of thant user

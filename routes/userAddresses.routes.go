@@ -16,7 +16,7 @@ func UserAddressesRoutes(routeRegister *config.RoutesRegister) {
 	application := routeRegister.Application
 	userAddressesGroup := application.Group("/address", middleware.AuthRequire)
 	userAddressesGroup.Post("/add", userAddressesController.AddUserAddress)
-	//userAddressesGroup.Get("/detail/aid/:addressID", userAddressesController.FindByAddressID)
+	userAddressesGroup.Get("/detail/aid/:addressID", userAddressesController.FindByAddressID)
 	userAddressesGroup.Get("/detail/owner", userAddressesController.FindUserAddresByOwnerID)
 	userAddressesGroup.Put("/update", userAddressesController.UpdateUserAddressData)
 	userAddressesGroup.Delete("/delete/:addressID", userAddressesController.DeleteUserAddress)
