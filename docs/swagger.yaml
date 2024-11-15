@@ -254,6 +254,8 @@ definitions:
         type: string
       updated_by:
         type: string
+      user_detail:
+        $ref: '#/definitions/model.UserDetailDTO'
       user_id:
         type: string
       zuck_onsite:
@@ -441,6 +443,8 @@ definitions:
         type: string
       updated_by:
         type: string
+      user_detail:
+        $ref: '#/definitions/model.UserDetailDTO'
       user_id:
         type: string
       zuck_onsite:
@@ -525,12 +529,16 @@ definitions:
     enum:
     - Washing
     - Drying
+    - Pickup
     - Delivery
+    - Agents
     type: string
     x-enum-varnames:
     - Washing
     - Drying
+    - Pickup
     - Delivery
+    - Agents
   model.UpdateBranch:
     properties:
       branch_detail:
@@ -686,6 +694,25 @@ definitions:
     - lastname
     - password
     - role
+    type: object
+  model.UserDetailDTO:
+    properties:
+      email:
+        type: string
+      firstname:
+        type: string
+      google_id:
+        type: string
+      lastname:
+        type: string
+      phone:
+        type: string
+      profile_image_url:
+        type: string
+      role:
+        $ref: '#/definitions/model.Roles'
+      user_id:
+        type: string
     type: object
   model.UserGeoLocation:
     properties:

@@ -35,10 +35,25 @@ func CreateOrderUsecase(orderHeaderRepository repo.OrderHeaderRepository, orderD
 	}
 }
 
-func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, isAdminView bool) *model.FullOrder {
+func toUserDetailDTO(userModel *model.Users) *model.UserDetailDTO {
+	detail := model.UserDetailDTO{
+		UserID:          userModel.UserID,
+		GoogleID:        userModel.GoogleID,
+		Email:           userModel.Email,
+		Phone:           userModel.Phone,
+		FirstName:       userModel.FirstName,
+		LastName:        userModel.LastName,
+		ProfileImageURL: userModel.ProfileImageURL,
+		Role:            userModel.Role,
+	}
+	return &detail
+}
+
+func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, user model.Users, isAdminView bool) *model.FullOrder {
 	fullOrder := model.FullOrder{
 		OrderHeaderID:   h.OrderHeaderID,
 		UserID:          h.UserID,
+		UserDetail:      *toUserDetailDTO(&user),
 		BranchID:        h.BranchID,
 		OrderNote:       h.OrderNote,
 		PaymentID:       h.PaymentID,
@@ -81,6 +96,24 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 
 	// create a payment
 	payId := "2709093b-1ee9-44a1-bd60-e7b092012c8d"
+	var allWashingWeight int16 = 0
+	var allDryingweight int16 = 0
+
+	for _, detail := range newOrder.OrderDetails {
+		if detail.ServiceType == "Washing" {
+			allWashingWeight += detail.Weight
+		} else if detail.ServiceType == "Drying" {
+			allDryingweight += detail.Weight
+		}
+	}
+
+	if allWashingWeight > 0 && allWashingWeight > 21 {
+		return nil, errors.New("ERR: washing weight exceded 21 Kg")
+	} else if allWashingWeight == 0 && allDryingweight > 21 {
+		return nil, errors.New("ERR: washing weight exceded 21 Kg")
+	} else if allWashingWeight == 0 && allDryingweight == 0 {
+		return nil, errors.New("ERR: empty order")
+	}
 
 	orderHeader := model.OrderHeader{
 		OrderHeaderID:   uuid.New().String(),
@@ -128,7 +161,11 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		return nil, err
 	}
 
-	res := combineFullOrder(header, details, false)
+	user, err := u.userRepo.FindUserByUserID(newOrder.UserID)
+	if err != nil {
+		return nil, err
+	}
+	res := combineFullOrder(header, details, *user, false)
 
 	return res, nil
 }
@@ -137,11 +174,19 @@ func (u *orderUsecase) GetAllHeader() (*[]model.OrderHeader, error) {
 	var headers *[]model.OrderHeader
 
 	headers, err := u.orderHeaderRepo.GetAll()
-
 	if err != nil {
 		return &[]model.OrderHeader{}, err
 	}
 
+	for index, header := range *headers {
+		user, err := u.userRepo.FindUserByUserID(header.UserID)
+		if err != nil {
+			(*headers)[index].UserDetail = model.UserDetailDTO{}
+			continue
+		}
+
+		(*headers)[index].UserDetail = *toUserDetailDTO(user)
+	}
 	return headers, err
 }
 
@@ -168,8 +213,11 @@ func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, opt
 	if option == "detail" {
 		return detail, err
 	}
-
-	fullOrder := combineFullOrder(headers, detail, isAdminView)
+	user, err := u.userRepo.FindUserByUserID(headers.UserID)
+	if err != nil {
+		return nil, err
+	}
+	fullOrder := combineFullOrder(headers, detail, *user, isAdminView)
 
 	return fullOrder, err
 }
@@ -198,15 +246,24 @@ func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]i
 		return []interface{}{}, nil
 	}
 
+	var users []model.Users
+	for _, header := range *headers {
+		user, err := u.userRepo.FindUserByUserID(header.UserID)
+		users = append(users, *user)
+		if err != nil {
+			return nil, errors.New("ERR: error occured when trying to query user data")
+		}
+	}
+
 	var fullOrder []interface{}
-	for _, h := range *headers {
+	for i, h := range *headers {
 		var thisDetail []model.OrderDetail
 		for _, d := range *detail {
 			if d.OrderHeaderID == h.OrderHeaderID {
 				thisDetail = append(thisDetail, d)
 			}
 		}
-		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, true))
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
 	}
 
 	return fullOrder, err
@@ -228,15 +285,24 @@ func (u *orderUsecase) GetByUserID(userID string) ([]interface{}, error) {
 		return []interface{}{}, nil
 	}
 
+	var users []model.Users
+	for _, header := range *headers {
+		user, err := u.userRepo.FindUserByUserID(header.UserID)
+		users = append(users, *user)
+		if err != nil {
+			return nil, errors.New("ERR: error occured when trying to query user data")
+		}
+	}
+
 	var fullOrder []interface{}
-	for _, h := range *headers {
+	for i, h := range *headers {
 		var thisDetail []model.OrderDetail
 		for _, d := range *detail {
 			if d.OrderHeaderID == h.OrderHeaderID {
 				thisDetail = append(thisDetail, d)
 			}
 		}
-		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, true))
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
 	}
 
 	return fullOrder, err
@@ -287,8 +353,11 @@ func (u *orderUsecase) UpdateReview(review model.OrderReview) (*model.FullOrder,
 	if err != nil {
 		return nil, err
 	}
-
-	fullOrder := combineFullOrder(orderHeader, orderDetails, false)
+	user, err := u.userRepo.FindUserByUserID(orderHeader.UserID)
+	if err != nil {
+		return nil, err
+	}
+	fullOrder := combineFullOrder(orderHeader, orderDetails, *user, false)
 
 	return fullOrder, err
 }
@@ -305,8 +374,11 @@ func (u *orderUsecase) SoftDelete(orderHeaderID string, deletedBy string) (*mode
 	if err != nil {
 		return nil, err
 	}
-
-	fullOrder := combineFullOrder(orderHeader, orderDetails, true)
+	user, err := u.userRepo.FindUserByUserID(orderHeader.UserID)
+	if err != nil {
+		return nil, err
+	}
+	fullOrder := combineFullOrder(orderHeader, orderDetails, *user, true)
 
 	return fullOrder, err
 }

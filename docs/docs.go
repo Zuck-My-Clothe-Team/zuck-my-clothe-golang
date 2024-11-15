@@ -2580,6 +2580,9 @@ const docTemplate = `{
                 "updated_by": {
                     "type": "string"
                 },
+                "user_detail": {
+                    "$ref": "#/definitions/model.UserDetailDTO"
+                },
                 "user_id": {
                     "type": "string"
                 },
@@ -2857,6 +2860,9 @@ const docTemplate = `{
                 "updated_by": {
                     "type": "string"
                 },
+                "user_detail": {
+                    "$ref": "#/definitions/model.UserDetailDTO"
+                },
                 "user_id": {
                     "type": "string"
                 },
@@ -2973,12 +2979,16 @@ const docTemplate = `{
             "enum": [
                 "Washing",
                 "Drying",
-                "Delivery"
+                "Pickup",
+                "Delivery",
+                "Agents"
             ],
             "x-enum-varnames": [
                 "Washing",
                 "Drying",
-                "Delivery"
+                "Pickup",
+                "Delivery",
+                "Agents"
             ]
         },
         "model.UpdateBranch": {
@@ -3211,6 +3221,35 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/model.Roles"
+                }
+            }
+        },
+        "model.UserDetailDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstname": {
+                    "type": "string"
+                },
+                "google_id": {
+                    "type": "string"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profile_image_url": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.Roles"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
