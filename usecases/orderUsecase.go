@@ -73,8 +73,6 @@ func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, user model.U
 	}
 
 	if !isAdminView {
-		fullOrder.CreatedBy = nil
-		fullOrder.UpdatedBy = nil
 		fullOrder.DeletedAt = nil
 		fullOrder.DeletedBy = nil
 	}
