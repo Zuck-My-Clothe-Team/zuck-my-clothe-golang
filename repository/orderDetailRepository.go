@@ -60,7 +60,7 @@ func (u *orderDetailRepository) GetByHeaderID(orderHeaderID string, isAdminView 
 	if isAdminView {
 		result = u.db.Where("order_header_id = ?", orderHeaderID).Find(&orders)
 	} else {
-		result = u.db.Select("order_basket_id", "order_header_id", "machine_serial", "weight", "order_status", "service_type", "finished_at", "created_at", "updated_at").Where("order_header_id = ?", orderHeaderID).Find(&orders)
+		result = u.db.Select("order_basket_id", "order_header_id", "machine_serial", "weight", "order_status", "service_type", "finished_at", "created_at","created_by","updated_at","updated_by").Where("order_header_id = ?", orderHeaderID).Find(&orders)
 	}
 
 	if result.Error != nil {
