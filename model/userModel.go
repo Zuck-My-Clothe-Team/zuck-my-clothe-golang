@@ -44,6 +44,17 @@ type GoogleUser struct {
 	ImageUrl    string `json:"picture"`
 }
 
+type UserDetailDTO struct {
+	UserID          string `json:"user_id"`
+	GoogleID        string `json:"google_id"`
+	Email           string `json:"email"`
+	Phone           string `json:"phone"`
+	FirstName       string `json:"firstname"`
+	LastName        string `json:"lastname"`
+	ProfileImageURL string `json:"profile_image_url"`
+	Role            Roles  `json:"role"`
+}
+
 type UserDTO struct {
 	Email           string                `json:"email" validate:"required"`
 	Password        string                `json:"password" validate:"required"`

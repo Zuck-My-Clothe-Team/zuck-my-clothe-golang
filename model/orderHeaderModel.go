@@ -13,6 +13,7 @@ func (OrderHeader) TableName() string {
 type OrderHeader struct {
 	OrderHeaderID   string         `json:"order_header_id" gorm:"column:order_header_id;primaryKey"`
 	UserID          string         `json:"user_id" gorm:"column:user_id"`
+	UserDetail      UserDetailDTO  `json:"user_detail" gorm:"-"`
 	BranchID        string         `json:"branch_id" gorm:"column:branch_id"`
 	OrderNote       *string        `json:"order_note" gorm:"column:order_note"`
 	PaymentID       string         `json:"payment_id" gorm:"column:payment_id"`
@@ -44,6 +45,7 @@ type NewOrder struct {
 type FullOrder struct {
 	OrderHeaderID   string          `json:"order_header_id"`
 	UserID          string          `json:"user_id"`
+	UserDetail      UserDetailDTO   `json:"user_detail"`
 	BranchID        string          `json:"branch_id"`
 	OrderNote       *string         `json:"order_note"`
 	PaymentID       string          `json:"payment_id"`

@@ -24,7 +24,9 @@ type ServiceType string
 const (
 	Washing  ServiceType = "Washing"
 	Drying   ServiceType = "Drying"
+	Pickup   ServiceType = "Pickup"
 	Delivery ServiceType = "Delivery"
+	Agents   ServiceType = "Agents"
 )
 
 type OrderDetail struct {
