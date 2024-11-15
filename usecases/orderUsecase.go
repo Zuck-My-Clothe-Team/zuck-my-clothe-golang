@@ -91,15 +91,24 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 
 	// create a payment
 	payId := "2709093b-1ee9-44a1-bd60-e7b092012c8d"
+
 	var allWashingWeight int16 = 0
 	var allDryingweight int16 = 0
+	var isDeliveryExist bool = false
+	var isPickupExist bool = false
 
 	for _, detail := range newOrder.OrderDetails {
-		if detail.ServiceType == "Washing" {
+		var serviceType model.ServiceType = detail.ServiceType
+		if serviceType == "Washing" {
 			allWashingWeight += detail.Weight
-		} else if detail.ServiceType == "Drying" {
+		} else if serviceType == "Drying" {
 			allDryingweight += detail.Weight
+		} else if serviceType == "Pickup" {
+			isPickupExist = true
+		} else if serviceType == "Delivery" {
+			isDeliveryExist = true
 		}
+
 	}
 
 	if allWashingWeight > 0 && allWashingWeight > 21 {
@@ -110,6 +119,15 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		return nil, errors.New("ERR: empty order")
 	}
 
+	if isPickupExist != isDeliveryExist {
+		return nil, errors.New("ERR: cannot select Pickup or Delivery individualy")
+	} else if newOrder.ZuckOnsite == isPickupExist {
+		if newOrder.ZuckOnsite {
+			return nil, errors.New("ERR: cannot select Pickup or Delivery when using onsite service")
+		} else {
+			return nil, errors.New("ERR: Pickup and Delivery are needed when using online service")
+		}
+	}
 	orderHeader := model.OrderHeader{
 		OrderHeaderID:   uuid.New().String(),
 		UserID:          newOrder.UserID,
