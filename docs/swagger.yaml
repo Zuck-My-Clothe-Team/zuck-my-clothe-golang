@@ -1396,6 +1396,33 @@ paths:
       summary: Get all machines
       tags:
       - Machine
+  /machine/available/branch/{branch_id}:
+    get:
+      description: Get all available machines under a specific branch
+      parameters:
+      - description: Branch ID
+        in: path
+        name: branch_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Machine'
+        "202":
+          description: Accepted
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get available machines by branch ID
+      tags:
+      - Machine
   /machine/branch/{branch_id}:
     get:
       description: Get all machines under a specific branch

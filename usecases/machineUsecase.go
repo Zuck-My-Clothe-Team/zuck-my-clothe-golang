@@ -15,6 +15,7 @@ type MachineUsecase interface {
 	GetAll() (*[]model.Machine, error)
 	AddMachine(newMachine *model.AddMachine) (*model.Machine, error)
 	GetByMachineSerial(machineSerial string, isAdminView bool) (*interface{}, error)
+	GetAvailableMachineInBranch(branchID string) (*[]model.MachineInBranch, error)
 }
 
 type machineUsecase struct {
@@ -127,6 +128,14 @@ func (u *machineUsecase) GetByBranchID(branch_id string, isAdminView bool) (*[]i
 	}
 
 	return &result, err
+}
+
+func (u *machineUsecase) GetAvailableMachineInBranch(branchID string) (*[]model.MachineInBranch, error) {
+	response, err := u.machineRepository.GetAvailableMachine(branchID)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 func (u *machineUsecase) UpdateActive(machine_serial string, set_active bool, updated_by string) (*model.Machine, error) {
