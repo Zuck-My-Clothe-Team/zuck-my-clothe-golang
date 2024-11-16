@@ -936,6 +936,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/machine/available/branch/{branch_id}": {
+            "get": {
+                "description": "Get all available machines under a specific branch",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Machine"
+                ],
+                "summary": "Get available machines by branch ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Branch ID",
+                        "name": "branch_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Machine"
+                        }
+                    },
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/machine/branch/{branch_id}": {
             "get": {
                 "description": "Get all machines under a specific branch",

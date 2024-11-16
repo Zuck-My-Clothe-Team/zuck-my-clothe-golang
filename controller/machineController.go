@@ -14,6 +14,7 @@ type MachineController interface {
 	AddMachine(c *fiber.Ctx) error
 	GetByBranchID(c *fiber.Ctx) error
 	GetByMachineSerial(c *fiber.Ctx) error
+	GetAvailableMachineInBranch(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
 	UpdateLabel(c *fiber.Ctx) error
 	UpdateActive(c *fiber.Ctx) error
@@ -101,6 +102,24 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(branch)
+}
+
+// @Summary		Get available machines by branch ID
+// @Description	Get all available machines under a specific branch
+// @Tags			Machine
+// @Produce		json
+// @Param			branch_id	path		string			true	"Branch ID"
+// @Success		200			{object}	model.Machine	"OK"
+// @Failure		404			{string}	string			"Not Found"
+// @Failure		202			{string}	string			"Accepted"
+// @Router			/machine/available/branch/{branch_id} [get]
+func (u *machineController) GetAvailableMachineInBranch(c *fiber.Ctx) error {
+	branchID := c.Params("branch_id")
+	response, err := u.machineUsecase.GetAvailableMachineInBranch(branchID)
+	if err != nil {
+		return c.Status(fiber.StatusAccepted).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // @Summary		Get machines by branch ID
