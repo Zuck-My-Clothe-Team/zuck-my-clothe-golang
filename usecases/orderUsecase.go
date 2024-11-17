@@ -14,6 +14,8 @@ type orderUsecase struct {
 	orderDetailRepo repo.OrderDetailRepository
 	orderHeaderRepo repo.OrderHeaderRepository
 	userRepo        repo.UserRepository
+	machineRepo     repo.MachineRepository
+	paymentUsecase  model.PaymentUsecase
 }
 
 type OrderUsecase interface {
@@ -27,11 +29,13 @@ type OrderUsecase interface {
 	SoftDelete(orderHeaderID string, deletedBy string) (*model.FullOrder, error)
 }
 
-func CreateOrderUsecase(orderHeaderRepository repo.OrderHeaderRepository, orderDetailRepository repo.OrderDetailRepository, userRepository repo.UserRepository) OrderUsecase {
+func CreateOrderUsecase(orderHeaderRepository repo.OrderHeaderRepository, orderDetailRepository repo.OrderDetailRepository, userRepository repo.UserRepository, machineRepo repo.MachineRepository, paymentUsecase model.PaymentUsecase) OrderUsecase {
 	return &orderUsecase{
 		orderHeaderRepo: orderHeaderRepository,
 		orderDetailRepo: orderDetailRepository,
 		userRepo:        userRepository,
+		machineRepo:     machineRepo,
+		paymentUsecase:  paymentUsecase,
 	}
 }
 
@@ -47,6 +51,19 @@ func toUserDetailDTO(userModel *model.Users) *model.UserDetailDTO {
 		Role:            userModel.Role,
 	}
 	return &detail
+}
+
+func serVicePriceMapper(weight int) int {
+	var price int = 0
+	switch weight {
+	case 7:
+		price = model.SevenKGMachinePrice
+	case 14:
+		price = model.FourteenKGMachinePrice
+	case 21:
+		price = model.TwentyOneKGMachinePrice
+	}
+	return price
 }
 
 func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, user model.Users, isAdminView bool) *model.FullOrder {
@@ -90,25 +107,46 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	}
 
 	// create a payment
-	payId := "2709093b-1ee9-44a1-bd60-e7b092012c8d"
+	//payId := "2709093b-1ee9-44a1-bd60-e7b092012c8d"
 
 	var allWashingWeight int16 = 0
 	var allDryingweight int16 = 0
+
+	var washingBasketCount int = 0
+	var dryinBasketCount int = 0
+	var basketWeight int16 = 0
+	var dryingWeight int16 = 0
+
 	var isDeliveryExist bool = false
 	var isPickupExist bool = false
+	var isAgentsExist bool = false
 
 	for _, detail := range newOrder.OrderDetails {
 		var serviceType model.ServiceType = detail.ServiceType
 		if serviceType == "Washing" {
 			allWashingWeight += detail.Weight
+			washingBasketCount += 1
+			basketWeight = detail.Weight
 		} else if serviceType == "Drying" {
+			dryingWeight = detail.Weight
 			allDryingweight += detail.Weight
+			dryinBasketCount += 1
 		} else if serviceType == "Pickup" {
 			isPickupExist = true
 		} else if serviceType == "Delivery" {
 			isDeliveryExist = true
+		} else if serviceType == "Agents" {
+			isAgentsExist = true
 		}
+	}
 
+	// In case that customer select both washing and drying service
+	// Front-end should combind all weight into single drying weight
+	if washingBasketCount > 0 && dryinBasketCount > 1 {
+		return nil, errors.New("ERR: number of drying request exceeded limit in this operation")
+	}
+	if washingBasketCount == 0 && isAgentsExist {
+		return nil, errors.New("ERR: cannot use agent when you only drying your clothes")
 	}
 
 	if allWashingWeight > 0 && allWashingWeight > 21 {
@@ -128,12 +166,58 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 			return nil, errors.New("ERR: Pickup and Delivery are needed when using online service")
 		}
 	}
+
+	//Available machine validation
+	var availableWasher *[]model.MachineInBranch
+	var availableDryer *[]model.MachineInBranch
+	if allWashingWeight > 0 {
+		var err error
+		availableWasher, err = u.machineRepo.GetMachineToAssign(newOrder.BranchID, "Washer", int(basketWeight), washingBasketCount)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if allDryingweight > 0 {
+		var err error
+		availableDryer, err = u.machineRepo.GetMachineToAssign(newOrder.BranchID, "Dryer", int(dryingWeight), dryinBasketCount)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// fmt.Println("Washer >>")
+	// fmt.Println(availableWasher)
+	// fmt.Println("Dryer >>")
+	// fmt.Println(availableDryer)
+
+	//Price Calculation
+	var calculatedPrice float64 = 0.0
+
+	washingUnitPrice := serVicePriceMapper(int(basketWeight))
+	calculatedPrice += float64(washingBasketCount * washingUnitPrice)
+	dryingUnitPrice := serVicePriceMapper(int(dryingWeight))
+	calculatedPrice += float64(dryingUnitPrice * dryinBasketCount)
+
+	if newOrder.ZuckOnsite {
+		calculatedPrice += float64(model.DeliveryPrice + model.PickupPrice)
+	}
+	if isAgentsExist {
+		calculatedPrice += float64(model.AgentsPrice)
+	}
+
+	payment := model.Payments{Amount: calculatedPrice}
+	//Create new payment
+	paymentResponse, err := u.paymentUsecase.CreatePayment(payment)
+	if err != nil {
+		return nil, errors.New("ERR: cannont create payment")
+	}
+
 	orderHeader := model.OrderHeader{
 		OrderHeaderID:   uuid.New().String(),
 		UserID:          newOrder.UserID,
 		BranchID:        newOrder.BranchID,
 		OrderNote:       newOrder.OrderNote,
-		PaymentID:       payId, // temp solution
+		PaymentID:       paymentResponse.PaymentID, // temp solution
 		ZuckOnsite:      newOrder.ZuckOnsite,
 		DeliveryAddress: newOrder.DeliveryAddress,
 		DeliveryLat:     newOrder.DeliveryLat,
@@ -151,12 +235,12 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	}
 
 	var orderDetails []model.OrderDetail
-
+	var washerIndexer int = 0
+	var dryerIndexer int = 0
 	for _, detail := range newOrder.OrderDetails {
 		d := model.OrderDetail{
 			OrderBasketID: uuid.New().String(),
 			OrderHeaderID: orderHeader.OrderHeaderID,
-			MachineSerial: detail.MachineSerial,
 			Weight:        detail.Weight,
 			OrderStatus:   model.Waiting,
 			ServiceType:   detail.ServiceType,
@@ -164,7 +248,15 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 			CreatedBy:     &newOrder.UserID,
 			UpdatedBy:     &newOrder.UserID,
 		}
-
+		if d.ServiceType == "Washing" {
+			d.MachineSerial = (&(*availableWasher)[washerIndexer].MachineSerial)
+			washerIndexer += 1
+		} else if d.ServiceType == "Drying" {
+			d.MachineSerial = (&(*availableDryer)[dryerIndexer].MachineSerial)
+			dryerIndexer += 1
+		} else {
+			d.MachineSerial = (&(*availableWasher)[0].MachineSerial)
+		}
 		orderDetails = append(orderDetails, d)
 	}
 

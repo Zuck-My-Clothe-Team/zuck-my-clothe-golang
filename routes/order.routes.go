@@ -13,7 +13,12 @@ func OrderRoutes(routeRegister *config.RoutesRegister) {
 	orderDetailRepo := repository.CreateOrderDetailRepository(routeRegister.DbConnection)
 	userRepo := repository.CreatenewUserRepository(routeRegister.DbConnection)
 
-	orderUsecase := usecases.CreateOrderUsecase(orderHeaderRepo, orderDetailRepo, userRepo)
+	paymentRepo := repository.CreateNewPaymentRepository(routeRegister.DbConnection)
+	paymentUsecase := usecases.CreateNewPaymentUsecase(paymentRepo)
+
+	machineRepo := repository.CreateMachineRepository(routeRegister.DbConnection)
+
+	orderUsecase := usecases.CreateOrderUsecase(orderHeaderRepo, orderDetailRepo, userRepo, machineRepo, paymentUsecase)
 	orderController := controller.CreateOrderController(orderUsecase)
 
 	application := routeRegister.Application
