@@ -29,6 +29,15 @@ const (
 	Agents   ServiceType = "Agents"
 )
 
+const (
+	SevenKGMachinePrice     int = 50
+	FourteenKGMachinePrice  int = 100
+	TwentyOneKGMachinePrice int = 150
+	DeliveryPrice           int = 20
+	PickupPrice             int = 20
+	AgentsPrice             int = 20
+)
+
 type OrderDetail struct {
 	OrderBasketID string          `json:"order_basket_id"`
 	OrderHeaderID string          `json:"order_header_id"`
