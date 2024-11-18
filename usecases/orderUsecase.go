@@ -106,9 +106,6 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		return nil, errors.New("no delivery address for online order")
 	}
 
-	// create a payment
-	//payId := "2709093b-1ee9-44a1-bd60-e7b092012c8d"
-
 	var allWashingWeight int16 = 0
 	var allDryingweight int16 = 0
 
@@ -167,44 +164,17 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		}
 	}
 
-	//Available machine validation
-	var availableWasher *[]model.MachineInBranch
-	var availableDryer *[]model.MachineInBranch
-	if allWashingWeight > 0 {
-		var err error
-		availableWasher, err = u.machineRepo.GetMachineToAssign(newOrder.BranchID, "Washer", int(basketWeight), washingBasketCount)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if allDryingweight > 0 {
-		var err error
-		availableDryer, err = u.machineRepo.GetMachineToAssign(newOrder.BranchID, "Dryer", int(dryingWeight), dryinBasketCount)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// fmt.Println("Washer >>")
-	// fmt.Println(availableWasher)
-	// fmt.Println("Dryer >>")
-	// fmt.Println(availableDryer)
-
-	//Price Calculation
 	var calculatedPrice float64 = 0.0
-
 	washingUnitPrice := serVicePriceMapper(int(basketWeight))
 	calculatedPrice += float64(washingBasketCount * washingUnitPrice)
 	dryingUnitPrice := serVicePriceMapper(int(dryingWeight))
 	calculatedPrice += float64(dryingUnitPrice * dryinBasketCount)
-
 	if !newOrder.ZuckOnsite {
 		calculatedPrice += float64(model.DeliveryPrice + model.PickupPrice)
 	}
 	if isAgentsExist {
 		calculatedPrice += float64(model.AgentsPrice)
 	}
-
 	payment := model.Payments{Amount: calculatedPrice}
 	//Create new payment
 	paymentResponse, err := u.paymentUsecase.CreatePayment(payment)
@@ -217,7 +187,7 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		UserID:          newOrder.UserID,
 		BranchID:        newOrder.BranchID,
 		OrderNote:       newOrder.OrderNote,
-		PaymentID:       paymentResponse.PaymentID, // temp solution
+		PaymentID:       paymentResponse.PaymentID,
 		ZuckOnsite:      newOrder.ZuckOnsite,
 		DeliveryAddress: newOrder.DeliveryAddress,
 		DeliveryLat:     newOrder.DeliveryLat,
@@ -235,27 +205,17 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	}
 
 	var orderDetails []model.OrderDetail
-	var washerIndexer int = 0
-	var dryerIndexer int = 0
 	for _, detail := range newOrder.OrderDetails {
 		d := model.OrderDetail{
 			OrderBasketID: uuid.New().String(),
 			OrderHeaderID: orderHeader.OrderHeaderID,
+			MachineSerial: nil,
 			Weight:        detail.Weight,
 			OrderStatus:   model.Waiting,
 			ServiceType:   detail.ServiceType,
 			FinishedAt:    nil,
 			CreatedBy:     &newOrder.UserID,
 			UpdatedBy:     &newOrder.UserID,
-		}
-		if d.ServiceType == "Washing" {
-			d.MachineSerial = (&(*availableWasher)[washerIndexer].MachineSerial)
-			washerIndexer += 1
-		} else if d.ServiceType == "Drying" {
-			d.MachineSerial = (&(*availableDryer)[dryerIndexer].MachineSerial)
-			dryerIndexer += 1
-		} else {
-			d.MachineSerial = (&(*availableWasher)[0].MachineSerial)
 		}
 		orderDetails = append(orderDetails, d)
 	}
@@ -494,3 +454,182 @@ func (u *orderUsecase) SoftDelete(orderHeaderID string, deletedBy string) (*mode
 
 	return fullOrder, err
 }
+
+//HUm
+// func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrder, error) {
+
+// 	if !newOrder.ZuckOnsite &&
+// 		(newOrder.DeliveryAddress == nil ||
+// 			newOrder.DeliveryLat == nil ||
+// 			newOrder.DeliveryLong == nil) {
+// 		return nil, errors.New("no delivery address for online order")
+// 	}
+
+// 	// create a payment
+// 	//payId := "2709093b-1ee9-44a1-bd60-e7b092012c8d"
+
+// 	var allWashingWeight int16 = 0
+// 	var allDryingweight int16 = 0
+
+// 	var washingBasketCount int = 0
+// 	var dryinBasketCount int = 0
+// 	var basketWeight int16 = 0
+// 	var dryingWeight int16 = 0
+
+// 	var isDeliveryExist bool = false
+// 	var isPickupExist bool = false
+// 	var isAgentsExist bool = false
+
+// 	for _, detail := range newOrder.OrderDetails {
+// 		var serviceType model.ServiceType = detail.ServiceType
+// 		if serviceType == "Washing" {
+// 			allWashingWeight += detail.Weight
+// 			washingBasketCount += 1
+// 			basketWeight = detail.Weight
+// 		} else if serviceType == "Drying" {
+// 			dryingWeight = detail.Weight
+// 			allDryingweight += detail.Weight
+// 			dryinBasketCount += 1
+// 		} else if serviceType == "Pickup" {
+// 			isPickupExist = true
+// 		} else if serviceType == "Delivery" {
+// 			isDeliveryExist = true
+// 		} else if serviceType == "Agents" {
+// 			isAgentsExist = true
+// 		}
+// 	}
+
+// 	// In case that customer select both washing and drying service
+// 	// Front-end should combind all weight into single drying weight
+// 	if washingBasketCount > 0 && dryinBasketCount > 1 {
+// 		return nil, errors.New("ERR: number of drying request exceeded limit in this operation")
+// 	}
+// 	if washingBasketCount == 0 && isAgentsExist {
+// 		return nil, errors.New("ERR: cannot use agent when you only drying your clothes")
+// 	}
+
+// 	if allWashingWeight > 0 && allWashingWeight > 21 {
+// 		return nil, errors.New("ERR: washing weight exceded 21 Kg")
+// 	} else if allWashingWeight == 0 && allDryingweight > 21 {
+// 		return nil, errors.New("ERR: washing weight exceded 21 Kg")
+// 	} else if allWashingWeight == 0 && allDryingweight == 0 {
+// 		return nil, errors.New("ERR: empty order")
+// 	}
+
+// 	if isPickupExist != isDeliveryExist {
+// 		return nil, errors.New("ERR: cannot select Pickup or Delivery individualy")
+// 	} else if newOrder.ZuckOnsite == isPickupExist {
+// 		if newOrder.ZuckOnsite {
+// 			return nil, errors.New("ERR: cannot select Pickup or Delivery when using onsite service")
+// 		} else {
+// 			return nil, errors.New("ERR: Pickup and Delivery are needed when using online service")
+// 		}
+// 	}
+
+// 	//Available machine validation
+// 	var availableWasher *[]model.MachineInBranch
+// 	var availableDryer *[]model.MachineInBranch
+// 	if allWashingWeight > 0 {
+// 		var err error
+// 		availableWasher, err = u.machineRepo.GetMachineToAssign(newOrder.BranchID, "Washer", int(basketWeight), washingBasketCount)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// 	if allDryingweight > 0 {
+// 		var err error
+// 		availableDryer, err = u.machineRepo.GetMachineToAssign(newOrder.BranchID, "Dryer", int(dryingWeight), dryinBasketCount)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+
+// 	// fmt.Println("Washer >>")
+// 	// fmt.Println(availableWasher)
+// 	// fmt.Println("Dryer >>")
+// 	// fmt.Println(availableDryer)
+
+// 	//Price Calculation
+// 	var calculatedPrice float64 = 0.0
+
+// 	washingUnitPrice := serVicePriceMapper(int(basketWeight))
+// 	calculatedPrice += float64(washingBasketCount * washingUnitPrice)
+// 	dryingUnitPrice := serVicePriceMapper(int(dryingWeight))
+// 	calculatedPrice += float64(dryingUnitPrice * dryinBasketCount)
+
+// 	if !newOrder.ZuckOnsite {
+// 		calculatedPrice += float64(model.DeliveryPrice + model.PickupPrice)
+// 	}
+// 	if isAgentsExist {
+// 		calculatedPrice += float64(model.AgentsPrice)
+// 	}
+
+// 	payment := model.Payments{Amount: calculatedPrice}
+// 	//Create new payment
+// 	paymentResponse, err := u.paymentUsecase.CreatePayment(payment)
+// 	if err != nil {
+// 		return nil, errors.New("ERR: cannont create payment")
+// 	}
+
+// 	orderHeader := model.OrderHeader{
+// 		OrderHeaderID:   uuid.New().String(),
+// 		UserID:          newOrder.UserID,
+// 		BranchID:        newOrder.BranchID,
+// 		OrderNote:       newOrder.OrderNote,
+// 		PaymentID:       paymentResponse.PaymentID, // temp solution
+// 		ZuckOnsite:      newOrder.ZuckOnsite,
+// 		DeliveryAddress: newOrder.DeliveryAddress,
+// 		DeliveryLat:     newOrder.DeliveryLat,
+// 		DeliveryLong:    newOrder.DeliveryLong,
+// 		StarRating:      nil,
+// 		ReviewComment:   nil,
+// 		CreatedBy:       newOrder.UserID,
+// 		UpdatedBy:       newOrder.UserID,
+// 	}
+
+// 	header, err := u.orderHeaderRepo.CreateOrderHeader(&orderHeader)
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var orderDetails []model.OrderDetail
+// 	var washerIndexer int = 0
+// 	var dryerIndexer int = 0
+// 	for _, detail := range newOrder.OrderDetails {
+// 		d := model.OrderDetail{
+// 			OrderBasketID: uuid.New().String(),
+// 			OrderHeaderID: orderHeader.OrderHeaderID,
+// 			Weight:        detail.Weight,
+// 			OrderStatus:   model.Waiting,
+// 			ServiceType:   detail.ServiceType,
+// 			FinishedAt:    nil,
+// 			CreatedBy:     &newOrder.UserID,
+// 			UpdatedBy:     &newOrder.UserID,
+// 		}
+// 		if d.ServiceType == "Washing" {
+// 			d.MachineSerial = (&(*availableWasher)[washerIndexer].MachineSerial)
+// 			washerIndexer += 1
+// 		} else if d.ServiceType == "Drying" {
+// 			d.MachineSerial = (&(*availableDryer)[dryerIndexer].MachineSerial)
+// 			dryerIndexer += 1
+// 		} else {
+// 			d.MachineSerial = (&(*availableWasher)[0].MachineSerial)
+// 		}
+// 		orderDetails = append(orderDetails, d)
+// 	}
+
+// 	details, err := u.orderDetailRepo.CreateOrderDetails(&orderDetails)
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	user, err := u.userRepo.FindUserByUserID(newOrder.UserID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	res := combineFullOrder(header, details, *user, false)
+
+// 	return res, nil
+// }
