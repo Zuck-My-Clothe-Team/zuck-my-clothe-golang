@@ -2,8 +2,7 @@ FROM golang:1.22.5-alpine
 
 WORKDIR /usr/src/app
 
-RUN apk add tzdata
-ENV TZ Asia/Bangkok
+ENV TZ="Asia/Bangkok"
 
 COPY go.mod ./
 COPY go.sum ./
