@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 )
@@ -32,4 +33,13 @@ func (u *paymentReopository) FindByPaymentID(paymentID string) (*model.Payments,
 		return nil, dbTx.Error
 	}
 	return data, nil
+}
+
+func (u *paymentReopository) CleanupExpiredPayment() error {
+	dbTx := u.db.Raw(`
+	UPDATE "Payments"
+	SET payment_status = 'Cancel'
+	WHERE "Payments".due_date < ? AND "Payments".payment_status = 'Pending';
+	`, time.Now())
+	return dbTx.Error
 }
