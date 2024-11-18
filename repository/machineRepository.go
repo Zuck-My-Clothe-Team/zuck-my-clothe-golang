@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
@@ -17,7 +16,7 @@ type MachineRepository interface {
 	AddMachine(newMachine *model.Machine) error
 	GetByMachineSerial(machineSerial string) (*model.Machine, error)
 	GetAvailableMachine(branchID string) (*[]model.MachineInBranch, error)
-	GetMachineToAssign(branchID string, machineType string, weight int, numberRequest int) (*[]model.MachineInBranch, error)
+	//GetMachineToAssign(branchID string, machineType string, weight int, numberRequest int) (*[]model.MachineInBranch, error)
 }
 
 type machineRepository struct {
@@ -156,51 +155,51 @@ func (u *machineRepository) GetAvailableMachine(branchID string) (*[]model.Machi
 	return machines, nil
 }
 
-func (u *machineRepository) GetMachineToAssign(branchID string, machineType string, weight int, numberRequest int) (*[]model.MachineInBranch, error) {
-	machines := new([]model.MachineInBranch)
-	// dbTx := u.db.Raw(`
-	// 	SELECT DISTINCT sub.machine_serial
-	// 	FROM (SELECT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
-	// 							CASE
-	// 											WHEN OD.order_status = 'Processing' THEN FALSE ELSE TRUE
-	// 							END AS is_available
-	// 	FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
-	// 	WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL
-	// 	ORDER BY OD.created_at DESC) AS sub
-	// 	WHERE sub.is_available = TRUE AND sub.machine_type = ? AND sub.weight = ?
-	// 	LIMIT ?;
-	// `, branchID, machineType, weight, numberRequest).Scan(machines)
+// func (u *machineRepository) GetMachineToAssign(branchID string, machineType string, weight int, numberRequest int) (*[]model.MachineInBranch, error) {
+// 	machines := new([]model.MachineInBranch)
+// 	// dbTx := u.db.Raw(`
+// 	// 	SELECT DISTINCT sub.machine_serial
+// 	// 	FROM (SELECT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
+// 	// 							CASE
+// 	// 											WHEN OD.order_status = 'Processing' THEN FALSE ELSE TRUE
+// 	// 							END AS is_available
+// 	// 	FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
+// 	// 	WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL
+// 	// 	ORDER BY OD.created_at DESC) AS sub
+// 	// 	WHERE sub.is_available = TRUE AND sub.machine_type = ? AND sub.weight = ?
+// 	// 	LIMIT ?;
+// 	// `, branchID, machineType, weight, numberRequest).Scan(machines)
 
-	dbTx := u.db.Raw(`
-	SELECT  DISTINCT sub.machine_serial,sub.weight,sub.is_available
-	FROM (
-		SELECT DISTINCT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
-		CASE
-						WHEN OD.order_status = 'Processing' OR OD.order_status = 'Waiting' THEN FALSE ELSE TRUE
-		END AS is_available,OD.created_at
-		FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
-		WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL AND M.machine_type = ? AND M.weight = ?
-		ORDER BY OD.created_at DESC
-		) AS sub
-	WHERE sub.is_available AND sub.machine_serial NOT IN (
-		SELECT  DISTINCT sub_two.machine_serial
-		FROM (
-			SELECT DISTINCT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
-			CASE
-							WHEN OD.order_status = 'Processing' OR OD.order_status = 'Waiting' THEN FALSE ELSE TRUE
-			END AS is_available,OD.created_at
-			FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
-			WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL AND M.machine_type = ? AND M.weight = ?
-			ORDER BY OD.created_at DESC) AS sub_two
-		WHERE NOT sub_two.is_available)
-		LIMIT ?;
-	`, branchID, machineType, weight, branchID, machineType, weight, numberRequest).Scan(machines)
+// 	dbTx := u.db.Raw(`
+// 	SELECT  DISTINCT sub.machine_serial,sub.weight,sub.is_available
+// 	FROM (
+// 		SELECT DISTINCT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
+// 		CASE
+// 						WHEN OD.order_status = 'Processing' OR OD.order_status = 'Waiting' THEN FALSE ELSE TRUE
+// 		END AS is_available,OD.created_at
+// 		FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
+// 		WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL AND M.machine_type = ? AND M.weight = ?
+// 		ORDER BY OD.created_at DESC
+// 		) AS sub
+// 	WHERE sub.is_available AND sub.machine_serial NOT IN (
+// 		SELECT  DISTINCT sub_two.machine_serial
+// 		FROM (
+// 			SELECT DISTINCT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
+// 			CASE
+// 							WHEN OD.order_status = 'Processing' OR OD.order_status = 'Waiting' THEN FALSE ELSE TRUE
+// 			END AS is_available,OD.created_at
+// 			FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
+// 			WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL AND M.machine_type = ? AND M.weight = ?
+// 			ORDER BY OD.created_at DESC) AS sub_two
+// 		WHERE NOT sub_two.is_available)
+// 		LIMIT ?;
+// 	`, branchID, machineType, weight, branchID, machineType, weight, numberRequest).Scan(machines)
 
-	if dbTx.Error != nil {
-		return nil, dbTx.Error
-	}
-	if dbTx.RowsAffected != int64(numberRequest) {
-		return nil, errors.New("ERR: not enough machine")
-	}
-	return machines, nil
-}
+// 	if dbTx.Error != nil {
+// 		return nil, dbTx.Error
+// 	}
+// 	if dbTx.RowsAffected != int64(numberRequest) {
+// 		return nil, errors.New("ERR: not enough machine")
+// 	}
+// 	return machines, nil
+// }
