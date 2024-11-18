@@ -25,7 +25,6 @@ type MachineReports struct {
 	ReportDescription string              `json:"report_desc" gorm:"column:report_desc"`
 	MacineSerial      string              `json:"machine_serial" gorm:"column:machine_serial"`
 	ReportStatus      MachineReportStatus `json:"report_status" gorm:"column:report_status"`
-	BranchID          string              `json:"-"  gorm:"column:branch_id"`
 	CreatedAt         time.Time           `json:"created_at" gorm:"column:created_at"`
 	DeletedAt         gorm.DeletedAt      `json:"deleted_at" gorm:"column:deleted_at;index" swaggertype:"string" example:"null"`
 }

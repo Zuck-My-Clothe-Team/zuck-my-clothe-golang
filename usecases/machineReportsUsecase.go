@@ -2,11 +2,9 @@ package usecases
 
 import (
 	"errors"
-	"fmt"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/repository"
-	"zuck-my-clothe/zuck-my-clothe-backend/utils"
 
 	"github.com/google/uuid"
 )
@@ -27,12 +25,30 @@ func CreateNewMachineReportUsecase(machineReportRepository model.MachineReportsR
 }
 
 func (u *machineReportUsecase) toMachineReportDetail(machineReport *model.MachineReports, isAdminView bool) interface{} {
-	branch, err := u.branchRepository.GetByBranchID(machineReport.BranchID)
+	machine, err := u.machineRepository.GetByMachineSerial(machineReport.MacineSerial)
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
-	result := utils.ToBranchDetail(branch, isAdminView)
+
+	branch, err := u.branchRepository.GetByBranchID(machine.BranchID)
+	if err != nil {
+		return nil
+	}
+
+	branchDetail := model.BranchDetail{
+		BranchID:     branch.BranchID,
+		BranchName:   branch.BranchName,
+		BranchDetail: branch.BranchDetail,
+		BranchLat:    branch.BranchLat,
+		BranchLon:    branch.BranchLon,
+		OwnerUserID:  branch.OwnerUserID,
+		CreatedAt:    &branch.CreatedAt,
+		CreatedBy:    &branch.CreatedBy,
+		UpdatedAt:    &branch.UpdatedAt,
+		UpdatedBy:    &branch.UpdatedBy,
+		DeletedBy:    branch.DeletedBy,
+	}
+
 	reportData := model.MachineReportDetail{
 		ReportID:          machineReport.ReportID,
 		UserID:            machineReport.UserID,
@@ -41,7 +57,7 @@ func (u *machineReportUsecase) toMachineReportDetail(machineReport *model.Machin
 		ReportStatus:      machineReport.ReportStatus,
 		CreatedAt:         machineReport.CreatedAt,
 		DeletedAt:         &machineReport.DeletedAt,
-		BranchInfo:        result,
+		BranchInfo:        branchDetail,
 	}
 	if !isAdminView {
 		reportData.DeletedAt = nil
