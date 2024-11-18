@@ -176,7 +176,7 @@ func (u *machineRepository) GetMachineToAssign(branchID string, machineType stri
 	FROM (
 		SELECT DISTINCT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
 		CASE
-						WHEN OD.order_status = 'Processing' THEN FALSE ELSE TRUE
+						WHEN OD.order_status = 'Processing' OR OD.order_status = 'Waiting' THEN FALSE ELSE TRUE
 		END AS is_available,OD.created_at
 		FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
 		WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL AND M.machine_type = ? AND M.weight = ?
@@ -187,7 +187,7 @@ func (u *machineRepository) GetMachineToAssign(branchID string, machineType stri
 		FROM (
 			SELECT DISTINCT M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
 			CASE
-							WHEN OD.order_status = 'Processing' THEN FALSE ELSE TRUE
+							WHEN OD.order_status = 'Processing' OR OD.order_status = 'Waiting' THEN FALSE ELSE TRUE
 			END AS is_available,OD.created_at
 			FROM "Machines" AS M LEFT JOIN "OrderDetails" AS OD ON M.machine_serial = OD.machine_serial
 			WHERE M.branch_id = ? AND M.is_active = TRUE AND M.deleted_at IS NULL AND M.machine_type = ? AND M.weight = ?

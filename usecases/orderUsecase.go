@@ -198,7 +198,7 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	dryingUnitPrice := serVicePriceMapper(int(dryingWeight))
 	calculatedPrice += float64(dryingUnitPrice * dryinBasketCount)
 
-	if newOrder.ZuckOnsite {
+	if !newOrder.ZuckOnsite {
 		calculatedPrice += float64(model.DeliveryPrice + model.PickupPrice)
 	}
 	if isAgentsExist {
@@ -447,14 +447,21 @@ func (u *orderUsecase) UpdateReview(review model.OrderReview) (*model.FullOrder,
 		UpdatedBy:     review.UserID,
 	}
 
-	orderHeader, err := u.orderHeaderRepo.UpdateReview(orderModel)
+	herdead, err := u.orderHeaderRepo.GetByID(orderModel.OrderHeaderID, false)
+	if err != nil {
+		return nil, err
+	}
 
+	if herdead.UserID != orderModel.UserID {
+		return nil, errors.New("err: forbidden review update")
+	}
+
+	orderHeader, err := u.orderHeaderRepo.UpdateReview(orderModel)
 	if err != nil {
 		return nil, err
 	}
 
 	orderDetails, err := u.orderDetailRepo.GetByHeaderID(orderHeader.OrderHeaderID, false)
-
 	if err != nil {
 		return nil, err
 	}
