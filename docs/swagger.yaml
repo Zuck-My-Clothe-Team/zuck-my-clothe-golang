@@ -360,8 +360,6 @@ definitions:
         type: array
       order_note:
         type: string
-      userID:
-        type: string
       zuck_onsite:
         type: boolean
     required:
@@ -460,8 +458,6 @@ definitions:
         maximum: 5
         minimum: 1
         type: integer
-      userID:
-        type: string
     required:
     - order_header_id
     - star_rating
@@ -1656,40 +1652,6 @@ paths:
       summary: Get full order by branch id
       tags:
       - Order
-  /order/create:
-    post:
-      consumes:
-      - application/json
-      description: Add a new order to the system
-      parameters:
-      - description: New Order Data
-        in: body
-        name: NewOrder
-        required: true
-        schema:
-          $ref: '#/definitions/model.NewOrder'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.FullOrder'
-        "400":
-          description: Bad Request - Invalid input
-          schema:
-            type: string
-        "406":
-          description: Not Acceptable - Validation failed
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Add new order
-      tags:
-      - Order
   /order/delete/{order_header_id}:
     delete:
       consumes:
@@ -1740,6 +1702,40 @@ paths:
           schema:
             type: string
       summary: Get full order by user id
+      tags:
+      - Order
+  /order/new:
+    post:
+      consumes:
+      - application/json
+      description: Add a new order to the system
+      parameters:
+      - description: New Order Data
+        in: body
+        name: NewOrder
+        required: true
+        schema:
+          $ref: '#/definitions/model.NewOrder'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.FullOrder'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            type: string
+        "406":
+          description: Not Acceptable - Validation failed
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add new order
       tags:
       - Order
   /order/review:

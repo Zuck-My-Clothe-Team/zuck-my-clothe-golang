@@ -1278,58 +1278,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/create": {
-            "post": {
-                "description": "Add a new order to the system",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "Add new order",
-                "parameters": [
-                    {
-                        "description": "New Order Data",
-                        "name": "NewOrder",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.NewOrder"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.FullOrder"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "406": {
-                        "description": "Not Acceptable - Validation failed",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/order/delete/{order_header_id}": {
             "delete": {
                 "description": "Delete an order",
@@ -1396,6 +1344,58 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found - No orders available",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/new": {
+            "post": {
+                "description": "Add a new order to the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Add new order",
+                "parameters": [
+                    {
+                        "description": "New Order Data",
+                        "name": "NewOrder",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.NewOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.FullOrder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable - Validation failed",
                         "schema": {
                             "type": "string"
                         }
@@ -2781,9 +2781,6 @@ const docTemplate = `{
                 "order_note": {
                     "type": "string"
                 },
-                "userID": {
-                    "type": "string"
-                },
                 "zuck_onsite": {
                     "type": "boolean"
                 }
@@ -2929,9 +2926,6 @@ const docTemplate = `{
                     "type": "integer",
                     "maximum": 5,
                     "minimum": 1
-                },
-                "userID": {
-                    "type": "string"
                 }
             }
         },

@@ -32,7 +32,7 @@ type OrderHeader struct {
 }
 
 type NewOrder struct {
-	UserID          string
+	UserID          string           `json:"-"`
 	BranchID        string           `json:"branch_id" validate:"required"`
 	OrderNote       *string          `json:"order_note"`
 	ZuckOnsite      bool             `json:"zuck_onsite" validate:"requiredBool"`
@@ -65,8 +65,8 @@ type FullOrder struct {
 }
 
 type OrderReview struct {
-	OrderHeaderID string `json:"order_header_id" validate:"required"`
-	UserID        string
+	OrderHeaderID string  `json:"order_header_id" validate:"required"`
+	UserID        string  `json:"-"`
 	StarRating    *int16  `json:"star_rating" validate:"required,gte=1,lte=5"`
 	ReviewComment *string `json:"review_comment"`
 }
