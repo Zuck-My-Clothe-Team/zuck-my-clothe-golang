@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/config"
+	nacronsritammarat "zuck-my-clothe/zuck-my-clothe-backend/cron"
 	"zuck-my-clothe/zuck-my-clothe-backend/docs"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 	"zuck-my-clothe/zuck-my-clothe-backend/routes"
@@ -19,7 +21,7 @@ import (
 // @description	This is API document for Zuck-my-clothe API
 // @BasePath		/
 func main() {
-
+	time.Local = time.UTC
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal("Can't load config", err)
@@ -40,6 +42,9 @@ func main() {
 	if valErr != "success" {
 		log.Fatal("Can not Init Validator")
 	}
+
+	konCron := nacronsritammarat.SummonKonCron(db)
+	konCron.StartKonKron()
 
 	api := fiber.New()
 
