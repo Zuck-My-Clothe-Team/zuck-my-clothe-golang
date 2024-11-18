@@ -20,8 +20,8 @@ func (u *paymentUsecase) CreatePayment(newPayment model.Payments) (*model.Paymen
 		PaymentID:      uuid.New().String(),
 		Amount:         newPayment.Amount,
 		Payment_Status: "Pending",
-		DueDate:        time.Now().Add(time.Minute * 10),
-		CreatedAt:      time.Now(),
+		DueDate:        time.Now().UTC().Add(time.Minute * 10),
+		CreatedAt:      time.Now().UTC(),
 	}
 	response, err := u.paymentRepository.CreatePayment(data)
 	if err != nil {
