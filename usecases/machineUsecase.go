@@ -54,9 +54,9 @@ func (u *machineUsecase) AddMachine(new_machine *model.AddMachine) (*model.Machi
 		MachineType:   new_machine.MachineType,
 		Weight:        int16(new_machine.Weight),
 		IsActive:      false,
-		CreatedAt:     time.Now(),
+		CreatedAt:     time.Now().UTC(),
 		CreatedBy:     &new_machine.CreatedBy,
-		UpdatedAt:     time.Now(),
+		UpdatedAt:     time.Now().UTC(),
 		UpdatedBy:     &new_machine.CreatedBy,
 		DeletedBy:     nil,
 	}

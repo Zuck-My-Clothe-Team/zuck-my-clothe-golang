@@ -61,7 +61,7 @@ func (u *authenUsecase) SignIn(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
 		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 336),
+		Expires:  time.Now().UTC().Add(time.Hour * 336),
 		HTTPOnly: true})
 
 	return c.JSON(model.AuthenResponse{
@@ -112,8 +112,8 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 			newUser.FirstName = newGoogleUser.Name
 			newUser.LastName = newGoogleUser.Surname
 			newUser.Role = "Client"
-			newUser.CreateAt = time.Now()
-			newUser.UpdateAt = time.Now()
+			newUser.CreateAt = time.Now().UTC()
+			newUser.UpdateAt = time.Now().UTC()
 			newUser.ProfileImageURL = newGoogleUser.ImageUrl
 			newUser.Password = ""
 			// fmt.Println(newUser)
@@ -140,7 +140,7 @@ func (u *authenUsecase) GoogleCallback(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:     "jwt",
 		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 336),
+		Expires:  time.Now().UTC().Add(time.Hour * 336),
 		HTTPOnly: true})
 
 	return c.JSON(model.AuthenResponse{
@@ -176,7 +176,7 @@ func jwtSigner(userID string, role model.Roles, access_token string) (string, er
 	claims := jwt.MapClaims{
 		"userID":     userID,
 		"positionID": role,
-		"exp":        time.Now().Add(day * 14).Unix(),
+		"exp":        time.Now().UTC().Add(day * 14).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, err := token.SignedString([]byte(access_token))

@@ -40,6 +40,6 @@ func (u *paymentReopository) CleanupExpiredPayment() error {
 	dbTx := u.db.Debug().Raw(`
 	UPDATE "Payments"
 	SET payment_status = 'Cancel'
-	WHERE due_date < $1 AND payment_status = 'Pending'`, time.Now()).Scan(&list)
+	WHERE due_date < $1 AND payment_status = 'Pending'`, time.Now().UTC()).Scan(&list)
 	return dbTx.Error
 }
