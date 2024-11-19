@@ -115,7 +115,7 @@ func (u *machineReportUsecase) CreateMachineReport(newReport *model.AddMachineRe
 		ReportDescription: newReport.ReportDescription,
 		MacineSerial:      newReport.MacineSerial,
 		ReportStatus:      model.ReportPending,
-		CreatedAt:         time.Now(),
+		CreatedAt:         time.Now().UTC(),
 	}
 	err := u.machineReportRepository.CreateMachineReport(&data)
 	if err != nil {

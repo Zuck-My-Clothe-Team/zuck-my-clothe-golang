@@ -51,7 +51,7 @@ func AuthRequire(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	if exp.Before(time.Now()) {
+	if exp.Before(time.Now().UTC()) {
 		return c.Status(fiber.StatusUnauthorized).SendString("token expired")
 	}
 

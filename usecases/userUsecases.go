@@ -61,8 +61,8 @@ func (repo *userUsecases) CreateUser(newUser model.Users) (*model.Users, error) 
 	if numRow == 1 && err == nil {
 		return nil, nil
 	}
-	newUser.CreateAt = time.Now()
-	newUser.UpdateAt = time.Now()
+	newUser.CreateAt = time.Now().UTC()
+	newUser.UpdateAt = time.Now().UTC()
 	userData, repoError := repo.repository.CreateUser(newUser)
 
 	if repoError != nil {
@@ -246,7 +246,7 @@ func (repo *userUsecases) UpdateUser(userID string, body model.UserUpdateDTO, ro
 		Role:            newRole,
 		Password:        existingUser.Password,
 		CreateAt:        existingUser.CreateAt,
-		UpdateAt:        time.Now(),
+		UpdateAt:        time.Now().UTC(),
 	}
 
 	err = repo.repository.UpdateUser(updatedUser)
@@ -285,7 +285,7 @@ func (repo *userUsecases) UpdateUserPassword(userID string, body model.UserUpdat
 		Role:            existingUser.Role,
 		Password:        string(newPassword),
 		CreateAt:        existingUser.CreateAt,
-		UpdateAt:        time.Now(),
+		UpdateAt:        time.Now().UTC(),
 	}
 
 	err = repo.repository.UpdateUser(updatedUser)

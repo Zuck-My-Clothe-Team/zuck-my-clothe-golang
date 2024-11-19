@@ -109,7 +109,7 @@ func (repo *userRepository) UndeleteUser(newUser model.Users) (int64, error) {
 		return 0, errors.New("cannot undelete user")
 	}
 	deletedUser.DeleteAt.Valid = false
-	deletedUser.UpdateAt = time.Now()
+	deletedUser.UpdateAt = time.Now().UTC()
 	dbResponse = repo.db.Table("Users").Unscoped().Where("user_id = ?", deletedUser.UserID).Updates(&model.Users{Phone: newUser.Phone,
 		FirstName:       newUser.FirstName,
 		LastName:        newUser.LastName,

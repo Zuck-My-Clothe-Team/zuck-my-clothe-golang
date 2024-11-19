@@ -41,8 +41,8 @@ func (u *userAddressesUsecase) AddUserAddress(owenrID string, newUserAddress *mo
 		Zipcode:     newUserAddress.Zipcode,
 		Lat:         newUserAddress.Lat,
 		Long:        newUserAddress.Long,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
 	}
 	if err := u.userAddressesRepository.AddUserAddress(&data); err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (u *userAddressesUsecase) UpdateUserAddressData(userID string, updatedAddre
 		Zipcode:     updatedAddressData.Zipcode,
 		Lat:         updatedAddressData.Lat,
 		Long:        updatedAddressData.Long,
-		UpdatedAt:   time.Now(),
+		UpdatedAt:   time.Now().UTC(),
 	}
 	if err := u.userAddressesRepository.UpdateUserAddressData(userID, updatedAddressData.AddressID, &data); err != nil {
 		return nil, err
