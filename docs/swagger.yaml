@@ -468,12 +468,14 @@ definitions:
     - Processing
     - Completed
     - Canceled
+    - Expired
     type: string
     x-enum-varnames:
     - Waiting
     - Processing
     - Completed
     - Canceled
+    - OrderExpired
   model.PaymentStatus:
     enum:
     - Pending
@@ -1849,6 +1851,36 @@ paths:
           schema:
             type: string
       summary: Find payment by id
+      tags:
+      - Payment
+  /payment/update/{paymentID}/setstatus/{status}:
+    put:
+      description: Set the status of payment
+      parameters:
+      - description: Machine Serial ID
+        in: path
+        name: paymentID
+        required: true
+        type: string
+      - description: Set status (Pending/Paid/Expired/Cancel)
+        in: path
+        name: status
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Payments'
+        "202":
+          description: Accepted
+          schema:
+            type: string
+        "406":
+          description: 'err: not valid status'
+          schema:
+            type: string
+      summary: Update payment status
       tags:
       - Payment
   /report/:

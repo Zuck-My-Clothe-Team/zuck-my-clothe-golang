@@ -13,10 +13,11 @@ func (OrderDetail) TableName() string {
 type OrderStatus string
 
 const (
-	Waiting    OrderStatus = "Waiting"
-	Processing OrderStatus = "Processing"
-	Completed  OrderStatus = "Completed"
-	Canceled   OrderStatus = "Canceled"
+	Waiting      OrderStatus = "Waiting"
+	Processing   OrderStatus = "Processing"
+	Completed    OrderStatus = "Completed"
+	Canceled     OrderStatus = "Canceled"
+	OrderExpired OrderStatus = "Expired"
 )
 
 type ServiceType string

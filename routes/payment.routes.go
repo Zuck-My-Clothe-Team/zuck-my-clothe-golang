@@ -17,4 +17,5 @@ func PaymentRoutes(routeRegister *config.RoutesRegister) {
 	paymentGroup := application.Group("/payment", middleware.AuthRequire)
 	paymentGroup.Post("/add", paymentController.CreatePayment)
 	paymentGroup.Get("/detail/:paymentID", paymentController.FindByPaymentID)
+	paymentGroup.Put("/update/:paymentID/setstatus/:status", paymentController.UpdatePaymenstatus)
 }

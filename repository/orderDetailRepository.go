@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
@@ -18,6 +19,7 @@ type OrderDetailRepository interface {
 	UpdateStatus(order model.OrderDetail) (*model.OrderDetail, error)
 	GetDetail(orderBasketID string) (*model.OrderDetail, error)
 	DeleteByHeaderID(orderHeaderID string, deletedBy string) (*[]model.OrderDetail, error)
+	CleanUpExpiredOrder() error
 }
 
 func CreateOrderDetailRepository(db *platform.Postgres) OrderDetailRepository {
@@ -60,7 +62,7 @@ func (u *orderDetailRepository) GetByHeaderID(orderHeaderID string, isAdminView 
 	if isAdminView {
 		result = u.db.Where("order_header_id = ?", orderHeaderID).Find(&orders)
 	} else {
-		result = u.db.Select("order_basket_id", "order_header_id", "machine_serial", "weight", "order_status", "service_type", "finished_at", "created_at","created_by","updated_at","updated_by").Where("order_header_id = ?", orderHeaderID).Find(&orders)
+		result = u.db.Select("order_basket_id", "order_header_id", "machine_serial", "weight", "order_status", "service_type", "finished_at", "created_at", "created_by", "updated_at", "updated_by").Where("order_header_id = ?", orderHeaderID).Find(&orders)
 	}
 
 	if result.Error != nil {
@@ -131,4 +133,18 @@ func (u *orderDetailRepository) DeleteByHeaderID(orderHeaderID string, deletedBy
 	}
 
 	return cascading, result.Error
+}
+
+func (u *orderDetailRepository) CleanUpExpiredOrder() error {
+	orderDetailDummy := new(model.OrderDetail)
+	dbTx := u.db.Raw(`
+	UPDATE "OrderDetails"
+	SET order_status = 'Expired'
+	WHERE order_basket_id IN (
+		SELECT OD.order_basket_id
+		FROM "OrderDetails" AS OD INNER JOIN "OrderHeaders" AS OH ON OD.order_header_id = OH.order_header_id
+		INNER JOIN "Payments" AS PM ON PM.payment_id = OH.payment_id
+		WHERE OD.order_status = 'Waiting' AND PM.due_date < $1);
+	`, time.Now().UTC()).Scan(orderDetailDummy)
+	return dbTx.Error
 }

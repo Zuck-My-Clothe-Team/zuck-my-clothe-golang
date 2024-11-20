@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"time"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 
@@ -36,4 +37,26 @@ func (u *paymentUsecase) FindByPaymentID(paymentID string) (*model.Payments, err
 		return nil, err
 	}
 	return data, nil
+}
+
+func (u *paymentUsecase) UpdatePaymentStatus(paymentID string, status model.PaymentStatus) (*model.Payments, error) {
+	var response *model.Payments = nil
+	var err error
+
+	response, err = u.paymentRepository.FindByPaymentID(paymentID)
+	if err != nil {
+		return nil, err
+	}
+	if response.Payment_Status != "Pending" {
+		return nil, errors.New("err: cannot update payment that not in \"Pending\" State")
+	}
+	err = u.paymentRepository.UpdatePaymentStatus(paymentID, status)
+	if err != nil {
+		return nil, err
+	}
+	response, err = u.paymentRepository.FindByPaymentID(paymentID)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
