@@ -35,11 +35,20 @@ func (u *paymentReopository) FindByPaymentID(paymentID string) (*model.Payments,
 	return data, nil
 }
 
-func (u *paymentReopository) CleanupExpiredPayment() error {
-	var list []model.Payments
+func (u *paymentReopository) UpdatePaymentStatus(paymentID string, status model.PaymentStatus) error {
+	var payment *model.Payments
 	dbTx := u.db.Debug().Raw(`
 	UPDATE "Payments"
-	SET payment_status = 'Cancel'
+	SET "payment_status" = $1
+	WHERE "payment_id" = $2 AND "payment_status" = 'Pending' AND "due_date" > $3;`, status, paymentID, time.Now().UTC()).Scan(payment)
+	return dbTx.Error
+}
+
+func (u *paymentReopository) CleanupExpiredPayment() error {
+	var list []model.Payments
+	dbTx := u.db.Raw(`
+	UPDATE "Payments"
+	SET payment_status = 'Expired'
 	WHERE due_date < $1 AND payment_status = 'Pending'`, time.Now().UTC()).Scan(&list)
 	return dbTx.Error
 }

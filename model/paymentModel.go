@@ -31,10 +31,12 @@ type Payments struct {
 type PaymentRepository interface {
 	CreatePayment(newPayment Payments) (*Payments, error)
 	FindByPaymentID(paymentID string) (*Payments, error)
+	UpdatePaymentStatus(paymentID string, status PaymentStatus) error
 	CleanupExpiredPayment() error
 }
 
 type PaymentUsecase interface {
 	CreatePayment(newPayment Payments) (*Payments, error)
 	FindByPaymentID(paymentID string) (*Payments, error)
+	UpdatePaymentStatus(paymentID string, status PaymentStatus) (*Payments, error)
 }

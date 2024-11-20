@@ -1633,6 +1633,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment/update/{paymentID}/setstatus/{status}": {
+            "put": {
+                "description": "Set the status of payment",
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Update payment status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Machine Serial ID",
+                        "name": "paymentID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Set status (Pending/Paid/Expired/Cancel)",
+                        "name": "status",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Payments"
+                        }
+                    },
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "406": {
+                        "description": "err: not valid status",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/report/": {
             "get": {
                 "security": [
@@ -2935,13 +2980,15 @@ const docTemplate = `{
                 "Waiting",
                 "Processing",
                 "Completed",
-                "Canceled"
+                "Canceled",
+                "Expired"
             ],
             "x-enum-varnames": [
                 "Waiting",
                 "Processing",
                 "Completed",
-                "Canceled"
+                "Canceled",
+                "OrderExpired"
             ]
         },
         "model.PaymentStatus": {

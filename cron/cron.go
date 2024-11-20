@@ -17,11 +17,15 @@ type KonNaCron struct {
 func SummonKonCron(db *platform.Postgres) KonNaCron {
 	c := cron.New()
 	paymentRepo := repository.CreateNewPaymentRepository(db)
-	usecase := usecases.CreateNewKonCronUsecase(paymentRepo)
+	orderDetailRepo := repository.CreateOrderDetailRepository(db)
+	usecase := usecases.CreateNewKonCronUsecase(paymentRepo,orderDetailRepo)
 	scheduler := KonNaCron{Cron: c, CronUsecase: usecase}
 
 	c.AddFunc("@every 1m", func() {
 		if err := scheduler.CronUsecase.CleanupExpiredPayment(); err != nil {
+			log.Default()
+		}
+		if err := scheduler.CronUsecase.CleanUpExpiredOrder(); err != nil {
 			log.Default()
 		}
 	})
