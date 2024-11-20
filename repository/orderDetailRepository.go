@@ -144,7 +144,7 @@ func (u *orderDetailRepository) CleanUpExpiredOrder() error {
 		SELECT OD.order_basket_id
 		FROM "OrderDetails" AS OD INNER JOIN "OrderHeaders" AS OH ON OD.order_header_id = OH.order_header_id
 		INNER JOIN "Payments" AS PM ON PM.payment_id = OH.payment_id
-		WHERE OD.order_status = 'Waiting' AND PM.due_date < $1);
+		WHERE OD.order_status = 'Waiting' AND PM.payment_status = 'Expired' AND PM.due_date < $1);
 	`, time.Now().UTC()).Scan(orderDetailDummy)
 	return dbTx.Error
 }
