@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"sync"
 
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	repo "zuck-my-clothe/zuck-my-clothe-backend/repository"
@@ -236,34 +237,86 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 }
 
 func (u *orderUsecase) GetAll() ([]interface{}, error) {
-	headers, err := u.orderHeaderRepo.GetAll()
+	var (
+		headers     *[]model.OrderHeader
+		details     *[]model.OrderDetail
+		users       []model.Users
+		fullOrder   []interface{}
+		headersErr  error
+		detailsErr  error
+		wg          sync.WaitGroup
+		headersChan = make(chan *[]model.OrderHeader, 1)
+		detailsChan = make(chan *[]model.OrderDetail, 1)
+		usersChan   = make(chan []model.Users, 1)
+		errorChan   = make(chan error, 1)
+	)
 
-	if err != nil {
-		return []interface{}{}, err
+	// Fetch headers concurrently
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if headers, headersErr = u.orderHeaderRepo.GetAll(); headersErr != nil {
+			errorChan <- headersErr
+		} else {
+			headersChan <- headers
+		}
+	}()
+
+	// Fetch details concurrently
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if details, detailsErr = u.orderDetailRepo.GetAll(); detailsErr != nil {
+			errorChan <- detailsErr
+		} else {
+			detailsChan <- details
+		}
+	}()
+
+	// Wait for header and detail fetching to complete
+	wg.Wait()
+	close(headersChan)
+	close(detailsChan)
+	close(errorChan)
+
+	// Check for errors in fetching
+	if headersErr != nil || detailsErr != nil {
+		return nil, <-errorChan
 	}
 
-	detail, err := u.orderDetailRepo.GetAll()
-	if err != nil {
-		return []interface{}{}, err
-	}
+	headers = <-headersChan
+	details = <-detailsChan
 
 	if len(*headers) == 0 {
 		return []interface{}{}, nil
 	}
 
-	var users []model.Users
-	for _, header := range *headers {
-		user, err := u.userRepo.FindUserByUserID(header.UserID)
-		users = append(users, *user)
-		if err != nil {
-			return nil, errors.New("ERR: error occured when trying to query user data")
+	// Fetch user data concurrently for all headers
+	wg.Add(len(*headers))
+	go func() {
+		for _, header := range *headers {
+			go func(h model.OrderHeader) {
+				defer wg.Done()
+				user, err := u.userRepo.FindUserByUserID(h.UserID)
+				if err != nil {
+					errorChan <- errors.New("ERR: error occurred when trying to query user data")
+				} else {
+					users = append(users, *user)
+				}
+			}(header)
 		}
+	}()
+	wg.Wait()
+	close(usersChan)
+
+	if len(errorChan) > 0 {
+		return nil, <-errorChan
 	}
 
-	var fullOrder []interface{}
+	// Combine full orders
 	for i, h := range *headers {
 		var thisDetail []model.OrderDetail
-		for _, d := range *detail {
+		for _, d := range *details {
 			if d.OrderHeaderID == h.OrderHeaderID {
 				thisDetail = append(thisDetail, d)
 			}
@@ -271,7 +324,7 @@ func (u *orderUsecase) GetAll() ([]interface{}, error) {
 		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
 	}
 
-	return fullOrder, err
+	return fullOrder, nil
 }
 
 func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, option string) (interface{}, error) {
