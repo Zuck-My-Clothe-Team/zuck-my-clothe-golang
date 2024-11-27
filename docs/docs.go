@@ -1215,7 +1215,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.OrderHeader"
+                                "$ref": "#/definitions/model.FullOrder"
                             }
                         }
                     },
@@ -2891,66 +2891,6 @@ const docTemplate = `{
                 },
                 "weight": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.OrderHeader": {
-            "type": "object",
-            "properties": {
-                "branch_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "deleted_at": {
-                    "type": "string",
-                    "example": "null"
-                },
-                "deleted_by": {
-                    "type": "string"
-                },
-                "delivery_address": {
-                    "type": "string"
-                },
-                "delivery_lat": {
-                    "type": "number"
-                },
-                "delivery_long": {
-                    "type": "number"
-                },
-                "order_header_id": {
-                    "type": "string"
-                },
-                "order_note": {
-                    "type": "string"
-                },
-                "payment_id": {
-                    "type": "string"
-                },
-                "review_comment": {
-                    "type": "string"
-                },
-                "star_rating": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "user_detail": {
-                    "$ref": "#/definitions/model.UserDetailDTO"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "zuck_onsite": {
-                    "type": "boolean"
                 }
             }
         },

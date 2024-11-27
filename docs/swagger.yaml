@@ -408,46 +408,6 @@ definitions:
       weight:
         type: integer
     type: object
-  model.OrderHeader:
-    properties:
-      branch_id:
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      deleted_at:
-        example: "null"
-        type: string
-      deleted_by:
-        type: string
-      delivery_address:
-        type: string
-      delivery_lat:
-        type: number
-      delivery_long:
-        type: number
-      order_header_id:
-        type: string
-      order_note:
-        type: string
-      payment_id:
-        type: string
-      review_comment:
-        type: string
-      star_rating:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      user_detail:
-        $ref: '#/definitions/model.UserDetailDTO'
-      user_id:
-        type: string
-      zuck_onsite:
-        type: boolean
-    type: object
   model.OrderReview:
     properties:
       order_header_id:
@@ -1612,7 +1572,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.OrderHeader'
+              $ref: '#/definitions/model.FullOrder'
             type: array
         "404":
           description: Not Found - No orders available

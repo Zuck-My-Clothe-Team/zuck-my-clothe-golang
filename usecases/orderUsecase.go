@@ -20,7 +20,7 @@ type orderUsecase struct {
 
 type OrderUsecase interface {
 	CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrder, error)
-	GetAllHeader() (*[]model.OrderHeader, error)
+	GetAll() ([]interface{}, error)
 	GetByHeaderID(orderHeaderID string, isAdminView bool, option string) (interface{}, error)
 	GetByBranchID(branchID string, managerUserID string) ([]interface{}, error)
 	GetByUserID(userID string) ([]interface{}, error)
@@ -53,7 +53,7 @@ func toUserDetailDTO(userModel *model.Users) *model.UserDetailDTO {
 	return &detail
 }
 
-func serVicePriceMapper(weight int) int {
+func servicePriceMapper(weight int) int {
 	var price int = 0
 	switch weight {
 	case 7:
@@ -165,9 +165,9 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	}
 
 	var calculatedPrice float64 = 0.0
-	washingUnitPrice := serVicePriceMapper(int(basketWeight))
+	washingUnitPrice := servicePriceMapper(int(basketWeight))
 	calculatedPrice += float64(washingBasketCount * washingUnitPrice)
-	dryingUnitPrice := serVicePriceMapper(int(dryingWeight))
+	dryingUnitPrice := servicePriceMapper(int(dryingWeight))
 	calculatedPrice += float64(dryingUnitPrice * dryinBasketCount)
 	if !newOrder.ZuckOnsite {
 		calculatedPrice += float64(model.DeliveryPrice + model.PickupPrice)
@@ -235,24 +235,43 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	return res, nil
 }
 
-func (u *orderUsecase) GetAllHeader() (*[]model.OrderHeader, error) {
-	var headers *[]model.OrderHeader
-
+func (u *orderUsecase) GetAll() ([]interface{}, error) {
 	headers, err := u.orderHeaderRepo.GetAll()
+
 	if err != nil {
-		return &[]model.OrderHeader{}, err
+		return []interface{}{}, err
 	}
 
-	for index, header := range *headers {
+	detail, err := u.orderDetailRepo.GetAll()
+	if err != nil {
+		return []interface{}{}, err
+	}
+
+	if len(*headers) == 0 {
+		return []interface{}{}, nil
+	}
+
+	var users []model.Users
+	for _, header := range *headers {
 		user, err := u.userRepo.FindUserByUserID(header.UserID)
+		users = append(users, *user)
 		if err != nil {
-			(*headers)[index].UserDetail = model.UserDetailDTO{}
-			continue
+			return nil, errors.New("ERR: error occured when trying to query user data")
 		}
-
-		(*headers)[index].UserDetail = *toUserDetailDTO(user)
 	}
-	return headers, err
+
+	var fullOrder []interface{}
+	for i, h := range *headers {
+		var thisDetail []model.OrderDetail
+		for _, d := range *detail {
+			if d.OrderHeaderID == h.OrderHeaderID {
+				thisDetail = append(thisDetail, d)
+			}
+		}
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
+	}
+
+	return fullOrder, err
 }
 
 func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, option string) (interface{}, error) {
@@ -288,7 +307,6 @@ func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, opt
 }
 
 func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]interface{}, error) {
-
 	manager, err := u.userRepo.FindUserByUserID(managerUserID)
 	if err != nil {
 		return []interface{}{}, err

@@ -35,17 +35,17 @@ func getCookieData(c *fiber.Ctx, key string) string {
 	return claims[key].(string)
 }
 
-// @Summary		Add new order
-// @Description	Add a new order to the system
-// @Tags			Order
-// @Accept			json
-// @Produce		json
-// @Param			NewOrder	body		model.NewOrder	true	"New Order Data"
-// @Success		201			{object}	model.FullOrder	"Created"
-// @Failure		400			{string}	string			"Bad Request - Invalid input"
-// @Failure		406			{string}	string			"Not Acceptable - Validation failed"
-// @Failure		500			{string}	string			"Internal Server Error"
-// @Router			/order/new [post]
+//	@Summary		Add new order
+//	@Description	Add a new order to the system
+//	@Tags			Order
+//	@Accept			json
+//	@Produce		json
+//	@Param			NewOrder	body		model.NewOrder	true	"New Order Data"
+//	@Success		201			{object}	model.FullOrder	"Created"
+//	@Failure		400			{string}	string			"Bad Request - Invalid input"
+//	@Failure		406			{string}	string			"Not Acceptable - Validation failed"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/order/new [post]
 func (u *orderController) CreateNewOrder(c *fiber.Ctx) error {
 	newOrder := new(model.NewOrder)
 
@@ -72,16 +72,16 @@ func (u *orderController) CreateNewOrder(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// @Summary		Get all orders
-// @Description	Retrieve all orders in the system
-// @Tags			Order
-// @Produce		json
-// @Success		200	{array}		model.OrderHeader	"OK"
-// @Failure		404	{string}	string				"Not Found - No orders available"
-// @Failure		500	{string}	string				"Internal Server Error"
-// @Router			/order/all [get]
+//	@Summary		Get all orders
+//	@Description	Retrieve all orders in the system
+//	@Tags			Order
+//	@Produce		json
+//	@Success		200	{array}		model.FullOrder	"OK"
+//	@Failure		404	{string}	string			"Not Found - No orders available"
+//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Router			/order/all [get]
 func (u *orderController) GetAll(c *fiber.Ctx) error {
-	result, err := u.orderUsecase.GetAllHeader()
+	result, err := u.orderUsecase.GetAll()
 
 	if err != nil {
 		if err.Error() == "record not found" {
@@ -94,16 +94,16 @@ func (u *orderController) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Get full order by order header id
-// @Description	Retrieve full order by order header id
-// @Tags			Order
-// @Produce		json
-// @Param			order_header_id	path		string			true	"Order Header ID"
-// @Param			option			path		string			true	"Option = full, header, detail"
-// @Success		200				{array}		model.FullOrder	"OK"
-// @Failure		404				{string}	string			"Not Found - No orders available"
-// @Failure		500				{string}	string			"Internal Server Error"
-// @Router			/order/{order_header_id}/{option} [get]
+//	@Summary		Get full order by order header id
+//	@Description	Retrieve full order by order header id
+//	@Tags			Order
+//	@Produce		json
+//	@Param			order_header_id	path		string			true	"Order Header ID"
+//	@Param			option			path		string			true	"Option = full, header, detail"
+//	@Success		200				{array}		model.FullOrder	"OK"
+//	@Failure		404				{string}	string			"Not Found - No orders available"
+//	@Failure		500				{string}	string			"Internal Server Error"
+//	@Router			/order/{order_header_id}/{option} [get]
 func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 	orderHeaderID := c.Params("order_header_id")
 	option := c.Params("option")
@@ -133,15 +133,15 @@ func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Get full order by branch id
-// @Description	Retrieve full order by branch id
-// @Tags			Order
-// @Produce		json
-// @Param			branch_id	path		string			true	"branch id"
-// @Success		200			{array}		model.FullOrder	"OK"
-// @Failure		404			{string}	string			"Not Found - No orders available"
-// @Failure		500			{string}	string			"Internal Server Error"
-// @Router			/order/branch/{branch_id} [get]
+//	@Summary		Get full order by branch id
+//	@Description	Retrieve full order by branch id
+//	@Tags			Order
+//	@Produce		json
+//	@Param			branch_id	path		string			true	"branch id"
+//	@Success		200			{array}		model.FullOrder	"OK"
+//	@Failure		404			{string}	string			"Not Found - No orders available"
+//	@Failure		500			{string}	string			"Internal Server Error"
+//	@Router			/order/branch/{branch_id} [get]
 func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 	branchID := c.Params("branch_id")
 
@@ -160,14 +160,14 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Get full order by user id
-// @Description	Retrieve full order by user id
-// @Tags			Order
-// @Produce		json
-// @Success		200	{array}		model.FullOrder	"OK"
-// @Failure		404	{string}	string			"Not Found - No orders available"
-// @Failure		500	{string}	string			"Internal Server Error"
-// @Router			/order/me [get]
+//	@Summary		Get full order by user id
+//	@Description	Retrieve full order by user id
+//	@Tags			Order
+//	@Produce		json
+//	@Success		200	{array}		model.FullOrder	"OK"
+//	@Failure		404	{string}	string			"Not Found - No orders available"
+//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Router			/order/me [get]
 func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 	userID := getCookieData(c, "userID")
 
@@ -184,15 +184,15 @@ func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Update order status
-// @Description	Update order status
-// @Tags			Order
-// @Param			UpdateOrder	body		model.UpdateOrder	true	"Updated order field"
-// @Success		200			{object}	model.FullOrder		"OK"
-// @Failure		400			{string}	string				"Bad Request"
-// @Failure		404			{string}	string				"Not Found"
-// @Failure		500			{string}	string				"Internal Server Error"
-// @Router			/order/update [put]
+//	@Summary		Update order status
+//	@Description	Update order status
+//	@Tags			Order
+//	@Param			UpdateOrder	body		model.UpdateOrder	true	"Updated order field"
+//	@Success		200			{object}	model.FullOrder		"OK"
+//	@Failure		400			{string}	string				"Bad Request"
+//	@Failure		404			{string}	string				"Not Found"
+//	@Failure		500			{string}	string				"Internal Server Error"
+//	@Router			/order/update [put]
 func (u *orderController) UpdateStatus(c *fiber.Ctx) error {
 	order := new(model.UpdateOrder)
 
@@ -223,15 +223,15 @@ func (u *orderController) UpdateStatus(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Update order review
-// @Description	Update order review
-// @Tags			Order
-// @Param			OrderReview	body		model.OrderReview	true	"Updated order field"
-// @Success		200			{object}	model.FullOrder		"OK"
-// @Failure		400			{string}	string				"Bad Request"
-// @Failure		404			{string}	string				"Not Found"
-// @Failure		500			{string}	string				"Internal Server Error"
-// @Router			/order/review [put]
+//	@Summary		Update order review
+//	@Description	Update order review
+//	@Tags			Order
+//	@Param			OrderReview	body		model.OrderReview	true	"Updated order field"
+//	@Success		200			{object}	model.FullOrder		"OK"
+//	@Failure		400			{string}	string				"Bad Request"
+//	@Failure		404			{string}	string				"Not Found"
+//	@Failure		500			{string}	string				"Internal Server Error"
+//	@Router			/order/review [put]
 func (u *orderController) UpdateReview(c *fiber.Ctx) error {
 	order := new(model.OrderReview)
 	userID := getCookieData(c, "userID")
@@ -257,16 +257,16 @@ func (u *orderController) UpdateReview(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// @Summary		Delete an order
-// @Description	Delete an order
-// @Tags			Order
-// @Accept			json
-// @Produce		json
-// @Param			order_header_id	path		string	true	"Order Header ID"
-// @Success		200				{string}	string	"ok"
-// @Failure		404				{string}	string	"record not found"
-// @Failure		500				{string}	string	"internal server error"
-// @Router			/order/delete/{order_header_id} [delete]
+//	@Summary		Delete an order
+//	@Description	Delete an order
+//	@Tags			Order
+//	@Accept			json
+//	@Produce		json
+//	@Param			order_header_id	path		string	true	"Order Header ID"
+//	@Success		200				{string}	string	"ok"
+//	@Failure		404				{string}	string	"record not found"
+//	@Failure		500				{string}	string	"internal server error"
+//	@Router			/order/delete/{order_header_id} [delete]
 func (u *orderController) SoftDelete(c *fiber.Ctx) error {
 	orderHeaderID := c.Params("order_header_id")
 
