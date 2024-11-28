@@ -57,8 +57,8 @@ type OrderDetail struct {
 
 type NewOrderDetail struct {
 	MachineSerial *string     `json:"machine_serial"`
-	Weight        int16       `json:"weight" validate:"required"`
-	ServiceType   ServiceType `json:"service_type" validate:"required"`
+	Weight        int16       `json:"weight"`
+	ServiceType   ServiceType `json:"service_type"`
 }
 
 type UpdateOrder struct {

@@ -3,6 +3,7 @@ package usecases
 import (
 	"errors"
 	"sync"
+	"time"
 
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	repo "zuck-my-clothe/zuck-my-clothe-backend/repository"
@@ -99,12 +100,37 @@ func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, user model.U
 }
 
 func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrder, error) {
+	// validate order detail zuck onsite - online
+	if newOrder.ZuckOnsite {
+		if newOrder.DeliveryAddress != nil ||
+			newOrder.DeliveryLat != nil ||
+			newOrder.DeliveryLong != nil {
+			return nil, errors.New("ERR: you zuck onsite why would you give us an delivery address??")
+		}
 
-	if !newOrder.ZuckOnsite &&
-		(newOrder.DeliveryAddress == nil ||
+		if len(newOrder.OrderDetails) != 1 {
+			return nil, errors.New("ERR: only 1 order detail are allowed for zuck onsite")
+		}
+
+		if newOrder.OrderDetails[0].MachineSerial == nil ||
+			newOrder.OrderDetails[0].ServiceType != "" ||
+			newOrder.OrderDetails[0].Weight != 0 {
+			return nil, errors.New("ERR: zuck onsite order detail policy violated")
+		}
+	} else {
+		if newOrder.DeliveryAddress == nil ||
 			newOrder.DeliveryLat == nil ||
-			newOrder.DeliveryLong == nil) {
-		return nil, errors.New("no delivery address for online order")
+			newOrder.DeliveryLong == nil {
+			return nil, errors.New("ERR: no delivery address for online order")
+		}
+
+		for _, detail := range newOrder.OrderDetails {
+			if detail.MachineSerial != nil ||
+				detail.ServiceType == "" ||
+				detail.Weight == 0 {
+				return nil, errors.New("ERR: zuck online order detail policy violated")
+			}
+		}
 	}
 
 	var allWashingWeight int16 = 0
@@ -147,12 +173,14 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		return nil, errors.New("ERR: cannot use agent when you only drying your clothes")
 	}
 
-	if allWashingWeight > 0 && allWashingWeight > 21 {
-		return nil, errors.New("ERR: washing weight exceded 21 Kg")
-	} else if allWashingWeight == 0 && allDryingweight > 21 {
-		return nil, errors.New("ERR: washing weight exceded 21 Kg")
-	} else if allWashingWeight == 0 && allDryingweight == 0 {
-		return nil, errors.New("ERR: empty order")
+	if !newOrder.ZuckOnsite {
+		if allWashingWeight > 0 && allWashingWeight > 21 {
+			return nil, errors.New("ERR: washing weight exceded 21 Kg")
+		} else if allWashingWeight == 0 && allDryingweight > 21 {
+			return nil, errors.New("ERR: washing weight exceded 21 Kg")
+		} else if allWashingWeight == 0 && allDryingweight == 0 {
+			return nil, errors.New("ERR: empty order")
+		}
 	}
 
 	if isPickupExist != isDeliveryExist {
@@ -176,13 +204,15 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	if isAgentsExist {
 		calculatedPrice += float64(model.AgentsPrice)
 	}
+
+	// Create new payment
 	payment := model.Payments{Amount: calculatedPrice}
-	//Create new payment
 	paymentResponse, err := u.paymentUsecase.CreatePayment(payment)
 	if err != nil {
 		return nil, errors.New("ERR: cannont create payment")
 	}
 
+	// actually create order starts here
 	orderHeader := model.OrderHeader{
 		OrderHeaderID:   uuid.New().String(),
 		UserID:          newOrder.UserID,
@@ -206,19 +236,48 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	}
 
 	var orderDetails []model.OrderDetail
-	for _, detail := range newOrder.OrderDetails {
+
+	if header.ZuckOnsite {
+		machineData, merr := u.machineRepo.GetByMachineSerial(*newOrder.OrderDetails[0].MachineSerial)
+
+		if merr != nil {
+			return nil, merr
+		}
+
+		var machineType model.ServiceType = "Washing"
+		if machineData.MachineType == "Dryer" {
+			machineType = "Drying"
+		}
+
+		var finishedTime = time.Now().UTC().Add(time.Minute * 25)
 		d := model.OrderDetail{
 			OrderBasketID: uuid.New().String(),
 			OrderHeaderID: orderHeader.OrderHeaderID,
-			MachineSerial: nil,
-			Weight:        detail.Weight,
-			OrderStatus:   model.Waiting,
-			ServiceType:   detail.ServiceType,
-			FinishedAt:    nil,
+			MachineSerial: newOrder.OrderDetails[0].MachineSerial,
+			Weight:        machineData.Weight,
+			OrderStatus:   model.Processing,
+			ServiceType:   machineType,
+			FinishedAt:    &finishedTime,
 			CreatedBy:     &newOrder.UserID,
 			UpdatedBy:     &newOrder.UserID,
 		}
+
 		orderDetails = append(orderDetails, d)
+	} else {
+		for _, detail := range newOrder.OrderDetails {
+			d := model.OrderDetail{
+				OrderBasketID: uuid.New().String(),
+				OrderHeaderID: orderHeader.OrderHeaderID,
+				MachineSerial: nil,
+				Weight:        detail.Weight,
+				OrderStatus:   model.Waiting,
+				ServiceType:   detail.ServiceType,
+				FinishedAt:    nil,
+				CreatedBy:     &newOrder.UserID,
+				UpdatedBy:     &newOrder.UserID,
+			}
+			orderDetails = append(orderDetails, d)
+		}
 	}
 
 	details, err := u.orderDetailRepo.CreateOrderDetails(&orderDetails)
