@@ -20,6 +20,7 @@ type OrderDetailRepository interface {
 	GetDetail(orderBasketID string) (*model.OrderDetail, error)
 	DeleteByHeaderID(orderHeaderID string, deletedBy string) (*[]model.OrderDetail, error)
 	CleanUpExpiredOrder() error
+	CompleteZuckProcess() error
 }
 
 func CreateOrderDetailRepository(db *platform.Postgres) OrderDetailRepository {
@@ -145,6 +146,16 @@ func (u *orderDetailRepository) CleanUpExpiredOrder() error {
 		FROM "OrderDetails" AS OD INNER JOIN "OrderHeaders" AS OH ON OD.order_header_id = OH.order_header_id
 		INNER JOIN "Payments" AS PM ON PM.payment_id = OH.payment_id
 		WHERE OD.order_status = 'Waiting' AND PM.payment_status = 'Expired' AND PM.due_date < $1);
+	`, time.Now().UTC()).Scan(orderDetailDummy)
+	return dbTx.Error
+}
+
+func (u *orderDetailRepository) CompleteZuckProcess() error {
+	orderDetailDummy := new(model.OrderDetail)
+	dbTx := u.db.Raw(`
+	UPDATE "OrderDetails"
+	SET order_status = 'Completed'
+	WHERE finished_at < $1 AND order_status = 'Processing';	
 	`, time.Now().UTC()).Scan(orderDetailDummy)
 	return dbTx.Error
 }
