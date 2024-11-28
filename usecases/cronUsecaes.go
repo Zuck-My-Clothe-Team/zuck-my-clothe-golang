@@ -8,6 +8,7 @@ import (
 type KonCronUsecase interface {
 	CleanupExpiredPayment() error
 	CleanUpExpiredOrder() error
+	CompleteZuckProcess() error
 }
 
 type cronUsecase struct {
@@ -26,4 +27,8 @@ func (u *cronUsecase) CleanupExpiredPayment() error {
 
 func (u *cronUsecase) CleanUpExpiredOrder() error {
 	return u.orderDetailRepo.CleanUpExpiredOrder()
+}
+
+func (u *cronUsecase) CompleteZuckProcess() error {
+	return u.orderDetailRepo.CompleteZuckProcess()
 }

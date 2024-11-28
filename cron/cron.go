@@ -18,7 +18,7 @@ func SummonKonCron(db *platform.Postgres) KonNaCron {
 	c := cron.New()
 	paymentRepo := repository.CreateNewPaymentRepository(db)
 	orderDetailRepo := repository.CreateOrderDetailRepository(db)
-	usecase := usecases.CreateNewKonCronUsecase(paymentRepo,orderDetailRepo)
+	usecase := usecases.CreateNewKonCronUsecase(paymentRepo, orderDetailRepo)
 	scheduler := KonNaCron{Cron: c, CronUsecase: usecase}
 
 	c.AddFunc("@every 1m", func() {
@@ -26,6 +26,9 @@ func SummonKonCron(db *platform.Postgres) KonNaCron {
 			log.Default()
 		}
 		if err := scheduler.CronUsecase.CleanUpExpiredOrder(); err != nil {
+			log.Default()
+		}
+		if err := scheduler.CronUsecase.CompleteZuckProcess(); err != nil {
 			log.Default()
 		}
 	})
