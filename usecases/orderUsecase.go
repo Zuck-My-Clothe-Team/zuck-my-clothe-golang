@@ -125,10 +125,16 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 		}
 
 		for _, detail := range newOrder.OrderDetails {
-			if detail.MachineSerial != nil ||
-				detail.ServiceType == "" ||
-				detail.Weight == 0 {
-				return nil, errors.New("ERR: zuck online order detail policy violated")
+			if detail.ServiceType == "Washing" || detail.ServiceType == "Drying" {
+				if detail.MachineSerial != nil || detail.Weight == 0 {
+					return nil, errors.New("ERR: zuck online order detail policy violated [washing/drying]")
+				}
+			} else if detail.ServiceType == "Pickup" ||
+				detail.ServiceType == "Delivery" ||
+				detail.ServiceType == "Agents" {
+				if detail.MachineSerial != nil || detail.Weight != 0 {
+					return nil, errors.New("ERR: zuck online order detail policy violated [pickup/delivery/agents]")
+				}
 			}
 		}
 	}
