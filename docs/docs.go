@@ -2833,10 +2833,6 @@ const docTemplate = `{
         },
         "model.NewOrderDetail": {
             "type": "object",
-            "required": [
-                "service_type",
-                "weight"
-            ],
             "properties": {
                 "machine_serial": {
                     "type": "string"
