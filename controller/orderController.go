@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"net/http"
 	"strings"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
@@ -63,7 +64,9 @@ func (u *orderController) CreateNewOrder(c *fiber.Ctx) error {
 	response, err := u.orderUsecase.CreateNewOrder(newOrder)
 
 	if err != nil {
-		if err.Error() == "null detected on one or more essential field(s)" {
+		if err.Error() == "ERR: mai wang ja" {
+			return c.Status(http.StatusTeapot).SendString(err.Error())
+		} else if err.Error() == "null detected on one or more essential field(s)" {
 			return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())

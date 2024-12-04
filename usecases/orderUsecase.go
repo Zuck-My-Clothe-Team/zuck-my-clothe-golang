@@ -117,6 +117,16 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 			newOrder.OrderDetails[0].Weight != 0 {
 			return nil, errors.New("ERR: zuck onsite order detail policy violated")
 		}
+
+		isAvailable, err := u.machineRepo.MachineWangMaiWa(*newOrder.OrderDetails[0].MachineSerial)
+
+		if err != nil {
+			return nil, errors.New("ERR: something wrong while check available")
+		}
+
+		if !isAvailable {
+			return nil, errors.New("ERR: mai wang ja")
+		}
 	} else {
 		if newOrder.DeliveryAddress == nil ||
 			newOrder.DeliveryLat == nil ||
