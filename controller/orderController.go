@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"strings"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 	vboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
@@ -171,7 +172,19 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 	userID := getCookieData(c, "userID")
 
-	result, err := u.orderUsecase.GetByUserID(userID)
+	status := c.Query("status")
+
+	status = strings.ToUpper(status[:1]) + status[1:]
+
+	if status != string(model.Waiting) &&
+		status != string(model.Processing) &&
+		status != string(model.Completed) &&
+		status != string(model.Expired) &&
+		status != "" {
+		return c.Status(fiber.StatusBadRequest).SendString("ERR: status option is not valid")
+	}
+
+	result, err := u.orderUsecase.GetByUserID(userID, status)
 
 	if err != nil {
 		if err.Error() == "record not found" {
