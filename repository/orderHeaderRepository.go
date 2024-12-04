@@ -92,12 +92,12 @@ func (u *orderHeaderRepository) GetByUserID(userID string) (*[]model.OrderHeader
 
 	result := u.db.Where("user_id = ?", userID).Find(&order)
 
-	if result.RowsAffected == 0 {
-		return new([]model.OrderHeader), nil
-	}
-
 	if result.Error != nil {
 		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return new([]model.OrderHeader), nil
 	}
 
 	return order, result.Error

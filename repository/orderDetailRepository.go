@@ -17,6 +17,7 @@ type OrderDetailRepository interface {
 	CreateOrderDetails(orderDetails *[]model.OrderDetail) (*[]model.OrderDetail, error)
 	GetByHeaderID(orderHeaderID string, isAdminView bool) (*[]model.OrderDetail, error)
 	UpdateStatus(order model.OrderDetail) (*model.OrderDetail, error)
+	GetByUserID(userID string) (*[]model.OrderDetail, error)
 	GetDetail(orderBasketID string) (*model.OrderDetail, error)
 	DeleteByHeaderID(orderHeaderID string, deletedBy string) (*[]model.OrderDetail, error)
 	CleanUpExpiredOrder() error
@@ -158,4 +159,25 @@ func (u *orderDetailRepository) CompleteZuckProcess() error {
 	WHERE finished_at < $1 AND order_status = 'Processing';	
 	`, time.Now().UTC()).Scan(orderDetailDummy)
 	return dbTx.Error
+}
+
+func (u *orderDetailRepository) GetByUserID(userID string) (*[]model.OrderDetail, error) {
+	order := new([]model.OrderDetail)
+
+	result := u.db.Raw(`
+	SELECT order_basket_id, od.order_header_id, machine_serial, order_status, service_type, finished_at, 
+		od.created_at, od.created_at,od.created_by, od.updated_at,od.updated_by, od.deleted_at, od.deleted_by, weight
+	FROM "OrderDetails" od
+	JOIN public."OrderHeaders" oh on od.order_header_id = oh.order_header_id
+	WHERE oh.user_id = $1`, userID).Scan(&order)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return new([]model.OrderDetail), nil
+	}
+
+	return order, result.Error
 }
