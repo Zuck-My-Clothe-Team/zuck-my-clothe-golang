@@ -170,9 +170,9 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 //	@Tags			Order
 //	@Produce		json
 //	@Param			status	query		string			true	"status: waiting, processing, completed, expired"
-//	@Success		200	{array}		model.FullOrder	"OK"
-//	@Failure		404	{string}	string			"Not Found - No orders available"
-//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Success		200		{array}		model.FullOrder	"OK"
+//	@Failure		404		{string}	string			"Not Found - No orders available"
+//	@Failure		500		{string}	string			"Internal Server Error"
 //	@Router			/order/me [get]
 func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 	userID := getCookieData(c, "userID")

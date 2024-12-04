@@ -1332,6 +1332,15 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Get full order by user id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "status: waiting, processing, completed, expired",
+                        "name": "status",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1396,6 +1405,12 @@ const docTemplate = `{
                     },
                     "406": {
                         "description": "Not Acceptable - Validation failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "418": {
+                        "description": "ERR: mai wang ja",
                         "schema": {
                             "type": "string"
                         }
