@@ -25,7 +25,7 @@ type OrderUsecase interface {
 	GetAll() ([]interface{}, error)
 	GetByHeaderID(orderHeaderID string, isAdminView bool, option string) (interface{}, error)
 	GetByBranchID(branchID string, managerUserID string) ([]interface{}, error)
-	GetByUserID(userID string) ([]interface{}, error)
+	GetByUserID(userID string, status string) ([]interface{}, error)
 	UpdateStatus(order model.UpdateOrder) (interface{}, error)
 	UpdateReview(review model.OrderReview) (*model.FullOrder, error)
 	SoftDelete(orderHeaderID string, deletedBy string) (*model.FullOrder, error)
@@ -68,11 +68,11 @@ func servicePriceMapper(weight int) int {
 	return price
 }
 
-func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, user model.Users, isAdminView bool) *model.FullOrder {
+func combineFullOrder(h *model.OrderHeader, d *[]model.OrderDetail, user *model.Users, isAdminView bool) *model.FullOrder {
 	fullOrder := model.FullOrder{
 		OrderHeaderID:   h.OrderHeaderID,
 		UserID:          h.UserID,
-		UserDetail:      *toUserDetailDTO(&user),
+		UserDetail:      *toUserDetailDTO(user),
 		BranchID:        h.BranchID,
 		OrderNote:       h.OrderNote,
 		PaymentID:       h.PaymentID,
@@ -116,6 +116,16 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 			newOrder.OrderDetails[0].ServiceType != "" ||
 			newOrder.OrderDetails[0].Weight != 0 {
 			return nil, errors.New("ERR: zuck onsite order detail policy violated")
+		}
+
+		isAvailable, err := u.machineRepo.MachineWangMaiWa(*newOrder.OrderDetails[0].MachineSerial)
+
+		if err != nil {
+			return nil, errors.New("ERR: something wrong while check available")
+		}
+
+		if !isAvailable {
+			return nil, errors.New("ERR: mai wang ja")
 		}
 	} else {
 		if newOrder.DeliveryAddress == nil ||
@@ -296,7 +306,7 @@ func (u *orderUsecase) CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrde
 	if err != nil {
 		return nil, err
 	}
-	res := combineFullOrder(header, details, *user, false)
+	res := combineFullOrder(header, details, user, false)
 
 	return res, nil
 }
@@ -386,7 +396,7 @@ func (u *orderUsecase) GetAll() ([]interface{}, error) {
 				thisDetail = append(thisDetail, d)
 			}
 		}
-		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, &users[i], true))
 	}
 
 	return fullOrder, nil
@@ -419,7 +429,7 @@ func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, opt
 	if err != nil {
 		return nil, err
 	}
-	fullOrder := combineFullOrder(headers, detail, *user, isAdminView)
+	fullOrder := combineFullOrder(headers, detail, user, isAdminView)
 
 	return fullOrder, err
 }
@@ -464,20 +474,15 @@ func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]i
 				thisDetail = append(thisDetail, d)
 			}
 		}
-		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, &users[i], true))
 	}
 
 	return fullOrder, err
 }
 
-func (u *orderUsecase) GetByUserID(userID string) ([]interface{}, error) {
+func (u *orderUsecase) GetByUserID(userID string, status string) ([]interface{}, error) {
 	headers, err := u.orderHeaderRepo.GetByUserID(userID)
 
-	if err != nil {
-		return []interface{}{}, err
-	}
-
-	detail, err := u.orderDetailRepo.GetAll()
 	if err != nil {
 		return []interface{}{}, err
 	}
@@ -486,24 +491,62 @@ func (u *orderUsecase) GetByUserID(userID string) ([]interface{}, error) {
 		return []interface{}{}, nil
 	}
 
-	var users []model.Users
-	for _, header := range *headers {
-		user, err := u.userRepo.FindUserByUserID(header.UserID)
-		users = append(users, *user)
-		if err != nil {
-			return nil, errors.New("ERR: error occured when trying to query user data")
-		}
+	detail, err := u.orderDetailRepo.GetByUserID(userID)
+	if err != nil {
+		return []interface{}{}, err
+	}
+
+	user, err := u.userRepo.FindUserByUserID(userID)
+	if err != nil {
+		return nil, errors.New("ERR: error occured when trying to query user data")
 	}
 
 	var fullOrder []interface{}
-	for i, h := range *headers {
+	for _, h := range *headers {
 		var thisDetail []model.OrderDetail
+
+		// for some
+		isProcessing := false
+
+		// for all
+		isExpired := true
+		isCompleted := true
+		isWaiting := true
+
 		for _, d := range *detail {
 			if d.OrderHeaderID == h.OrderHeaderID {
+				if d.OrderStatus == model.Processing {
+					isProcessing = true
+				}
+				if d.OrderStatus != model.OrderExpired {
+					isExpired = false
+				}
+				if d.OrderStatus != model.Completed {
+					isCompleted = false
+				}
+				if d.OrderStatus != model.Waiting {
+					isWaiting = false
+				}
+
 				thisDetail = append(thisDetail, d)
 			}
 		}
-		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, users[i], true))
+
+		if status == string(model.Processing) && !isProcessing {
+			continue
+		} else if status == string(model.Waiting) && !isWaiting {
+			continue
+		} else if status == string(model.OrderExpired) && !isExpired {
+			continue
+		} else if status == string(model.Completed) && !isCompleted {
+			continue
+		}
+
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, user, true))
+	}
+
+	if len(fullOrder) == 0 {
+		return []interface{}{}, nil
 	}
 
 	return fullOrder, err
@@ -565,7 +608,7 @@ func (u *orderUsecase) UpdateReview(review model.OrderReview) (*model.FullOrder,
 	if err != nil {
 		return nil, err
 	}
-	fullOrder := combineFullOrder(orderHeader, orderDetails, *user, false)
+	fullOrder := combineFullOrder(orderHeader, orderDetails, user, false)
 
 	return fullOrder, err
 }
@@ -586,7 +629,7 @@ func (u *orderUsecase) SoftDelete(orderHeaderID string, deletedBy string) (*mode
 	if err != nil {
 		return nil, err
 	}
-	fullOrder := combineFullOrder(orderHeader, orderDetails, *user, true)
+	fullOrder := combineFullOrder(orderHeader, orderDetails, user, true)
 
 	return fullOrder, err
 }

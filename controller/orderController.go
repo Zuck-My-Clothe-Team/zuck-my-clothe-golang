@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"net/http"
+	"strings"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 	vboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
@@ -43,6 +45,7 @@ func getCookieData(c *fiber.Ctx, key string) string {
 //	@Param			NewOrder	body		model.NewOrder	true	"New Order Data"
 //	@Success		201			{object}	model.FullOrder	"Created"
 //	@Failure		400			{string}	string			"Bad Request - Invalid input"
+//	@Failure		418			{string}	string			"ERR: mai wang ja"
 //	@Failure		406			{string}	string			"Not Acceptable - Validation failed"
 //	@Failure		500			{string}	string			"Internal Server Error"
 //	@Router			/order/new [post]
@@ -62,7 +65,9 @@ func (u *orderController) CreateNewOrder(c *fiber.Ctx) error {
 	response, err := u.orderUsecase.CreateNewOrder(newOrder)
 
 	if err != nil {
-		if err.Error() == "null detected on one or more essential field(s)" {
+		if err.Error() == "ERR: mai wang ja" {
+			return c.Status(http.StatusTeapot).SendString(err.Error())
+		} else if err.Error() == "null detected on one or more essential field(s)" {
 			return c.Status(fiber.StatusNotAcceptable).SendString(err.Error())
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
@@ -164,14 +169,27 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 //	@Description	Retrieve full order by user id
 //	@Tags			Order
 //	@Produce		json
-//	@Success		200	{array}		model.FullOrder	"OK"
-//	@Failure		404	{string}	string			"Not Found - No orders available"
-//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Param			status	query		string			true	"status: waiting, processing, completed, expired"
+//	@Success		200		{array}		model.FullOrder	"OK"
+//	@Failure		404		{string}	string			"Not Found - No orders available"
+//	@Failure		500		{string}	string			"Internal Server Error"
 //	@Router			/order/me [get]
 func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 	userID := getCookieData(c, "userID")
 
-	result, err := u.orderUsecase.GetByUserID(userID)
+	status := c.Query("status")
+
+	status = strings.ToUpper(status[:1]) + status[1:]
+
+	if status != string(model.Waiting) &&
+		status != string(model.Processing) &&
+		status != string(model.Completed) &&
+		status != string(model.Expired) &&
+		status != "" {
+		return c.Status(fiber.StatusBadRequest).SendString("ERR: status option is not valid")
+	}
+
+	result, err := u.orderUsecase.GetByUserID(userID, status)
 
 	if err != nil {
 		if err.Error() == "record not found" {

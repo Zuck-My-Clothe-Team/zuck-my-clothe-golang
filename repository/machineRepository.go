@@ -16,6 +16,7 @@ type MachineRepository interface {
 	AddMachine(newMachine *model.Machine) error
 	GetByMachineSerial(machineSerial string) (*model.Machine, error)
 	GetAvailableMachine(branchID string) (*[]model.MachineInBranch, error)
+	MachineWangMaiWa(machineSerial string) (bool, error)
 	//GetMachineToAssign(branchID string, machineType string, weight int, numberRequest int) (*[]model.MachineInBranch, error)
 }
 
@@ -153,6 +154,26 @@ func (u *machineRepository) GetAvailableMachine(branchID string) (*[]model.Machi
 	}
 
 	return machines, nil
+}
+
+func (u *machineRepository) MachineWangMaiWa(machineSerial string) (bool, error) {
+	machines := new([]model.MachineInBranch)
+
+	result := u.db.Raw(`
+	SELECT order_header_id, order_basket_id, created_at, updated_at, finished_at
+	FROM "OrderDetails"
+	WHERE machine_serial = $1 AND order_status = 'Processing'`, machineSerial).Scan(&machines)
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	if result.RowsAffected > 0 {
+		return false, nil
+	}
+
+	return true, nil
+
 }
 
 // func (u *machineRepository) GetMachineToAssign(branchID string, machineType string, weight int, numberRequest int) (*[]model.MachineInBranch, error) {
