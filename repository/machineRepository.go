@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
@@ -169,7 +168,6 @@ func (u *machineRepository) MachineWangMaiWa(machineSerial string) (bool, error)
 		return false, result.Error
 	}
 
-	fmt.Println(result.RowsAffected)
 	if result.RowsAffected > 0 {
 		return false, nil
 	}
