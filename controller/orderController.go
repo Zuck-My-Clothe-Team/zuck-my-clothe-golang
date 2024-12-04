@@ -45,6 +45,7 @@ func getCookieData(c *fiber.Ctx, key string) string {
 //	@Param			NewOrder	body		model.NewOrder	true	"New Order Data"
 //	@Success		201			{object}	model.FullOrder	"Created"
 //	@Failure		400			{string}	string			"Bad Request - Invalid input"
+//	@Failure		418			{string}	string			"ERR: mai wang ja"
 //	@Failure		406			{string}	string			"Not Acceptable - Validation failed"
 //	@Failure		500			{string}	string			"Internal Server Error"
 //	@Router			/order/new [post]
@@ -168,6 +169,7 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 //	@Description	Retrieve full order by user id
 //	@Tags			Order
 //	@Produce		json
+//	@Param			status	query		string			true	"status: waiting, processing, completed, expired"
 //	@Success		200	{array}		model.FullOrder	"OK"
 //	@Failure		404	{string}	string			"Not Found - No orders available"
 //	@Failure		500	{string}	string			"Internal Server Error"
