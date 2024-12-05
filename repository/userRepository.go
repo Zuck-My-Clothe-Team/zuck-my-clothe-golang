@@ -16,6 +16,7 @@ type UserRepository interface {
 	FindUserByGoogleID(googleID string) (*model.Users, error)
 	GetAll() ([]model.Users, error)
 	GetAllManager() ([]model.Users, error)
+	GetUserByBranchID(branchID string) ([]model.Users, error)
 	DeleteUser(userID string) (*model.Users, error)
 	UndeleteUser(newUser model.Users) (int64, error)
 	UpdateUser(newUser model.Users) error
@@ -76,6 +77,29 @@ func (repo *userRepository) GetAll() ([]model.Users, error) {
 
 	return users, nil
 }
+
+func (repo *userRepository) GetUserByBranchID(branchID string) ([]model.Users, error) {
+	users := make([]model.Users, 0)
+	// dbTx := repo.db.Find(&users)
+
+	result := repo.db.Raw(`
+	SELECT DISTINCT U.*
+	FROM "Users" U
+	LEFT JOIN "OrderHeaders" OH ON U.user_id = OH.user_id
+	WHERE OH.branch_id = $1
+	`, branchID).Scan(&users)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	for i := range users {
+		users[i].Password = ""
+	}
+
+	return users, nil
+}
+
 func (repo *userRepository) GetAllManager() ([]model.Users, error) {
 	var users []model.Users
 	dbTx := repo.db.Find(&users, "role = ?", model.BranchManager)
