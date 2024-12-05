@@ -250,6 +250,8 @@ func (u *orderController) UpdateStatus(c *fiber.Ctx) error {
 	if err != nil {
 		if err.Error() == "record not found" {
 			return c.SendStatus(fiber.StatusNoContent)
+		} else if strings.Contains(err.Error(), "400") {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
