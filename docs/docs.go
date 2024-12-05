@@ -1251,6 +1251,13 @@ const docTemplate = `{
                         "name": "branch_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "status: pending, paid, expired, cancel",
+                        "name": "status",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
