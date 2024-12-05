@@ -24,7 +24,7 @@ type OrderUsecase interface {
 	CreateNewOrder(newOrder *model.NewOrder) (*model.FullOrder, error)
 	GetAll() ([]interface{}, error)
 	GetByHeaderID(orderHeaderID string, isAdminView bool, option string) (interface{}, error)
-	GetByBranchID(branchID string, managerUserID string) ([]interface{}, error)
+	GetByBranchID(branchID string, managerUserID string, status string) ([]interface{}, error)
 	GetByUserID(userID string, status string) ([]interface{}, error)
 	UpdateStatus(order model.UpdateOrder) (interface{}, error)
 	UpdateReview(review model.OrderReview) (*model.FullOrder, error)
@@ -434,7 +434,7 @@ func (u *orderUsecase) GetByHeaderID(orderHeaderID string, isAdminView bool, opt
 	return fullOrder, err
 }
 
-func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]interface{}, error) {
+func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string, status string) ([]interface{}, error) {
 	manager, err := u.userRepo.FindUserByUserID(managerUserID)
 	if err != nil {
 		return []interface{}{}, err
@@ -443,7 +443,7 @@ func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]i
 		return []interface{}{}, errors.New("ERR: forbidden manager try to access unautherized branch")
 	}
 
-	headers, err := u.orderHeaderRepo.GetByBranchID(branchID)
+	headers, err := u.orderHeaderRepo.GetByBranchID(branchID, status)
 	if err != nil {
 		return []interface{}{}, err
 	}
@@ -457,24 +457,23 @@ func (u *orderUsecase) GetByBranchID(branchID string, managerUserID string) ([]i
 		return []interface{}{}, nil
 	}
 
-	var users []model.Users
-	for _, header := range *headers {
-		user, err := u.userRepo.FindUserByUserID(header.UserID)
-		users = append(users, *user)
-		if err != nil {
-			return nil, errors.New("ERR: error occured when trying to query user data")
+	users, err := u.userRepo.GetUserByBranchID(branchID)
+	userMap := make(map[string]*model.Users)
+	for _, user := range users {
+		if userMap[user.UserID] == nil {
+			userMap[user.UserID] = &user
 		}
 	}
 
 	var fullOrder []interface{}
-	for i, h := range *headers {
+	for _, h := range *headers {
 		var thisDetail []model.OrderDetail
 		for _, d := range *detail {
 			if d.OrderHeaderID == h.OrderHeaderID {
 				thisDetail = append(thisDetail, d)
 			}
 		}
-		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, &users[i], true))
+		fullOrder = append(fullOrder, combineFullOrder(&h, &thisDetail, userMap[h.UserID], true))
 	}
 
 	return fullOrder, err

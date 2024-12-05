@@ -143,6 +143,7 @@ func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 // @Tags			Order
 // @Produce		json
 // @Param			branch_id	path		string			true	"branch id"
+// @Param			status	query		string			true	"status: pending, paid, expired, cancel"
 // @Success		200			{array}		model.FullOrder	"OK"
 // @Failure		404			{string}	string			"Not Found - No orders available"
 // @Failure		500			{string}	string			"Internal Server Error"
@@ -152,7 +153,21 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 
 	managerID := getCookieData(c, "userID")
 
-	result, err := u.orderUsecase.GetByBranchID(branchID, managerID)
+	status := c.Query("status")
+
+	if len(status) > 1 {
+		status = strings.ToUpper(status[:1]) + status[1:]
+	}
+
+	if status != string(model.Pending) &&
+		status != string(model.Paid) &&
+		status != string(model.Expired) &&
+		status != string(model.Cancel) &&
+		status != "" {
+		return c.Status(fiber.StatusBadRequest).SendString("ERR: status option is not valid")
+	}
+
+	result, err := u.orderUsecase.GetByBranchID(branchID, managerID, status)
 
 	if err != nil {
 		if err.Error() == "record not found" {
