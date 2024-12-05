@@ -147,7 +147,7 @@ func (u *machineRepository) GetAvailableMachine(branchID string) (*[]model.Machi
 			WHERE od.machine_serial = m.machine_serial AND od.order_status = 'Processing'
 			) AS finished_at
 		FROM "Machines" m
-		WHERE branch_id = 'ed0a8ada-a193-41bf-b5f1-3137cd33a111'`).
+		WHERE branch_id = $1`, branchID).
 		Scan(&machines)
 
 	if result.Error != nil {
