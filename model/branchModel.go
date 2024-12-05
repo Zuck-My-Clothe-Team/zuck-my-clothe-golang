@@ -69,12 +69,14 @@ type UserReview struct {
 }
 
 type MachineInBranch struct {
-	MachineSerial string      `json:"machine_serial" gorm:"column:machine_serial"`
+	MachineSerial string      `json:"machine_serial" gorm:"column:machine_serial;primaryKey"`
 	MachineLabel  string      `json:"machine_label" gorm:"column:machine_label"`
+	BranchID      string      `json:"branch_id" gorm:"column:branch_id"`
 	MachineType   MachineType `json:"machine_type" gorm:"column:machine_type"`
-	FinishedAt    *time.Time  `json:"finished_at" gorm:"column:finished_at"`
-	IsAvailable   bool        `json:"is_available" gorm:"column:is_available"`
+	IsActive      bool        `json:"is_active" gorm:"column:is_active"`
 	Weight        int16       `json:"weight" gorm:"column:weight"`
+	FinishedAt    *time.Time  `json:"finished_at" gorm:"column:finished_at"`
+	// IsAvailable   bool        `json:"is_available" gorm:"column:is_available"`
 }
 
 type UserGeoLocation struct {
