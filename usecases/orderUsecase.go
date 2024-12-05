@@ -17,6 +17,7 @@ type orderUsecase struct {
 	orderHeaderRepo repo.OrderHeaderRepository
 	userRepo        repo.UserRepository
 	machineRepo     repo.MachineRepository
+	contractRepo    repo.EmployeeContractRepository
 	paymentUsecase  model.PaymentUsecase
 }
 
@@ -31,13 +32,14 @@ type OrderUsecase interface {
 	SoftDelete(orderHeaderID string, deletedBy string) (*model.FullOrder, error)
 }
 
-func CreateOrderUsecase(orderHeaderRepository repo.OrderHeaderRepository, orderDetailRepository repo.OrderDetailRepository, userRepository repo.UserRepository, machineRepo repo.MachineRepository, paymentUsecase model.PaymentUsecase) OrderUsecase {
+func CreateOrderUsecase(orderHeaderRepository repo.OrderHeaderRepository, orderDetailRepository repo.OrderDetailRepository, userRepository repo.UserRepository, machineRepo repo.MachineRepository, paymentUsecase model.PaymentUsecase, contractRepo repo.EmployeeContractRepository) OrderUsecase {
 	return &orderUsecase{
 		orderHeaderRepo: orderHeaderRepository,
 		orderDetailRepo: orderDetailRepository,
 		userRepo:        userRepository,
 		machineRepo:     machineRepo,
 		paymentUsecase:  paymentUsecase,
+		contractRepo:    contractRepo,
 	}
 }
 
@@ -506,10 +508,11 @@ func (u *orderUsecase) GetByUserID(userID string, status string) ([]interface{},
 
 		// for some
 		isProcessing := false
+		isAnyCompleted := false
 
 		// for all
 		isExpired := true
-		isCompleted := true
+		isAllCompleted := true
 		isWaiting := true
 
 		for _, d := range *detail {
@@ -520,8 +523,10 @@ func (u *orderUsecase) GetByUserID(userID string, status string) ([]interface{},
 				if d.OrderStatus != model.OrderExpired {
 					isExpired = false
 				}
-				if d.OrderStatus != model.Completed {
-					isCompleted = false
+				if d.OrderStatus == model.Completed {
+					isAnyCompleted = true
+				} else {
+					isAllCompleted = false
 				}
 				if d.OrderStatus != model.Waiting {
 					isWaiting = false
@@ -531,13 +536,13 @@ func (u *orderUsecase) GetByUserID(userID string, status string) ([]interface{},
 			}
 		}
 
-		if status == string(model.Processing) && !isProcessing {
+		if status == string(model.Processing) && !isProcessing && !isAnyCompleted {
 			continue
 		} else if status == string(model.Waiting) && !isWaiting {
 			continue
 		} else if status == string(model.OrderExpired) && !isExpired {
 			continue
-		} else if status == string(model.Completed) && !isCompleted {
+		} else if status == string(model.Completed) && !isAllCompleted {
 			continue
 		}
 
@@ -552,7 +557,6 @@ func (u *orderUsecase) GetByUserID(userID string, status string) ([]interface{},
 }
 
 func (u *orderUsecase) UpdateStatus(order model.UpdateOrder) (interface{}, error) {
-
 	updatedOrder := model.OrderDetail{
 		OrderBasketID: order.OrderBasketID,
 		MachineSerial: order.MachineSerial,
@@ -561,6 +565,52 @@ func (u *orderUsecase) UpdateStatus(order model.UpdateOrder) (interface{}, error
 		UpdatedBy:     &order.UpdatedBy,
 	}
 
+	// there's a lot of room for improvement here folks
+	// -------- check expired
+	checkDetail, err := u.orderDetailRepo.GetDetail(order.OrderBasketID)
+	if err != nil {
+		return nil, err
+	}
+
+	if checkDetail.OrderStatus == model.OrderExpired {
+		return nil, errors.New("ERR 400: payment expired")
+	}
+
+	// -------- check machine available
+	if updatedOrder.MachineSerial != nil {
+		isAvailable, err := u.machineRepo.MachineWangMaiWa(*order.MachineSerial)
+		if err != nil {
+			return nil, err
+		}
+
+		if !isAvailable {
+			return nil, errors.New("ERR 400: mai wang ja")
+		}
+	}
+
+	// -------- check is a delivery work and rider is accepting it
+	if checkDetail.ServiceType == model.Pickup ||
+		checkDetail.ServiceType == model.Delivery {
+
+		contracts, err := u.contractRepo.GetByUserID(*updatedOrder.UpdatedBy)
+		if err != nil {
+			return nil, err
+		}
+
+		isRider := false
+
+		for _, ec := range *contracts {
+			if ec.PositionId == string(model.Deliver) {
+				isRider = true
+			}
+		}
+
+		if !isRider {
+			return nil, errors.New("ERR 400: only rider can accept pickup and delivery order")
+		}
+	}
+
+	// -------- actually update order
 	orderDetail, err := u.orderDetailRepo.UpdateStatus(updatedOrder)
 
 	if err != nil {
