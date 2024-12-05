@@ -1593,6 +1593,10 @@ paths:
         name: branch_id
         required: true
         type: string
+      - description: 'status: pending, paid, expired, cancel'
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -1649,7 +1653,6 @@ paths:
       - description: 'status: waiting, processing, completed, expired'
         in: query
         name: status
-        required: true
         type: string
       produces:
       - application/json

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/platform"
 
@@ -15,7 +16,7 @@ type OrderHeaderRepository interface {
 	CreateOrderHeader(orderHeader *model.OrderHeader) (*model.OrderHeader, error)
 	GetAll() (*[]model.OrderHeader, error)
 	GetByID(orderHeaderID string, isAdminView bool) (*model.OrderHeader, error)
-	GetByBranchID(branchID string) (*[]model.OrderHeader, error)
+	GetByBranchID(branchID string, status string) (*[]model.OrderHeader, error)
 	GetByUserID(userID string) (*[]model.OrderHeader, error)
 	UpdateReview(order model.OrderHeader) (*model.OrderHeader, error)
 	SoftDelete(orderHeaderID string, deletedBy string) (*model.OrderHeader, error)
@@ -75,10 +76,28 @@ func (u *orderHeaderRepository) GetByID(orderHeaderID string, isAdminView bool) 
 	return order, result.Error
 }
 
-func (u *orderHeaderRepository) GetByBranchID(branchID string) (*[]model.OrderHeader, error) {
+func (u *orderHeaderRepository) GetByBranchID(branchID string, status string) (*[]model.OrderHeader, error) {
 	order := new([]model.OrderHeader)
 
-	result := u.db.Where("branch_id = ?", branchID).Find(&order)
+	var result *gorm.DB
+
+	if status == "" {
+		result = u.db.Raw(`
+		SELECT OH.order_header_id, OH.user_id, OH.branch_id, OH.order_note, OH.payment_id, OH.zuck_onsite, OH.delivery_address, OH.delivery_lat,
+		OH.delivery_long, OH.star_rating, OH.review_comment, OH.created_at, OH.created_by, OH.updated_at, OH.updated_by, OH.deleted_at, OH.deleted_by
+		FROM "OrderHeaders" AS OH INNER JOIN "Payments" AS PM ON OH.payment_id = PM.payment_id
+		WHERE OH.branch_id = $1;`, branchID).Scan(&order)
+	} else {
+		result = u.db.Raw(`
+		SELECT OH.order_header_id, OH.user_id, OH.branch_id, OH.order_note, OH.payment_id, OH.zuck_onsite, OH.delivery_address, OH.delivery_lat,
+		OH.delivery_long, OH.star_rating, OH.review_comment, OH.created_at, OH.created_by, OH.updated_at, OH.updated_by, OH.deleted_at, OH.deleted_by
+		FROM "OrderHeaders" AS OH INNER JOIN "Payments" AS PM ON OH.payment_id = PM.payment_id
+		WHERE OH.branch_id = $1 AND PM.payment_status = $2;`, branchID, status).Scan(&order)
+	}
+
+	if result == nil {
+		return nil, errors.New("ERR: unable to initialize query")
+	}
 
 	if result.Error != nil {
 		return nil, result.Error
