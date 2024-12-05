@@ -143,7 +143,7 @@ func (u *orderController) GetByHeaderID(c *fiber.Ctx) error {
 //	@Tags			Order
 //	@Produce		json
 //	@Param			branch_id	path		string			true	"branch id"
-//	@Param			status		query		string			true	"status: pending, paid, expired, cancel"
+//	@Param			status		query		string			false	"status: pending, paid, expired, cancel"
 //	@Success		200			{array}		model.FullOrder	"OK"
 //	@Failure		404			{string}	string			"Not Found - No orders available"
 //	@Failure		500			{string}	string			"Internal Server Error"
@@ -184,7 +184,7 @@ func (u *orderController) GetByBranchID(c *fiber.Ctx) error {
 //	@Description	Retrieve full order by user id
 //	@Tags			Order
 //	@Produce		json
-//	@Param			status	query		string			true	"status: waiting, processing, completed, expired"
+//	@Param			status	query		string			false	"status: waiting, processing, completed, expired"
 //	@Success		200		{array}		model.FullOrder	"OK"
 //	@Failure		404		{string}	string			"Not Found - No orders available"
 //	@Failure		500		{string}	string			"Internal Server Error"
