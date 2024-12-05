@@ -156,7 +156,7 @@ func (u *orderDetailRepository) CompleteZuckProcess() error {
 	dbTx := u.db.Raw(`
 	UPDATE "OrderDetails"
 	SET order_status = 'Completed'
-	WHERE finished_at < $1 AND order_status = 'Processing';	
+	WHERE finished_at < $1 AND order_status = 'Processing' AND (service_type = 'Washing' OR service_type = 'Drying');
 	`, time.Now().UTC()).Scan(orderDetailDummy)
 	return dbTx.Error
 }
