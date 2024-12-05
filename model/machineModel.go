@@ -48,4 +48,10 @@ type MachineDetail struct {
 	MachineType   MachineType `json:"machine_type"`
 	IsActive      bool        `json:"is_active"`
 	Weight        int16       `json:"weight"`
+	FinishedAt    *time.Time  `json:"finished_at"`
+}
+
+type MachineWithTime struct {
+	FinishedAt *time.Time `json:"finished_at"`
+	Machine
 }
