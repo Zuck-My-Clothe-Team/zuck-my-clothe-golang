@@ -959,7 +959,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Machine"
+                            "$ref": "#/definitions/model.MachineInBranch"
                         }
                     },
                     "202": {
@@ -2737,10 +2737,13 @@ const docTemplate = `{
         "model.MachineInBranch": {
             "type": "object",
             "properties": {
+                "branch_id": {
+                    "type": "string"
+                },
                 "finished_at": {
                     "type": "string"
                 },
-                "is_available": {
+                "is_active": {
                     "type": "boolean"
                 },
                 "machine_label": {
