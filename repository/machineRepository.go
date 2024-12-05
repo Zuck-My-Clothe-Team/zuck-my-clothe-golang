@@ -140,13 +140,14 @@ func (u *machineRepository) GetByBranchID(branchID string) (*[]model.Machine, er
 func (u *machineRepository) GetAvailableMachine(branchID string) (*[]model.MachineInBranch, error) {
 	machines := new([]model.MachineInBranch)
 
-	result := u.db.Table("\"Machines\" AS M").
-		Select(`M.machine_serial, OD.finished_at, M.weight, M.machine_label, M.machine_type,
-			CASE 
-					WHEN OD.order_status = 'Processing' THEN FALSE ELSE TRUE 
-			END AS is_available`).
-		Joins("LEFT JOIN \"OrderDetails\" AS OD ON M.machine_serial = OD.machine_serial").
-		Where("M.branch_id = ? AND M.is_active = TRUE", branchID).
+	result := u.db.Raw(`
+		SELECT m.*, (
+			SELECT od.finished_at
+			FROM "OrderDetails" od
+			WHERE od.machine_serial = m.machine_serial AND od.order_status = 'Processing'
+			) AS finished_at
+		FROM "Machines" m
+		WHERE branch_id = 'ed0a8ada-a193-41bf-b5f1-3137cd33a111'`).
 		Scan(&machines)
 
 	if result.Error != nil {

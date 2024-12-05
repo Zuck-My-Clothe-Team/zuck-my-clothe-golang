@@ -109,7 +109,7 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 // @Tags			Machine
 // @Produce		json
 // @Param			branch_id	path		string			true	"Branch ID"
-// @Success		200			{object}	model.Machine	"OK"
+// @Success		200			{object}	model.MachineInBranch	"OK"
 // @Failure		404			{string}	string			"Not Found"
 // @Failure		202			{string}	string			"Accepted"
 // @Router			/machine/available/branch/{branch_id} [get]
