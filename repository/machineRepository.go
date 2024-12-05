@@ -145,6 +145,7 @@ func (u *machineRepository) GetAvailableMachine(branchID string) (*[]model.Machi
 			SELECT od.finished_at
 			FROM "OrderDetails" od
 			WHERE od.machine_serial = m.machine_serial AND od.order_status = 'Processing'
+			LIMIT 1
 			) AS finished_at
 		FROM "Machines" m
 		WHERE branch_id = $1`, branchID).
