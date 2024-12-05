@@ -1256,8 +1256,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "status: pending, paid, expired, cancel",
                         "name": "status",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1344,8 +1343,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "status: waiting, processing, completed, expired",
                         "name": "status",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
