@@ -2,6 +2,7 @@ package controller
 
 import (
 	"strconv"
+	"strings"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
 	"zuck-my-clothe/zuck-my-clothe-backend/usecases"
 	validatorboi "zuck-my-clothe/zuck-my-clothe-backend/validator"
@@ -90,7 +91,22 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 		isAdminView = true
 	}
 
-	branch, err := u.machineUsecase.GetByMachineSerial(serialID, isAdminView)
+	option := c.Query("withTime")
+
+	if len(option) > 1 {
+		option = strings.ToLower(option)
+	}
+
+	if option != "true" && option != "false" && option != "" {
+		return c.Status(fiber.StatusBadRequest).SendString("ERR: status option is not valid")
+	}
+
+	withTime := false
+	if option == "true" {
+		withTime = true
+	}
+
+	machine, err := u.machineUsecase.GetByMachineSerial(serialID, isAdminView, withTime)
 
 	if err != nil {
 		if err.Error() == "record not found" {
@@ -101,7 +117,7 @@ func (u *machineController) GetByMachineSerial(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.Status(fiber.StatusOK).JSON(branch)
+	return c.Status(fiber.StatusOK).JSON(machine)
 }
 
 //	@Summary		Get available machines by branch ID

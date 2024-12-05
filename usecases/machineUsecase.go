@@ -14,7 +14,7 @@ type MachineUsecase interface {
 	GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error)
 	GetAll() (*[]model.Machine, error)
 	AddMachine(newMachine *model.AddMachine) (*model.Machine, error)
-	GetByMachineSerial(machineSerial string, isAdminView bool) (*interface{}, error)
+	GetByMachineSerial(machineSerial string, isAdminView bool, withTime bool) (*interface{}, error)
 	GetAvailableMachineInBranch(branchID string) (*[]model.MachineInBranch, error)
 }
 
@@ -87,20 +87,28 @@ func (u *machineUsecase) GetAll() (*[]model.Machine, error) {
 	return machines, err
 }
 
-func (u *machineUsecase) GetByMachineSerial(machine_serial string, isAdminView bool) (*interface{}, error) {
-	machine, err := u.machineRepository.GetByMachineSerial(machine_serial)
+func (u *machineUsecase) GetByMachineSerial(machineSerial string, isAdminView bool, withTime bool) (*interface{}, error) {
+	var result interface{}
 
-	if err != nil {
-		return nil, err
+	if withTime {
+		machineWithTime, err := u.machineRepository.GetWithTime(machineSerial)
+		if err != nil {
+			return nil, err
+		}
+		result = machineWithTime
+	} else {
+		machine, err := u.machineRepository.GetByMachineSerial(machineSerial)
+		if err != nil {
+			return nil, err
+		}
+		result = machine
+
+		if !isAdminView {
+			result = toMachineDetail(machine)
+		}
 	}
 
-	var result interface{} = machine
-
-	if !isAdminView {
-		result = toMachineDetail(machine)
-	}
-
-	return &result, err
+	return &result, nil
 }
 
 func (u *machineUsecase) GetByBranchID(branch_id string, isAdminView bool) (*[]interface{}, error) {
