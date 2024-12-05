@@ -179,8 +179,6 @@ func (u *orderController) GetByUserID(c *fiber.Ctx) error {
 
 	status := c.Query("status")
 
-	// fmt.Println("status: |", status, "|")
-
 	if len(status) > 1 {
 		status = strings.ToUpper(status[:1]) + status[1:]
 	}
