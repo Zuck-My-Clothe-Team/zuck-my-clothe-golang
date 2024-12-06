@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"zuck-my-clothe/zuck-my-clothe-backend/model"
@@ -35,6 +36,23 @@ func getCookieData(c *fiber.Ctx, key string) string {
 	claims := token.Claims.(jwt.MapClaims)
 
 	return claims[key].(string)
+}
+
+func catError(code int, message string) string {
+	return fmt.Errorf(`
+		<!DOCTYPE html>
+		<html>
+			<body style="background-color:black; display:flex; flex-direction:column; justify-item: center;">
+				<span style="color:white; text-align: center;">%s</span>
+				<div style="display: flex; justify-content: center;">
+					<img style="width:400px" src="https://http.cat/%d" />
+				</div>
+			</body>
+		</html>
+		`,
+		message,
+		code,
+	).Error()
 }
 
 //	@Summary		Add new order
@@ -251,7 +269,8 @@ func (u *orderController) UpdateStatus(c *fiber.Ctx) error {
 		if err.Error() == "record not found" {
 			return c.SendStatus(fiber.StatusNoContent)
 		} else if strings.Contains(err.Error(), "400") {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+			//	return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+			return c.Status(fiber.StatusBadRequest).SendString(catError(400, err.Error()))
 		} else {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
